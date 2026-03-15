@@ -1,0 +1,1 @@
+{"error":"AI skin replacement failed","details":"{\"error\":{\"message\":\"Received 404 status code when fetching image from URL: https://example.com/thumb.png\",\"code\":400,\"metadata\":{\"provider_name\":\"Google AI Studio\"}},\"user_id\":\"org_2yxCsg6xLlxWZOAsCgSzb77WuA7\"}"}
