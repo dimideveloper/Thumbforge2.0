@@ -21,7 +21,7 @@ const plans = [
     audience: "For growing channels",
     features: ["All templates", "1080p export", "No watermark", "Expression AI"],
     highlighted: false,
-    checkoutUrl: "https://whop.com/checkout/plan_o9l2yiXcQSGqu",
+    checkoutUrl: "https://whop.com/checkout/plan_fuejd6S6TntYV",
   },
   {
     name: "Pro",
@@ -31,7 +31,7 @@ const plans = [
     audience: "For serious creators",
     features: ["Everything in Starter", "4K export", "Face Insert AI", "Priority rendering"],
     highlighted: false,
-    checkoutUrl: "https://whop.com/checkout/plan_FdiOxceALUxoz",
+    checkoutUrl: "https://whop.com/checkout/plan_JE8rZQKDftpTz",
   },
   {
     name: "Premium",
@@ -41,7 +41,7 @@ const plans = [
     audience: "For heavy creators",
     features: ["Everything in Pro", "API access", "Custom branding", "Dedicated support", "Transcript Analyzer"],
     highlighted: true,
-    checkoutUrl: "https://whop.com/checkout/plan_A42PNbzId1xRq",
+    checkoutUrl: "https://whop.com/checkout/plan_mYEWSJxkCa7vv",
   },
 ];
 
