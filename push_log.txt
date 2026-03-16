@@ -1,0 +1,21 @@
+Connecting to remote database...
+Do you want to push these migrations to the remote database?
+ • 20260315140536_bf04386a-ad9e-4742-8724-ac4c25127d61.sql
+ • 20260315142222_02381087-d1fa-496c-905a-688262ba9099.sql
+ • 20260315152201_7f9d2f87-60e7-45b4-931f-347b0a982df6.sql
+
+ [Y/n] y
+Applying migration 20260315140536_bf04386a-ad9e-4742-8724-ac4c25127d61.sql...
+ERROR: relation "profiles" already exists (SQLSTATE 42P07)                 
+At statement: 0                                                            
+-- Create profiles table                                                   
+CREATE TABLE public.profiles (                                             
+  id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,                  
+  user_id UUID NOT NULL UNIQUE REFERENCES auth.users(id) ON DELETE CASCADE,
+  display_name TEXT,                                                       
+  avatar_url TEXT,                                                         
+  credits INTEGER NOT NULL DEFAULT 50,                                     
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),              
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()               
+)                                                                          
+Try rerunning the command with --debug to troubleshoot the error.

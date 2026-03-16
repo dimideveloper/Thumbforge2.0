@@ -17,7 +17,8 @@ async function createPlan(name, price) {
         renewal_price: price,
         base_currency: "usd",
         visibility: "visible",
-        internal_notes: name
+        internal_notes: name,
+        unlimited_stock: true
       })
     });
     
@@ -35,12 +36,12 @@ async function createPlan(name, price) {
 }
 
 async function run() {
-  console.log("Creating Starter Plan...");
-  const starter = await createPlan("Thumb Forge Starter", 9.00);
-  console.log("Creating Pro Plan...");
-  const pro = await createPlan("Thumb Forge Pro", 24.00);
-  console.log("Creating Premium Plan...");
-  const premium = await createPlan("Thumb Forge Premium", 49.00);
+  console.log("Creating Starter Plan with unlimited stock...");
+  const starter = await createPlan("Thumb Forge Starter (Unlimited)", 9.00);
+  console.log("Creating Pro Plan with unlimited stock...");
+  const pro = await createPlan("Thumb Forge Pro (Unlimited)", 24.00);
+  console.log("Creating Premium Plan with unlimited stock...");
+  const premium = await createPlan("Thumb Forge Premium (Unlimited)", 49.00);
   
   const results = {
     starter: starter,
@@ -48,8 +49,8 @@ async function run() {
     premium: premium
   };
   
-  require('fs').writeFileSync('generated_whop_links.json', JSON.stringify(results, null, 2));
-  console.log("Done! Links saved to generated_whop_links.json.");
+  require('fs').writeFileSync('generated_whop_links_unlimited.json', JSON.stringify(results, null, 2));
+  console.log("Done! Links saved to generated_whop_links_unlimited.json.");
 }
 
 run();

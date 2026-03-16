@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
@@ -13,7 +13,23 @@ const jsonResponse = (status: number, body: Record<string, unknown>) =>
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
 
+const createErrorId = () => {
+  try {
+    return crypto.randomUUID();
+  } catch {
+    return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+  }
+};
+
 type EditMode = "quick" | "pro" | "background" | "character" | "enhance";
+
+const CREDIT_COSTS: Record<EditMode, number> = {
+  quick: 1,
+  pro: 3,
+  enhance: 2,
+  background: 2,
+  character: 3,
+};
 
 const modeConfig: Record<EditMode, { model: string; systemPrompt: string }> = {
   quick: {
@@ -112,8 +128,16 @@ serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
+  if (req.method === "GET") {
+    return jsonResponse(200, {
+      success: true,
+      function: "edit-thumbnail",
+      version: "2026-03-16-1",
+    });
+  }
 
   try {
+    const errorId = createErrorId();
     const body = await req.json().catch(() => ({}));
     const imageUrl = body?.imageUrl;
     const prompt = typeof body?.prompt === "string" ? body.prompt.trim() : "";
@@ -121,6 +145,7 @@ serve(async (req) => {
     const referenceImageUrl = body?.referenceImageUrl;
 
     console.log("edit-thumbnail request body summary:", {
+      errorId,
       hasBody: !!body,
       hasImageUrl: !!imageUrl,
       hasPrompt: !!prompt,
@@ -149,25 +174,76 @@ serve(async (req) => {
       });
     }
 
-    const GOOGLE_API_KEY = Deno.env.get("GOOGLE_API_KEY");
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
-    const aiKey = GOOGLE_API_KEY || LOVABLE_API_KEY || OPENAI_API_KEY;
+    const aiKey = LOVABLE_API_KEY;
     const missingEnv: string[] = [];
-    if (!aiKey) missingEnv.push("GOOGLE_API_KEY (or LOVABLE_API_KEY / OPENAI_API_KEY)");
+    if (!aiKey) missingEnv.push("LOVABLE_API_KEY");
     if (!SUPABASE_URL) missingEnv.push("SUPABASE_URL");
     if (!SUPABASE_SERVICE_ROLE_KEY) missingEnv.push("SUPABASE_SERVICE_ROLE_KEY");
 
     if (missingEnv.length > 0) {
-      console.error("edit-thumbnail missing env vars:", missingEnv);
+      console.error("edit-thumbnail missing env vars:", { errorId, missingEnv });
       return jsonResponse(500, {
         success: false,
         error: "Server configuration error: missing environment variables",
-        details: { missingEnv },
+        details: { missingEnv, errorId },
       });
+    }
+
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      console.error("edit-thumbnail missing Authorization header", { errorId });
+      return jsonResponse(401, { success: false, error: "Unauthorized: Missing Authorization header", details: { errorId } });
+    }
+
+    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+
+    let user: any = null;
+    try {
+      const token = authHeader.replace("Bearer ", "");
+      const userResp = await supabaseClient.auth.getUser(token);
+      user = userResp.data.user;
+      if (userResp.error) {
+        console.error("edit-thumbnail auth.getUser error", { errorId, error: userResp.error });
+        return jsonResponse(401, { success: false, error: "Unauthorized: Invalid token", details: { errorId } });
+      }
+      if (!user) {
+        console.error("edit-thumbnail auth.getUser missing user", { errorId });
+        return jsonResponse(401, { success: false, error: "Unauthorized: Invalid token", details: { errorId } });
+      }
+    } catch (authCrash) {
+      const message = authCrash instanceof Error ? authCrash.message : String(authCrash);
+      console.error("edit-thumbnail auth.getUser crashed", { errorId, message });
+      return jsonResponse(500, { success: false, error: "Auth lookup failed", details: { errorId, message } });
+    }
+    
+    let profile: any = null;
+    let profileError: any = null;
+    try {
+      const profileResp = await supabaseClient
+        .from("profiles")
+        .select("credits")
+        .eq("user_id", user.id)
+        .single();
+      profile = profileResp.data;
+      profileError = profileResp.error;
+    } catch (profileCrash) {
+      const message = profileCrash instanceof Error ? profileCrash.message : String(profileCrash);
+      console.error("edit-thumbnail profile query crashed", { errorId, message });
+      return jsonResponse(500, { success: false, error: "Failed to load user profile", details: { errorId, message } });
+    }
+
+    if (profileError || !profile) {
+      console.error("edit-thumbnail profile query error", { errorId, profileError });
+      return jsonResponse(500, { success: false, error: "Failed to load user profile", details: { errorId } });
+    }
+
+    const cost = CREDIT_COSTS[mode] ?? 1;
+    if (profile.credits < cost) {
+      return jsonResponse(402, { success: false, error: "Nicht genügend Credits. Bitte lade dein Konto auf." });
     }
 
     const config = modeConfig[mode];
@@ -177,7 +253,7 @@ serve(async (req) => {
       response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          Authorization: `Bearer ${aiKey}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -219,11 +295,11 @@ serve(async (req) => {
       });
     }
 
-    console.log("edit-thumbnail AI response status:", response.status);
+    console.log("edit-thumbnail AI response status:", { errorId, status: response.status });
 
     if (!response.ok) {
       const gatewayError = await response.text();
-      console.error("AI image edit error:", response.status, gatewayError);
+      console.error("AI image edit error:", { errorId, status: response.status, gatewayError: gatewayError.slice(0, 800) });
 
       if (response.status === 429) {
         return jsonResponse(429, {
@@ -241,7 +317,7 @@ serve(async (req) => {
       return jsonResponse(502, {
         success: false,
         error: "AI image edit request failed",
-        details: gatewayError.slice(0, 500),
+        details: { errorId, gatewayError: gatewayError.slice(0, 500) },
       });
     }
 
@@ -253,24 +329,40 @@ serve(async (req) => {
     const editedImageUrl = extractImageUrlFromAiResponse(data);
 
     if (!editedImageUrl) {
-      console.error("No image in AI response", JSON.stringify(data).slice(0, 1000));
+      console.error("No image in AI response", { errorId, data: JSON.stringify(data).slice(0, 1000) });
       return jsonResponse(502, {
         success: false,
-        error: "No edited image returned by AI",
+        error: "The AI did not return an edited image. Please try again with a different image or prompt.",
+        details: { errorId },
       });
+    }
+
+    // Deduct credits upon success
+    const { error: deductError } = await supabaseClient
+      .from("profiles")
+      .update({ credits: Math.max(0, profile.credits - cost) })
+      .eq("user_id", user.id);
+
+    if (deductError) {
+      console.error("Failed to deduct credit:", { errorId, deductError });
+      // We still return success but ideally we log it properly
     }
 
     return jsonResponse(200, {
       success: true,
       imageUrl: editedImageUrl,
       mode,
+      creditsSpent: cost,
+      creditsRemaining: Math.max(0, profile.credits - cost),
     });
   } catch (e) {
+    const errorId = createErrorId();
     const message = e instanceof Error ? e.message : "Unknown error";
-    console.error("edit-thumbnail unhandled error:", message);
+    console.error("edit-thumbnail unhandled error:", { errorId, message });
     return jsonResponse(500, {
       success: false,
       error: message,
+      details: { errorId },
     });
   }
 });

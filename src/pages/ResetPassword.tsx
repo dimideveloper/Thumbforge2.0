@@ -34,7 +34,7 @@ const ResetPassword = () => {
     if (error) {
       toast.error(error.message);
     } else {
-      toast.success("Passwort erfolgreich geändert!");
+      toast.success("Password changed successfully!");
       navigate("/dashboard");
     }
   };
@@ -55,13 +55,13 @@ const ResetPassword = () => {
           <span className="font-display text-2xl font-bold text-foreground">ThumbForge</span>
         </div>
         <div className="rounded-2xl border border-border bg-card p-8">
-          <h1 className="font-display text-2xl font-bold text-foreground text-center mb-6">Neues Passwort setzen</h1>
+          <h1 className="font-display text-2xl font-bold text-foreground text-center mb-6">Set new password</h1>
           <form onSubmit={handleReset} className="space-y-4">
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 type="password"
-                placeholder="Neues Passwort"
+                placeholder="New password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="pl-10 bg-background border-border"
@@ -70,7 +70,7 @@ const ResetPassword = () => {
               />
             </div>
             <Button type="submit" className="w-full" variant="hero" disabled={loading}>
-              {loading ? "Laden..." : "Passwort ändern"}
+              {loading ? "Loading..." : "Change Password"}
             </Button>
           </form>
         </div>

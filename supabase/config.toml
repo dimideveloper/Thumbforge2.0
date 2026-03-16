@@ -1,1 +1,16 @@
-project_id = "ogwhnwthjuogmorswkpw"
+project_id = "uqttwedqzxyrbgdtjorq"
+
+[functions.chat]
+verify_jwt = false
+
+[functions.edit-thumbnail]
+verify_jwt = false
+
+[functions.skin-replace]
+verify_jwt = false
+
+[functions.youtube-search]
+verify_jwt = false
+
+[functions.whop-webhook]
+verify_jwt = false

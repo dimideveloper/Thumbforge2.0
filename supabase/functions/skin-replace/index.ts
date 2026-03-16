@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
@@ -84,15 +84,13 @@ serve(async (req) => {
       });
     }
 
-    const GOOGLE_API_KEY = Deno.env.get("GOOGLE_API_KEY");
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
-    const aiKey = GOOGLE_API_KEY || LOVABLE_API_KEY || OPENAI_API_KEY;
+    const aiKey = LOVABLE_API_KEY;
     const missingEnv: string[] = [];
-    if (!aiKey) missingEnv.push("GOOGLE_API_KEY (or LOVABLE_API_KEY / OPENAI_API_KEY)");
+    if (!aiKey) missingEnv.push("LOVABLE_API_KEY");
     if (!SUPABASE_URL) missingEnv.push("SUPABASE_URL");
     if (!SUPABASE_SERVICE_ROLE_KEY) missingEnv.push("SUPABASE_SERVICE_ROLE_KEY");
 
@@ -103,6 +101,32 @@ serve(async (req) => {
         error: "Server configuration error: missing environment variables",
         details: { missingEnv },
       });
+    }
+
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return jsonResponse(401, { success: false, error: "Unauthorized: Missing Authorization header" });
+    }
+
+    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser(authHeader.replace("Bearer ", ""));
+    
+    if (userError || !user) {
+      return jsonResponse(401, { success: false, error: "Unauthorized: Invalid token" });
+    }
+
+    const { data: profile, error: profileError } = await supabaseClient
+      .from("profiles")
+      .select("credits")
+      .eq("user_id", user.id)
+      .single();
+
+    if (profileError || !profile) {
+      return jsonResponse(500, { success: false, error: "Failed to load user profile" });
+    }
+
+    if (profile.credits <= 0) {
+      return jsonResponse(402, { success: false, error: "Nicht genügend Credits. Bitte lade dein Konto auf." });
     }
 
     const systemPrompt = `You are a professional Minecraft thumbnail editor specializing in skin replacement.
@@ -127,14 +151,14 @@ ${prompt ? `Additional instructions: ${prompt}` : ""}`;
 
     let response: Response;
     try {
-      response = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {
+      response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${aiKey}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "gemini-1.5-pro",
+          model: "google/gemini-3-pro-image-preview",
           messages: [
             { role: "system", content: systemPrompt },
             {
@@ -203,9 +227,21 @@ ${prompt ? `Additional instructions: ${prompt}` : ""}`;
       });
     }
 
+    // Deduct 1 credit upon success
+    const { error: deductError } = await supabaseClient
+      .from("profiles")
+      .update({ credits: profile.credits - 1 })
+      .eq("user_id", user.id);
+
+    if (deductError) {
+      console.error("Failed to deduct credit:", deductError);
+    }
+
     return jsonResponse(200, {
       success: true,
       imageUrl: editedImageUrl,
+      creditsSpent: 1,
+      creditsRemaining: Math.max(0, profile.credits - 1),
     });
   } catch (e) {
     const message = e instanceof Error ? e.message : "Unknown error";

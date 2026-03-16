@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { X, ChevronLeft, UserCircle, Camera, Sparkles, Clapperboard, Rocket } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
@@ -24,21 +25,21 @@ const creativityLevels: {
     id: "polish",
     icon: Sparkles,
     label: "Polish",
-    subtitle: "Just fix lighting",
+    subtitle: "Subtle enhancements",
     description: "Preserve pose & composition",
   },
   {
     id: "balanced",
     icon: Clapperboard,
     label: "Balanced",
-    subtitle: "Fresh take",
+    subtitle: "Fresh perspective",
     description: "New angle, boost energy",
   },
   {
     id: "remix",
     icon: Rocket,
     label: "Remix",
-    subtitle: "Surprise me!",
+    subtitle: "Total reimagination",
     description: "Dramatic transformation",
   },
 ];
@@ -55,13 +56,16 @@ const reshootPrompts: Record<CreativityLevel, string> = {
 const ToolsModal = ({ open, onClose, onInsertMe, hasImage, onReshoot }: ToolsModalProps) => {
   const [activeTool, setActiveTool] = useState<"list" | "reshoot">("list");
   const [creativity, setCreativity] = useState<CreativityLevel>("balanced");
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
-  if (!open) return null;
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!open || !mounted) return null;
 
   const handleClose = () => {
     setActiveTool("list");
-    setIsProcessing(false);
     onClose();
   };
 
@@ -70,190 +74,164 @@ const ToolsModal = ({ open, onClose, onInsertMe, hasImage, onReshoot }: ToolsMod
     onInsertMe();
   };
 
-  const handleStartReshoot = async () => {
+  const handleStartReshoot = () => {
     if (!hasImage) return;
-    setIsProcessing(true);
-    try {
-      await onReshoot(reshootPrompts[creativity]);
-      handleClose();
-    } catch {
-      setIsProcessing(false);
-    }
+    onReshoot(reshootPrompts[creativity]);
+    handleClose();
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Backdrop */}
+  const modalContent = (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      {/* Premium Backdrop */}
       <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+        className="absolute inset-0 bg-black/40 backdrop-blur-md animate-in fade-in duration-300"
         onClick={handleClose}
       />
 
-      {/* Modal */}
-      <div className="relative bg-card border border-border rounded-2xl shadow-2xl w-[680px] max-w-[90vw] max-h-[80vh] flex overflow-hidden animate-in zoom-in-95 fade-in duration-200">
-        {/* Sidebar - tool list */}
+      {/* Modal Container */}
+      <div className="relative bg-[#0a0a0a]/90 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl w-[700px] max-w-full max-h-[85vh] flex flex-col sm:flex-row overflow-hidden animate-in zoom-in-[0.98] fade-in duration-300 transform-gpu ring-1 ring-white/5">
+        
+        {/* Sidebar */}
         <div
           className={`${
-            activeTool === "list" ? "w-full sm:w-[260px]" : "hidden sm:block sm:w-[260px]"
-          } border-r border-border flex flex-col shrink-0`}
+            activeTool === "list" ? "w-full sm:w-[280px]" : "hidden sm:flex sm:w-[280px]"
+          } border-r border-white/5 flex-col shrink-0 bg-white/[0.02]`}
         >
-          <div className="p-4 flex items-center gap-2.5">
-            <div className="h-8 w-8 rounded-lg bg-primary/20 flex items-center justify-center">
-              <Sparkles className="h-4 w-4 text-primary" />
-            </div>
-            <h2 className="text-sm font-semibold text-foreground">Tools Library</h2>
+          <div className="p-6 pb-4">
+            <h2 className="text-xl font-medium text-white tracking-tight">Tools Library</h2>
+            <p className="text-sm text-white/40 mt-1 font-light">Enhance your content</p>
           </div>
 
-          <div className="px-3 pb-3">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium px-1 mb-2">
-              Available
-            </p>
-            <div className="space-y-1">
-              {/* Insert Me */}
-              <button
-                onClick={handleInsertMe}
-                className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-muted/50 transition-colors text-left group"
-              >
-                <div className="h-9 w-9 rounded-xl bg-purple-500/20 flex items-center justify-center shrink-0">
-                  <UserCircle className="h-5 w-5 text-purple-400" />
-                </div>
-                <span className="text-sm font-medium text-foreground flex-1">Insert Me</span>
-                <ChevronLeft className="h-4 w-4 text-muted-foreground rotate-180 opacity-0 group-hover:opacity-100 transition-opacity" />
-              </button>
+          <div className="px-3 pb-6 space-y-1.5 flex-1 overflow-y-auto">
+            {/* Insert Me */}
+            <button
+              onClick={handleInsertMe}
+              className="w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl hover:bg-white/5 transition-all duration-200 text-left group"
+            >
+              <div className="h-10 w-10 border border-white/10 rounded-full flex items-center justify-center shrink-0 bg-gradient-to-b from-white/10 to-transparent group-hover:border-white/20 transition-colors">
+                <UserCircle className="h-5 w-5 text-white/80" />
+              </div>
+              <div className="flex-1">
+                <span className="text-sm font-medium text-white/90">Insert Me</span>
+                <span className="block text-xs text-white/40 mt-0.5 font-light">Remove background</span>
+              </div>
+              <ChevronLeft className="h-4 w-4 text-white/30 rotate-180 opacity-0 group-hover:opacity-100 transition-opacity transform group-hover:translate-x-1" />
+            </button>
 
-              {/* Reshoot */}
-              <button
-                onClick={() => setActiveTool("reshoot")}
-                className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-colors text-left group ${
-                  activeTool === "reshoot"
-                    ? "bg-muted/70 border border-primary/20"
-                    : "hover:bg-muted/50"
-                }`}
-              >
-                <div className="h-9 w-9 rounded-xl bg-orange-500/20 flex items-center justify-center shrink-0">
-                  <Camera className="h-5 w-5 text-orange-400" />
-                </div>
-                <span className="text-sm font-medium text-foreground flex-1">Reshoot</span>
-                <ChevronLeft className="h-4 w-4 text-muted-foreground rotate-180 opacity-0 group-hover:opacity-100 transition-opacity" />
-              </button>
-            </div>
+            {/* Reshoot */}
+            <button
+              onClick={() => setActiveTool("reshoot")}
+              className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all duration-200 text-left group ${
+                activeTool === "reshoot"
+                  ? "bg-white/10 shadow-lg ring-1 ring-white/10"
+                  : "hover:bg-white/5"
+              }`}
+            >
+              <div className="h-10 w-10 border border-white/10 rounded-full flex items-center justify-center shrink-0 bg-gradient-to-b from-white/10 to-transparent group-hover:border-white/20 transition-colors">
+                <Camera className="h-5 w-5 text-white/80" />
+              </div>
+              <div className="flex-1">
+                <span className="text-sm font-medium text-white/90">Reshoot</span>
+                <span className="block text-xs text-white/40 mt-0.5 font-light">AI generated variations</span>
+              </div>
+              <ChevronLeft className={`h-4 w-4 text-white/30 rotate-180 transition-all ${activeTool === "reshoot" ? "opacity-100 translate-x-1" : "opacity-0 group-hover:opacity-100 group-hover:translate-x-1"}`} />
+            </button>
           </div>
         </div>
 
-        {/* Right panel - tool details */}
-        <div className="flex-1 flex flex-col min-w-0">
-          {/* Close button */}
+        {/* Right Panel */}
+        <div className="flex-1 flex flex-col min-w-0 bg-black/20">
           <button
             onClick={handleClose}
-            className="absolute top-3 right-3 h-8 w-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors z-10"
+            className="absolute top-4 right-4 h-8 w-8 rounded-full flex items-center justify-center bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition-colors z-10"
           >
             <X className="h-4 w-4" />
           </button>
 
           {activeTool === "list" ? (
             <div className="hidden sm:flex flex-1 items-center justify-center p-8">
-              <div className="text-center space-y-2">
-                <Sparkles className="h-10 w-10 text-muted-foreground/20 mx-auto" />
-                <p className="text-sm text-muted-foreground">Select a tool to begin</p>
+              <div className="text-center">
+                <div className="h-16 w-16 mx-auto border border-white/10 rounded-full flex items-center justify-center bg-gradient-to-b from-white/5 to-transparent mb-4">
+                  <Sparkles className="h-6 w-6 text-white/30" />
+                </div>
+                <p className="text-base font-medium text-white/80">Select a tool</p>
+                <p className="text-sm text-white/40 mt-1 font-light">Choose from the sidebar to begin</p>
               </div>
             </div>
           ) : activeTool === "reshoot" ? (
-            <div className="flex-1 flex flex-col p-6 overflow-y-auto">
+            <div className="flex-1 flex flex-col p-8 overflow-y-auto">
               {/* Back button on mobile */}
               <button
                 onClick={() => setActiveTool("list")}
-                className="sm:hidden flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground mb-4 transition-colors"
+                className="sm:hidden flex items-center gap-2 text-sm text-white/50 hover:text-white mb-6 transition-colors font-medium"
               >
-                <ChevronLeft className="h-3.5 w-3.5" />
+                <ChevronLeft className="h-4 w-4" />
                 Back
               </button>
 
-              {/* Header */}
-              <div className="flex items-start gap-3 mb-5">
-                <div className="h-12 w-12 rounded-2xl bg-orange-500/20 flex items-center justify-center shrink-0">
-                  <Camera className="h-6 w-6 text-orange-400" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2 mb-0.5">
-                    <span className="text-[9px] uppercase tracking-wider font-bold text-orange-400 bg-orange-500/10 px-1.5 py-0.5 rounded">
-                      Featured Tool
-                    </span>
-                  </div>
-                  <h3 className="text-lg font-bold text-foreground">Reshoot</h3>
-                  <p className="text-xs text-muted-foreground">Reshoot your photo with AI</p>
-                </div>
+              <div className="mb-8">
+                <h3 className="text-2xl font-medium text-white tracking-tight">Reshoot Photo</h3>
+                <p className="text-sm text-white/50 mt-2 font-light leading-relaxed max-w-sm">
+                  Let AI reimagine your thumbnail with better lighting, fresh angles, and enhanced quality.
+                </p>
               </div>
 
-              {/* Description */}
-              <p className="text-xs text-muted-foreground leading-relaxed mb-5">
-                Reimagine with fresh angles and enhanced quality. Each level controls how creative
-                the AI can be with composition changes.
-              </p>
-
-              {/* Creativity Level */}
-              <div className="mb-6">
-                <p className="text-xs font-medium text-foreground mb-3">Creativity Level</p>
-                <div className="grid grid-cols-3 gap-2">
+              <div className="mb-8 flex-1">
+                <p className="text-sm font-medium text-white/80 mb-4">Creativity Level</p>
+                <div className="grid grid-cols-1 gap-3">
                   {creativityLevels.map((level) => (
                     <button
                       key={level.id}
                       onClick={() => setCreativity(level.id)}
-                      className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${
+                      className={`flex items-center gap-4 p-4 rounded-2xl border transition-all duration-300 ${
                         creativity === level.id
-                          ? "border-orange-500 bg-orange-500/10"
-                          : "border-border hover:border-muted-foreground/30 bg-muted/30"
+                          ? "border-white/30 bg-white/10 shadow-md ring-1 ring-white/10"
+                          : "border-white/5 bg-white/[0.02] hover:bg-white/5 hover:border-white/10"
                       }`}
                     >
-                      <level.icon
-                        className={`h-6 w-6 ${
-                          creativity === level.id ? "text-orange-400" : "text-muted-foreground"
-                        }`}
-                      />
-                      <div className="text-center">
-                        <p
-                          className={`text-xs font-semibold ${
-                            creativity === level.id ? "text-foreground" : "text-muted-foreground"
-                          }`}
-                        >
+                      <div className={`h-10 w-10 flex items-center justify-center rounded-full transition-colors ${
+                        creativity === level.id ? "bg-white text-black" : "bg-white/5 text-white/50"
+                      }`}>
+                        <level.icon className="h-5 w-5" />
+                      </div>
+                      <div className="text-left flex-1">
+                        <p className={`text-sm font-medium ${creativity === level.id ? "text-white" : "text-white/80"}`}>
                           {level.label}
                         </p>
-                        <p className="text-[10px] text-muted-foreground mt-0.5">{level.subtitle}</p>
+                        <p className="text-xs text-white/40 mt-0.5 font-light">
+                          {level.subtitle} &middot; {level.description}
+                        </p>
                       </div>
-                      <p className="text-[9px] text-muted-foreground/70 italic">
-                        {level.description}
-                      </p>
+                      {creativity === level.id && (
+                        <div className="h-2 w-2 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)]" />
+                      )}
                     </button>
                   ))}
                 </div>
               </div>
 
-              {/* Action button */}
-              <Button
-                onClick={handleStartReshoot}
-                disabled={!hasImage || isProcessing}
-                className="w-full h-12 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-semibold text-sm rounded-xl shadow-lg shadow-orange-500/20"
-              >
-                {isProcessing ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    Reshooting…
-                  </>
-                ) : (
-                  <>Start Reshoot 🖼️</>
+              <div className="mt-auto">
+                {!hasImage && (
+                  <p className="text-xs text-red-400 text-center mb-3 font-medium bg-red-400/10 py-2 rounded-lg border border-red-400/20">
+                    Please upload an image to the canvas first.
+                  </p>
                 )}
-              </Button>
-
-              {!hasImage && (
-                <p className="text-[10px] text-muted-foreground text-center mt-2">
-                  Lade zuerst ein Thumbnail in den Canvas
-                </p>
-              )}
+                <button
+                  onClick={handleStartReshoot}
+                  disabled={!hasImage}
+                  className="w-full h-12 bg-white hover:bg-white/90 text-black font-medium text-sm rounded-full transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] shadow-lg flex items-center justify-center"
+                >
+                  Start Reshoot
+                </button>
+              </div>
             </div>
           ) : null}
         </div>
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 };
 
 export default ToolsModal;

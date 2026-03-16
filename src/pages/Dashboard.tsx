@@ -5,7 +5,7 @@ import { PromptInputBox } from "@/components/ui/ai-prompt-box";
 import { Button } from "@/components/ui/button";
 import { getOrCreateProfileCredits } from "@/lib/profile";
 import {
-  Zap, Plus, MessageSquare, LogOut, Coins, Trash2, Menu, X,
+  Zap, Plus, MessageSquare, LogOut, Coins, Trash2, Menu, X, Sparkles
 } from "lucide-react";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
@@ -80,7 +80,7 @@ const Dashboard = () => {
     if (!user) return;
     const { data, error } = await supabase
       .from("chats")
-      .insert({ user_id: user.id, title: "Neuer Chat" })
+      .insert({ user_id: user.id, title: "New Chat" })
       .select()
       .single();
     if (error) { toast.error("Chat konnte nicht erstellt werden"); return; }
@@ -110,7 +110,7 @@ const Dashboard = () => {
         .insert({ user_id: user.id, title: message.slice(0, 50) })
         .select()
         .single();
-      if (error || !data) { toast.error("Fehler beim Erstellen des Chats"); return; }
+      if (error || !data) { toast.error("Error creating chat"); return; }
       chatId = data.id;
       setChats((prev) => [data, ...prev]);
       setActiveChatId(chatId);
@@ -150,16 +150,16 @@ const Dashboard = () => {
       );
 
       if (resp.status === 429) {
-        toast.error("Rate limit erreicht, bitte versuche es später erneut.");
+        toast.error("Rate limit reached, please try again later.");
         setIsLoading(false);
         return;
       }
       if (resp.status === 402) {
-        toast.error("Keine Credits mehr. Bitte lade dein Konto auf.");
+        toast.error("No credits left. Please top up your account.");
         setIsLoading(false);
         return;
       }
-      if (!resp.ok || !resp.body) throw new Error("Stream fehlgeschlagen");
+      if (!resp.ok || !resp.body) throw new Error("Stream failed");
 
       const reader = resp.body.getReader();
       const decoder = new TextDecoder();
@@ -201,7 +201,7 @@ const Dashboard = () => {
       }
     } catch (err) {
       console.error(err);
-      toast.error("AI-Antwort fehlgeschlagen");
+      toast.error("AI response failed");
     }
 
     // Save assistant message
@@ -229,116 +229,150 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="h-screen flex bg-black overflow-hidden selection:bg-white/20">
+    <div className="h-screen flex bg-[#050505] overflow-hidden selection:bg-white/20 font-light text-foreground">
       {/* Sidebar */}
       <aside
         className={`${sidebarOpen ? "w-72" : "w-0"
-          } transition-all duration-300 border-r border-white/10 bg-[#0a0a0a] flex flex-col overflow-hidden shrink-0`}
+          } transition-all duration-300 border-r border-white/5 bg-[#0a0a0a]/80 backdrop-blur-xl flex flex-col overflow-hidden shrink-0 z-20`}
       >
-        <div className="p-5 border-b border-white/10 flex items-center gap-2">
-          <Zap className="h-5 w-5 text-white shrink-0" />
-          <span className="font-semibold tracking-tight text-lg text-white whitespace-nowrap">ThumbForge</span>
-        </div>
-
-        <div className="p-4">
-          <button onClick={createNewChat} className="w-full flex items-center gap-2 justify-center h-10 rounded-xl bg-white/5 hover:bg-white/10 text-white font-medium transition-colors text-sm border border-white/10">
-            <Plus className="h-4 w-4" /> Neuer Chat
+        <div className="h-16 px-6 flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-2.5">
+            <div className="h-8 w-8 rounded-full border border-white/10 bg-gradient-to-b from-white/10 to-transparent flex items-center justify-center">
+              <Zap className="h-4 w-4 text-white/80" />
+            </div>
+            <span className="font-medium tracking-tight text-white/90">ThumbForge</span>
+          </div>
+          <button onClick={() => setSidebarOpen(false)} className="lg:hidden text-white/40 hover:text-white transition-colors">
+            <X className="h-5 w-5" />
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-3 space-y-1">
+        <div className="px-4 pb-2 pt-2">
+          <button onClick={createNewChat} className="w-full flex items-center gap-2 justify-center h-10 rounded-full bg-white text-black hover:bg-white/90 font-medium transition-all duration-200 text-sm active:scale-[0.98] shadow-lg">
+            <Plus className="h-4 w-4" /> New Chat
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto px-3 space-y-0.5 mt-4">
+          <div className="px-3 pb-2 text-[10px] uppercase tracking-wider font-semibold text-white/30">Deine Chats</div>
           {chats.map((chat) => (
             <div
               key={chat.id}
-              className={`group flex items-center gap-2 rounded-lg px-3 py-2 cursor-pointer transition-colors text-sm font-light ${activeChatId === chat.id
-                  ? "bg-white/10 text-white"
-                  : "text-white/50 hover:bg-white/5 hover:text-white"
+              className={`group flex items-center gap-3 rounded-2xl px-3 py-2.5 cursor-pointer transition-all duration-200 text-sm ${activeChatId === chat.id
+                  ? "bg-white/10 text-white shadow-sm ring-1 ring-white/5"
+                  : "text-white/50 hover:bg-white/5 hover:text-white/90"
                 }`}
               onClick={() => setActiveChatId(chat.id)}
             >
-              <MessageSquare className="h-4 w-4 shrink-0 opacity-70" />
-              <span className="truncate flex-1">{chat.title}</span>
+              <MessageSquare className={`h-4 w-4 shrink-0 transition-colors ${activeChatId === chat.id ? "text-white/80" : "text-white/30 group-hover:text-white/50"}`} />
+              <span className="truncate flex-1 font-medium">{chat.title}</span>
               <button
                 onClick={(e) => { e.stopPropagation(); deleteChat(chat.id); }}
-                className="opacity-0 group-hover:opacity-100 transition-opacity"
+                className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-md hover:bg-white/10 ml-1"
               >
-                <Trash2 className="h-3.5 w-3.5 text-white/40 hover:text-red-400" />
+                <Trash2 className="h-3.5 w-3.5 text-white/40 hover:text-red-400 transition-colors" />
               </button>
             </div>
           ))}
         </div>
 
         {/* Credits & User */}
-        <div className="p-4 border-t border-white/10 space-y-4">
-          <div className="flex items-center gap-2 text-sm font-light">
-            <Coins className="h-4 w-4 text-white/40" />
-            <span className="text-white/50">Credits:</span>
-            <span className="font-medium text-white">{credits}</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-white/50 truncate font-light">{user?.email}</span>
-            <button onClick={handleLogout} className="text-white/30 hover:text-white transition-colors p-1">
-              <LogOut className="h-4 w-4" />
-            </button>
+        <div className="p-4 mt-auto">
+          <div className="rounded-2xl bg-white/[0.02] border border-white/5 p-4 flex flex-col gap-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="h-6 w-6 rounded-full bg-white/10 flex items-center justify-center">
+                  <Coins className="h-3 w-3 text-white/70" />
+                </div>
+                <span className="text-xs font-medium text-white/70">Credits</span>
+              </div>
+              <span className="text-sm font-semibold text-white">{credits}</span>
+            </div>
+            {credits < 10 && (
+              <>
+                <div className="h-px w-full bg-white/5" />
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] text-red-300/80 uppercase tracking-wider font-semibold">Low Credits</span>
+                  <button
+                    onClick={() => navigate("/")}
+                    className="text-xs bg-white hover:bg-white/90 text-black px-2 py-1 rounded-md font-medium transition-colors"
+                  >
+                    Add Funds
+                  </button>
+                </div>
+              </>
+            )}
+            <div className="h-px w-full bg-white/5" />
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-white/40 truncate flex-1 pr-2">{user?.email}</span>
+              <button onClick={handleLogout} className="text-white/30 hover:text-white transition-colors p-1">
+                <LogOut className="h-4 w-4" />
+              </button>
+            </div>
           </div>
         </div>
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col min-w-0">
+      <main className="flex-1 flex flex-col min-w-0 bg-[#050505] relative">
+        {/* Subtle background glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] bg-white/[0.02] blur-[120px] rounded-full pointer-events-none" />
+
         {/* Top bar */}
-        <div className="h-14 border-b border-white/5 flex items-center px-4 gap-3 shrink-0">
-          <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-white/50 hover:text-white transition-colors">
-            {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </button>
-          <h2 className="font-medium text-white truncate logging-tight">
-            {activeChatId ? chats.find((c) => c.id === activeChatId)?.title || "Chat" : "ThumbForge AI"}
+        <div className="h-16 border-b border-white/5 flex items-center px-6 gap-4 shrink-0 bg-transparent backdrop-blur-md z-10">
+          {!sidebarOpen && (
+            <button onClick={() => setSidebarOpen(true)} className="text-white/40 hover:text-white transition-colors p-1 -ml-1">
+              <Menu className="h-5 w-5" />
+            </button>
+          )}
+          <h2 className="font-medium text-white/90 truncate">
+            {activeChatId ? chats.find((c) => c.id === activeChatId)?.title || "Chat" : "ThumbForge Assistant"}
           </h2>
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto px-4 py-8">
+        <div className="flex-1 overflow-y-auto px-4 py-8 relative z-10 scroll-smooth">
           {messages.length === 0 && !activeChatId ? (
-            <div className="h-full flex flex-col items-center justify-center text-center">
-              <div className="h-16 w-16 rounded-3xl bg-white/5 flex items-center justify-center mb-6">
-                <Zap className="h-8 w-8 text-white/50" />
+            <div className="h-full flex flex-col items-center justify-center text-center max-w-md mx-auto">
+              <div className="h-20 w-20 rounded-[2rem] border border-white/10 bg-gradient-to-b from-white/5 to-transparent flex items-center justify-center mb-8 shadow-2xl">
+                <Sparkles className="h-8 w-8 text-white/60" />
               </div>
-              <h2 className="text-2xl font-medium tracking-tight text-white mb-3">Wie kann ich dir helfen?</h2>
-              <p className="text-white/40 max-w-sm font-light text-sm">
-                Stelle mir eine Frage über Thumbnails, YouTube-SEO, Gaming Content oder alles andere.
+              <h2 className="text-3xl font-medium tracking-tight text-white mb-4">How can I help?</h2>
+              <p className="text-white/40 font-light text-base leading-relaxed">
+                I'm your AI assistant for thumbnails, YouTube SEO and content creation. Ask me anything.
               </p>
             </div>
           ) : (
-            <div className="max-w-3xl mx-auto space-y-8">
+            <div className="max-w-3xl mx-auto space-y-8 pb-4">
               {messages.map((msg, i) => (
-                <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+                <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"} animate-in fade-in slide-in-from-bottom-2 duration-300`}>
                   <div
-                    className={`max-w-[85%] rounded-3xl px-6 py-4 ${msg.role === "user"
-                        ? "bg-white/10 text-white border border-white/5"
+                    className={`max-w-[85%] sm:max-w-[75%] px-6 py-4 ${msg.role === "user"
+                        ? "bg-white text-black rounded-3xl rounded-tr-sm shadow-xl"
                         : "bg-transparent text-white/80"
                       }`}
                   >
                     {msg.role === "assistant" ? (
-                      <div className="prose prose-sm prose-invert max-w-none prose-p:leading-relaxed font-light">
+                      <div className="prose prose-sm prose-invert max-w-none prose-p:leading-relaxed prose-pre:bg-white/5 prose-pre:border prose-pre:border-white/10 prose-code:text-white/90 font-light">
                         <ReactMarkdown>{msg.content}</ReactMarkdown>
                       </div>
                     ) : (
-                      <p className="text-sm whitespace-pre-wrap font-light">{msg.content}</p>
+                      <p className="text-sm whitespace-pre-wrap font-medium">{msg.content}</p>
                     )}
                   </div>
                 </div>
               ))}
-              <div ref={messagesEndRef} />
+              <div ref={messagesEndRef} className="h-4" />
             </div>
           )}
         </div>
 
         {/* Input */}
-        <div className="p-4 max-w-3xl mx-auto w-full">
+        <div className="p-4 pb-8 max-w-3xl mx-auto w-full relative z-10">
           <PromptInputBox
             onSend={(msg) => handleSend(msg)}
             isLoading={isLoading}
-            placeholder="Schreibe eine Nachricht..."
+            placeholder="Frag ThumbForge AI..."
           />
         </div>
       </main>

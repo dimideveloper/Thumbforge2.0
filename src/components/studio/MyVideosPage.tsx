@@ -51,7 +51,7 @@ const MyVideosPage = ({ userId, onOpenProject }: MyVideosPageProps) => {
 
     if (error) {
       console.error("Failed to fetch projects:", error);
-      toast.error("Projekte konnten nicht geladen werden");
+      toast.error("Failed to load projects");
     } else {
       setProjects(data || []);
     }
@@ -70,9 +70,9 @@ const MyVideosPage = ({ userId, onOpenProject }: MyVideosPageProps) => {
       .eq("id", deleteTarget.id);
 
     if (error) {
-      toast.error("Löschen fehlgeschlagen");
+      toast.error("Delete failed");
     } else {
-      toast.success("Projekt gelöscht");
+      toast.success("Project deleted");
       setProjects((prev) => prev.filter((p) => p.id !== deleteTarget.id));
     }
     setDeleteTarget(null);
@@ -86,9 +86,9 @@ const MyVideosPage = ({ userId, onOpenProject }: MyVideosPageProps) => {
       .eq("id", renameTarget.id);
 
     if (error) {
-      toast.error("Umbenennen fehlgeschlagen");
+      toast.error("Rename failed");
     } else {
-      toast.success("Projekt umbenannt");
+      toast.success("Project renamed");
       setProjects((prev) =>
         prev.map((p) =>
           p.id === renameTarget.id ? { ...p, title: renameValue.trim() } : p
@@ -104,22 +104,22 @@ const MyVideosPage = ({ userId, onOpenProject }: MyVideosPageProps) => {
       .from("thumbnail_projects")
       .insert({
         user_id: userId,
-        title: `${project.title} (Kopie)`,
+        title: `${project.title} (Copy)`,
         canvas_image_url: project.canvas_image_url,
       })
       .select()
       .single();
 
     if (error) {
-      toast.error("Duplizieren fehlgeschlagen");
+      toast.error("Duplicate failed");
     } else if (data) {
-      toast.success("Projekt dupliziert");
+      toast.success("Project duplicated");
       setProjects((prev) => [data, ...prev]);
     }
   };
 
   const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString("de-DE", {
+    return new Date(dateStr).toLocaleDateString("en-US", {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
@@ -142,11 +142,10 @@ const MyVideosPage = ({ userId, onOpenProject }: MyVideosPageProps) => {
             <Film className="h-8 w-8 text-muted-foreground" />
           </div>
           <h2 className="font-display text-xl font-bold text-foreground">
-            Noch keine Videos
+            No thumbnails yet
           </h2>
           <p className="text-sm text-muted-foreground">
-            Du hast noch keine Projekte gespeichert. Erstelle dein erstes
-            Thumbnail im Studio und es erscheint hier.
+            You haven't saved any projects yet. Create your first thumbnail in the Studio and it will appear here.
           </p>
         </div>
       </div>
@@ -158,10 +157,10 @@ const MyVideosPage = ({ userId, onOpenProject }: MyVideosPageProps) => {
       <div className="max-w-6xl mx-auto px-6 py-8">
         <div className="mb-8">
           <h1 className="font-display text-2xl font-bold text-foreground">
-            Meine Videos
+            My Thumbnails
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            {projects.length} {projects.length === 1 ? "Projekt" : "Projekte"}
+            {projects.length} {projects.length === 1 ? "project" : "projects"}
           </p>
         </div>
 
@@ -191,7 +190,7 @@ const MyVideosPage = ({ userId, onOpenProject }: MyVideosPageProps) => {
                 <div className="absolute inset-0 bg-background/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                   <div className="flex items-center gap-2 text-sm font-medium text-foreground">
                     <FolderOpen className="h-4 w-4" />
-                    Öffnen
+                    Open
                   </div>
                 </div>
               </div>
@@ -203,7 +202,7 @@ const MyVideosPage = ({ userId, onOpenProject }: MyVideosPageProps) => {
                     {project.title}
                   </h3>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Erstellt {formatDate(project.created_at)} · Bearbeitet{" "}
+                    Created {formatDate(project.created_at)} · Edited{" "}
                     {formatDate(project.updated_at)}
                   </p>
                 </div>
@@ -227,7 +226,7 @@ const MyVideosPage = ({ userId, onOpenProject }: MyVideosPageProps) => {
                       }}
                     >
                       <FolderOpen className="h-4 w-4 mr-2" />
-                      Öffnen
+                      Open
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={(e) => {
@@ -237,7 +236,7 @@ const MyVideosPage = ({ userId, onOpenProject }: MyVideosPageProps) => {
                       }}
                     >
                       <Pencil className="h-4 w-4 mr-2" />
-                      Umbenennen
+                      Rename
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={(e) => {
@@ -246,7 +245,7 @@ const MyVideosPage = ({ userId, onOpenProject }: MyVideosPageProps) => {
                       }}
                     >
                       <Copy className="h-4 w-4 mr-2" />
-                      Duplizieren
+                      Duplicate
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       className="text-destructive focus:text-destructive"
@@ -256,7 +255,7 @@ const MyVideosPage = ({ userId, onOpenProject }: MyVideosPageProps) => {
                       }}
                     >
                       <Trash2 className="h-4 w-4 mr-2" />
-                      Löschen
+                      Delete
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -270,18 +269,18 @@ const MyVideosPage = ({ userId, onOpenProject }: MyVideosPageProps) => {
       <AlertDialog open={!!deleteTarget} onOpenChange={() => setDeleteTarget(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Projekt löschen?</AlertDialogTitle>
+            <AlertDialogTitle>Delete project?</AlertDialogTitle>
             <AlertDialogDescription>
-              „{deleteTarget?.title}" wird unwiderruflich gelöscht.
+              "{deleteTarget?.title}" will be permanently deleted.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              Löschen
+              Delete
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -291,18 +290,18 @@ const MyVideosPage = ({ userId, onOpenProject }: MyVideosPageProps) => {
       <AlertDialog open={!!renameTarget} onOpenChange={() => setRenameTarget(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Projekt umbenennen</AlertDialogTitle>
+            <AlertDialogTitle>Rename project</AlertDialogTitle>
           </AlertDialogHeader>
           <Input
             value={renameValue}
             onChange={(e) => setRenameValue(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleRename()}
-            placeholder="Neuer Titel"
+            placeholder="New title"
             autoFocus
           />
           <AlertDialogFooter>
-            <AlertDialogCancel>Abbrechen</AlertDialogCancel>
-            <AlertDialogAction onClick={handleRename}>Speichern</AlertDialogAction>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleRename}>Save</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

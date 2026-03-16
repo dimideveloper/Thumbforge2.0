@@ -57,7 +57,7 @@ const InspirationPanel = ({ onSelectThumbnail }: InspirationPanelProps) => {
     } catch (err) {
       console.error("Search error:", err);
       setVideos([]);
-      toast.error("Inspiration konnte nicht geladen werden");
+      toast.error("Failed to load inspiration");
     } finally {
       setIsSearching(false);
     }
@@ -87,7 +87,7 @@ const InspirationPanel = ({ onSelectThumbnail }: InspirationPanelProps) => {
     const unavailable = !video.thumbnail || !video.isThumbnailAvailable || failedImages.has(video.id);
 
     if (unavailable) {
-      toast.error("Dieses Thumbnail ist nicht verfügbar");
+      toast.error("This thumbnail is unavailable");
       return;
     }
 
@@ -95,29 +95,29 @@ const InspirationPanel = ({ onSelectThumbnail }: InspirationPanelProps) => {
   };
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="p-3">
+    <div className="flex flex-col h-full bg-[#050505]/40 backdrop-blur-sm">
+      <div className="p-4 border-b border-white/5">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-            placeholder="Suche nach Themen…"
-            className="w-full h-9 pl-9 pr-3 rounded-lg bg-muted border border-border text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+            placeholder="Search topics…"
+            className="w-full h-10 pl-10 pr-4 rounded-xl bg-white/[0.03] border border-white/10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 focus:bg-white/[0.05] transition-all font-light"
           />
         </div>
       </div>
 
-      <div className="px-3 pb-2 flex flex-wrap gap-1.5">
+      <div className="px-4 py-3 flex flex-wrap gap-2 border-b border-white/5 bg-[#0a0a0a]/50">
         {TAGS.map((tag) => (
           <button
             key={tag}
             onClick={() => handleSearch(tag)}
-            className={`px-2.5 py-1 rounded-full text-xs transition-colors border ${
+            className={`px-3 py-1.5 rounded-full text-[11px] font-medium transition-all duration-200 border ${
               query === tag && hasSearched
-                ? "bg-primary/15 text-primary border-primary/30"
-                : "bg-muted text-muted-foreground hover:bg-primary/15 hover:text-primary border-border"
+                ? "bg-white text-black border-white shadow-[0_0_10px_rgba(255,255,255,0.2)]"
+                : "bg-white/[0.03] text-white/50 hover:bg-white/10 hover:text-white/90 border-white/10"
             }`}
           >
             {tag}
@@ -125,17 +125,17 @@ const InspirationPanel = ({ onSelectThumbnail }: InspirationPanelProps) => {
         ))}
       </div>
 
-      <div className="flex-1 overflow-y-auto px-3 pb-3 space-y-2">
+      <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
         {isSearching && (
-          <div className="flex flex-col items-center justify-center py-12 gap-2">
-            <Loader2 className="h-5 w-5 text-primary animate-spin" />
-            <p className="text-xs text-muted-foreground">Suche läuft…</p>
+          <div className="flex flex-col items-center justify-center py-16 gap-3">
+            <Loader2 className="h-6 w-6 text-white/60 animate-spin" />
+            <p className="text-xs text-white/40 font-light">Searching…</p>
           </div>
         )}
 
         {!isSearching && hasSearched && videos.length === 0 && (
-          <p className="text-xs text-muted-foreground text-center py-8">
-            Keine Ergebnisse gefunden. Versuche einen anderen Suchbegriff.
+          <p className="text-xs text-white/40 text-center py-12 font-light">
+            No results. Try a different term.
           </p>
         )}
 
@@ -146,21 +146,21 @@ const InspirationPanel = ({ onSelectThumbnail }: InspirationPanelProps) => {
             <button
               key={video.id}
               onClick={() => handleSelectVideo(video)}
-              className={`w-full group rounded-xl overflow-hidden border border-border bg-muted/50 transition-all text-left ${
-                unavailable ? "opacity-60 cursor-not-allowed" : "hover:border-primary/50"
+              className={`w-full group rounded-2xl overflow-hidden border bg-[#0a0a0a]/80 backdrop-blur-md transition-all duration-300 text-left ${
+                unavailable ? "border-white/5 opacity-50 cursor-not-allowed" : "border-white/10 hover:border-white/30 hover:bg-white/[0.05] shadow-sm hover:shadow-[0_4px_20px_rgba(0,0,0,0.5)]"
               }`}
               disabled={unavailable}
             >
-              <div className="aspect-video w-full overflow-hidden relative">
+              <div className="aspect-video w-full overflow-hidden relative bg-[#111]">
                 {unavailable ? (
-                  <div className="w-full h-full flex items-center justify-center bg-muted">
-                    <ImageOff className="h-8 w-8 text-muted-foreground/30" />
+                  <div className="w-full h-full flex items-center justify-center">
+                    <ImageOff className="h-8 w-8 text-white/20" />
                   </div>
                 ) : (
                   <img
                     src={video.thumbnail || "/placeholder.svg"}
                     alt={video.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500 ease-out"
                     data-fallback-step={qualityIndexFromUrl(video.thumbnail)}
                     onError={(e) => handleImgError(video, e)}
                     loading="lazy"
@@ -168,20 +168,23 @@ const InspirationPanel = ({ onSelectThumbnail }: InspirationPanelProps) => {
                 )}
 
                 {!unavailable && (
-                  <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-2">
-                    <span className="text-[10px] font-medium text-primary flex items-center gap-1">
-                      <ExternalLink className="h-3 w-3" /> In Canvas laden
-                    </span>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3">
+                     <div className="bg-white/10 backdrop-blur-md border border-white/20 px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+                        <ExternalLink className="h-3.5 w-3.5 text-white" />
+                        <span className="text-[11px] font-medium text-white">Load into canvas</span>
+                     </div>
                   </div>
                 )}
               </div>
 
-              <div className="p-2">
-                <p className="text-xs font-medium text-foreground line-clamp-2 leading-tight">
+              <div className="p-3">
+                <p className="text-xs font-medium text-white/90 line-clamp-2 leading-snug">
                   {video.title}
                 </p>
-                <p className="text-[10px] text-muted-foreground mt-1">
-                  {video.channel} · {video.views}
+                <p className="text-[10px] text-white/40 mt-1.5 flex items-center gap-1.5 font-light">
+                  <span className="truncate">{video.channel}</span> 
+                  <span className="w-1 h-1 rounded-full bg-white/20 shrink-0" />
+                  <span className="shrink-0">{video.views}</span>
                 </p>
               </div>
             </button>
@@ -189,10 +192,12 @@ const InspirationPanel = ({ onSelectThumbnail }: InspirationPanelProps) => {
         })}
 
         {!isSearching && !hasSearched && (
-          <div className="text-center py-8 space-y-2">
-            <Search className="h-8 w-8 text-muted-foreground/30 mx-auto" />
-            <p className="text-xs text-muted-foreground">
-              Suche nach einem Thema oder klicke auf einen Tag oben
+          <div className="text-center py-16 space-y-4">
+            <div className="h-14 w-14 rounded-full border border-white/10 bg-gradient-to-b from-white/5 to-transparent flex items-center justify-center mx-auto">
+              <Search className="h-6 w-6 text-white/30" />
+            </div>
+            <p className="text-xs text-white/40 font-light max-w-[200px] mx-auto leading-relaxed">
+              Search for a topic or click a tag to find inspiration.
             </p>
           </div>
         )}

@@ -393,7 +393,7 @@ export const PromptInputBox = React.forwardRef<HTMLDivElement, PromptInputBoxPro
 
         <PromptInputActions className="flex items-center justify-between gap-2 p-0 pt-2">
           <div className="flex items-center gap-1">
-            <PromptInputAction tooltip="Bild hochladen">
+            <PromptInputAction tooltip="Upload image">
               <button
                 onClick={() => uploadInputRef.current?.click()}
                 className="flex h-8 w-8 text-white/40 cursor-pointer items-center justify-center rounded-full transition-colors hover:bg-white/10 hover:text-white"
