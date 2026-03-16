@@ -27,6 +27,10 @@ const Dashboard = () => {
 
   // Auth check
   useEffect(() => {
+    document.title = "AI Assistant – ThumbForge";
+  }, []);
+
+  useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!session) navigate("/auth");
       else setUser(session.user);

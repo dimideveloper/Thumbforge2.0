@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,15 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const titles: Record<string, string> = {
+      login: "Sign In – ThumbForge",
+      signup: "Create Account – ThumbForge",
+      forgot: "Reset Password – ThumbForge",
+    };
+    document.title = titles[mode] ?? "ThumbForge";
+  }, [mode]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

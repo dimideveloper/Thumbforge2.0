@@ -79,6 +79,16 @@ const Studio = () => {
   }, [navigate]);
 
   useEffect(() => {
+    const titles: Record<string, string> = {
+      studio: "Studio – ThumbForge",
+      videos: "My Thumbnails – ThumbForge",
+      account: "Account – ThumbForge",
+      community: "Community – ThumbForge",
+    };
+    document.title = titles[activePage] ?? "ThumbForge";
+  }, [activePage]);
+
+  useEffect(() => {
     if (!user) return;
     let isMounted = true;
     const loadCredits = async () => {
