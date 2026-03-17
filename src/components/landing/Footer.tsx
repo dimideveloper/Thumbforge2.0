@@ -1,4 +1,5 @@
 import { Zap } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Footer = () => (
   <footer className="py-12 pb-20">
@@ -11,8 +12,8 @@ const Footer = () => (
         <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-white/50 font-medium">
           <a href="#" className="hover:text-white transition-colors duration-200">Discord</a>
           <a href="#" className="hover:text-white transition-colors duration-200">Help Center</a>
-          <a href="#" className="hover:text-white transition-colors duration-200">Terms</a>
-          <a href="#" className="hover:text-white transition-colors duration-200">Privacy</a>
+          <Link to="/terms" className="hover:text-white transition-colors duration-200">Terms</Link>
+          <Link to="/privacy" className="hover:text-white transition-colors duration-200">Privacy</Link>
         </div>
       </div>
       <p className="mt-12 text-center text-sm font-medium text-white/30">
