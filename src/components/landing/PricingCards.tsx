@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const plans = [
   {
@@ -45,9 +46,12 @@ const plans = [
   },
 ];
 
-const PricingCards = () => (
-  <section id="pricing" className="py-24">
-    <div className="container px-4 md:px-6">
+const PricingCards = () => {
+  const navigate = useNavigate();
+
+  return (
+    <section id="pricing" className="py-24">
+      <div className="container px-4 md:px-6">
       <div className="text-center mb-20">
         <h2 className="text-3xl md:text-5xl font-medium text-white tracking-tight">
           Simple pricing.
@@ -96,6 +100,8 @@ const PricingCards = () => (
               onClick={() => {
                 if (plan.checkoutUrl) {
                   window.open(plan.checkoutUrl, '_blank');
+                } else {
+                  navigate("/auth");
                 }
               }}
               className={`h-12 w-full rounded-full font-medium transition-transform active:scale-95 ${plan.highlighted
@@ -110,6 +116,7 @@ const PricingCards = () => (
       </div>
     </div>
   </section>
-);
+  );
+};
 
 export default PricingCards;

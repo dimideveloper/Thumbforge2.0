@@ -1,7 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { Zap } from "lucide-react";
 
-const navLinks = ["Features", "Compare", "Pricing", "Resources"];
+const navLinks = [
+  { name: "Features", id: "features" },
+  { name: "How it works", id: "how-it-works" },
+  { name: "Testimonials", id: "testimonials" },
+  { name: "Pricing", id: "pricing" },
+];
 
 const Header = () => (
   <header className="fixed top-0 left-0 right-0 z-50 bg-black/50 backdrop-blur-2xl border-b border-white/5">
@@ -12,8 +17,8 @@ const Header = () => (
       </div>
       <nav className="hidden md:flex items-center gap-8">
         {navLinks.map((link) => (
-          <a key={link} href={`#${link.toLowerCase()}`} className="text-sm font-medium text-white/50 hover:text-white transition-colors duration-200">
-            {link}
+          <a key={link.id} href={`#${link.id}`} className="text-sm font-medium text-white/50 hover:text-white transition-colors duration-200">
+            {link.name}
           </a>
         ))}
       </nav>

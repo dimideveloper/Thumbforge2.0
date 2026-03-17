@@ -1,9 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { ArrowRight, Sparkles } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
-const HeroSection = () => (
-  <section className="relative pt-40 pb-32 overflow-hidden flex flex-col items-center justify-center text-center">
+const HeroSection = () => {
+  const navigate = useNavigate();
+
+  return (
+    <section className="relative pt-40 pb-32 overflow-hidden flex flex-col items-center justify-center text-center">
     <div className="container relative z-10 px-4 md:px-6">
       <motion.div
         initial={{ opacity: 0, filter: "blur(10px)", y: 20 }}
@@ -28,13 +32,17 @@ const HeroSection = () => (
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <button className="h-14 px-8 rounded-full bg-white text-black font-medium text-lg hover:scale-105 active:scale-95 transition-transform flex items-center gap-2">
+          <button
+            onClick={() => navigate("/auth")}
+            className="h-14 px-8 rounded-full bg-white text-black font-medium text-lg hover:scale-105 active:scale-95 transition-transform flex items-center gap-2"
+          >
             Get Started Free <ArrowRight className="h-5 w-5" />
           </button>
         </div>
       </motion.div>
     </div>
   </section>
-);
+  );
+};
 
 export default HeroSection;
