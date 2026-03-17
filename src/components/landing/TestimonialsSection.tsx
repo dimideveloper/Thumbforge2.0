@@ -6,7 +6,7 @@ const testimonials = [
     name: "xHunter",
     handle: "@xhunter_yt",
     subs: "280K subs",
-    avatar: "X",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Hunter&backgroundColor=b6e3f4",
     text: "My CTR went from 4.2% to 7.1% after switching to ThumbForge. The AI just gets what makes people click. Insane tool.",
     stars: 5,
   },
@@ -14,7 +14,7 @@ const testimonials = [
     name: "NovaMC",
     handle: "@nova_minecraft",
     subs: "92K subs",
-    avatar: "N",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Nova&backgroundColor=c0aede",
     text: "I used to spend 2 hours per thumbnail in Photoshop. Now it takes 3 minutes. ThumbForge is a game-changer for solo creators.",
     stars: 5,
   },
@@ -22,7 +22,7 @@ const testimonials = [
     name: "BlastZone",
     handle: "@blastzone_yt",
     subs: "540K subs",
-    avatar: "B",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Blast&backgroundColor=ffdfbf",
     text: "The Skin Replacer alone is worth it. I can put my Minecraft skin into any thumbnail style without any editing skills.",
     stars: 5,
   },
@@ -30,7 +30,7 @@ const testimonials = [
     name: "PixelRush",
     handle: "@pixelrush",
     subs: "61K subs",
-    avatar: "P",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Pixel&backgroundColor=d1d4f9",
     text: "Never thought AI could actually understand 'make it more epic'. ThumbForge nails it every time. My channel growth spiked.",
     stars: 5,
   },
@@ -38,7 +38,7 @@ const testimonials = [
     name: "GrindKing",
     handle: "@grindking_yt",
     subs: "175K subs",
-    avatar: "G",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=King&backgroundColor=ffd5dc",
     text: "Best investment I made for my channel. The quick edits feature alone saves me hours every week.",
     stars: 5,
   },
@@ -46,7 +46,7 @@ const testimonials = [
     name: "VortexClips",
     handle: "@vortexclips",
     subs: "38K subs",
-    avatar: "V",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Vortex&backgroundColor=c0aede",
     text: "As a small creator without budget for a designer, this is EXACTLY what I needed. Pro thumbnails, zero skills required.",
     stars: 5,
   },
@@ -99,9 +99,11 @@ const TestimonialsSection = () => (
 
             {/* Author */}
             <div className="flex items-center gap-3 pt-2 border-t border-white/5">
-              <div className="h-9 w-9 rounded-full bg-white/10 text-white font-medium text-sm flex items-center justify-center shrink-0">
-                {t.avatar}
-              </div>
+              <img 
+                src={t.avatar} 
+                alt={t.name}
+                className="h-9 w-9 rounded-full bg-white/10 shrink-0 object-cover border border-white/5"
+              />
               <div>
                 <div className="text-sm font-medium text-white">{t.name}</div>
                 <div className="text-xs text-white/40 font-light">
