@@ -11,7 +11,7 @@ const Footer = () => (
         </div>
         <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-white/50 font-medium">
           <a href="#" className="hover:text-white transition-colors duration-200">Discord</a>
-          <a href="#" className="hover:text-white transition-colors duration-200">Help Center</a>
+          <Link to="/help" className="hover:text-white transition-colors duration-200">Help Center</Link>
           <Link to="/terms" className="hover:text-white transition-colors duration-200">Terms</Link>
           <Link to="/privacy" className="hover:text-white transition-colors duration-200">Privacy</Link>
         </div>
