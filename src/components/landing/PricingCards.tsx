@@ -2,6 +2,8 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const plans = [
   {
@@ -48,6 +50,19 @@ const plans = [
 
 const PricingCards = () => {
   const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsLoggedIn(!!session);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsLoggedIn(!!session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   return (
     <section id="pricing" className="py-24">
@@ -100,6 +115,8 @@ const PricingCards = () => {
               onClick={() => {
                 if (plan.checkoutUrl) {
                   window.open(plan.checkoutUrl, '_blank');
+                } else if (isLoggedIn) {
+                  navigate("/dashboard");
                 } else {
                   navigate("/auth");
                 }
@@ -109,7 +126,7 @@ const PricingCards = () => {
                   : "bg-white text-black hover:bg-white/90"
                 }`}
             >
-              Get Started
+              {isLoggedIn && !plan.checkoutUrl ? "Go to Dashboard" : "Get Started"}
             </button>
           </motion.div>
         ))}

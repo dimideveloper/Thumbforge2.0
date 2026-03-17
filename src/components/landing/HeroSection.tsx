@@ -2,9 +2,24 @@ import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const HeroSection = () => {
   const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsLoggedIn(!!session);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsLoggedIn(!!session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   return (
     <section className="relative pt-40 pb-32 overflow-hidden flex flex-col items-center justify-center text-center">
@@ -33,10 +48,10 @@ const HeroSection = () => {
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <button
-            onClick={() => navigate("/auth")}
+            onClick={() => navigate(isLoggedIn ? "/dashboard" : "/auth")}
             className="h-14 px-8 rounded-full bg-white text-black font-medium text-lg hover:scale-105 active:scale-95 transition-transform flex items-center gap-2"
           >
-            Get Started Free <ArrowRight className="h-5 w-5" />
+            {isLoggedIn ? "Open Studio" : "Get Started Free"} <ArrowRight className="h-5 w-5" />
           </button>
         </div>
       </motion.div>

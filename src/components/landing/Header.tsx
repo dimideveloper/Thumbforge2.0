@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Zap } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const navLinks = [
   { name: "Features", id: "features" },
@@ -13,6 +15,19 @@ const navLinks = [
 const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsLoggedIn(!!session);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsLoggedIn(!!session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const handleScroll = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
     // If not on the homepage, navigate to homepage first then scroll
@@ -58,10 +73,10 @@ const Header = () => {
           ))}
         </nav>
         <button
-          onClick={() => navigate('/auth')}
+          onClick={() => navigate(isLoggedIn ? '/dashboard' : '/auth')}
           className="h-9 px-4 rounded-full bg-white text-black text-sm font-medium hover:bg-white/90 transition-colors"
         >
-          Get Started
+          {isLoggedIn ? 'Dashboard' : 'Get Started'}
         </button>
       </div>
     </header>

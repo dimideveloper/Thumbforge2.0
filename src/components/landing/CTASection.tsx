@@ -1,9 +1,24 @@
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight, Zap } from "lucide-react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const CTASection = () => {
   const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsLoggedIn(!!session);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsLoggedIn(!!session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   return (
     <section className="py-24">
@@ -36,10 +51,10 @@ const CTASection = () => {
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <button
-                onClick={() => navigate("/auth")}
+                onClick={() => navigate(isLoggedIn ? "/dashboard" : "/auth")}
                 className="h-14 px-10 rounded-full bg-white text-black font-semibold text-base hover:scale-105 active:scale-95 transition-transform flex items-center gap-2 shadow-[0_0_40px_rgba(255,255,255,0.15)]"
               >
-                Start for free <ArrowRight className="h-5 w-5" />
+                {isLoggedIn ? "Open Studio" : "Start for free"} <ArrowRight className="h-5 w-5" />
               </button>
               <p className="text-white/30 text-sm font-light">No credit card · Free tier always available</p>
             </div>
