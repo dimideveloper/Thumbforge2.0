@@ -78,11 +78,6 @@ const ShowcaseSection = () => {
                }}
              />
              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
-             <div className="absolute bottom-6 left-8">
-                <span className="text-white font-medium text-lg drop-shadow-md">
-                  {showcaseImages[currentIndex].title}
-                </span>
-             </div>
           </motion.div>
 
           {/* Controls */}
