@@ -119,7 +119,7 @@ const Auth = () => {
               <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-[18px] w-[18px] text-white/40 group-focus-within:text-white/80 transition-colors" />
               <Input
                 type="email"
-                placeholder="E-Mail Adresse"
+                placeholder="Email Address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="pl-12 h-14 bg-white/[0.03] border-white/10 text-white placeholder:text-white/30 rounded-2xl focus-visible:ring-1 focus-visible:ring-white/30 focus-visible:border-white/30 focus-visible:bg-white/[0.05] transition-all font-light text-[15px]"
@@ -161,9 +161,9 @@ const Auth = () => {
                 </button>
                 <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent w-full my-6" />
                 <p className="text-white/40">
-                  Noch kein Account?{" "}
+                  Don't have an account?{" "}
                   <button onClick={() => setMode("signup")} className="text-white hover:text-white/80 font-medium transition-colors ml-1">
-                    Registrieren
+                    Sign up
                   </button>
                 </p>
               </>
