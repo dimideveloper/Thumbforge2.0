@@ -4,16 +4,24 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const showcaseImages = [
   {
-    url: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/4404d02b-bddd-400b-82bc-b62d23af7d6f/id-preview-821a78be--47ce42b2-86a8-44cc-bc65-9ddf573b530f.lovable.app-1773586273990.png",
+    url: "/thumbnailpreview/My first thumbnail (1).png",
     title: "Minecraft Survival",
   },
   {
-    url: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/4404d02b-bddd-400b-82bc-b62d23af7d6f/id-[YOUR_APP_ID].png", // Fallback if no images, but users will replace
+    url: "/thumbnailpreview/My first thumbnail (2).png",
     title: "Roblox Tycoon",
   },
   {
-    url: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/4404d02b-bddd-400b-82bc-b62d23af7d6f/id-preview-821a78be--47ce42b2-86a8-44cc-bc65-9ddf573b530f.lovable.app-1773586273990.png",
+    url: "/thumbnailpreview/My first thumbnail (3).png",
     title: "GTA V Roleplay",
+  },
+  {
+    url: "/thumbnailpreview/My first thumbnail (4).png",
+    title: "Battle Royale Action",
+  },
+  {
+    url: "/thumbnailpreview/My first thumbnail (5).png",
+    title: "Epic Quest",
   }
 ];
 
