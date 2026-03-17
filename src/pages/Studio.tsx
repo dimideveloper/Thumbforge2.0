@@ -100,6 +100,20 @@ const Studio = () => {
     return () => { isMounted = false; };
   }, [user]);
 
+  // Sync title changes to DB
+  useEffect(() => {
+    if (!projectId || !user) return;
+    
+    const timeoutId = setTimeout(async () => {
+      await supabase
+        .from("thumbnail_projects")
+        .update({ title: projectTitle, updated_at: new Date().toISOString() })
+        .eq("id", projectId);
+    }, 1000); // 1s debounce
+
+    return () => clearTimeout(timeoutId);
+  }, [projectTitle, projectId, user]);
+
   const refreshCredits = useCallback(async () => {
     if (!user) return;
     try {
@@ -138,11 +152,15 @@ const Studio = () => {
     }
   }, [user]);
 
-  const handleSelectThumbnail = (url: string) => {
+  const handleSelectThumbnail = async (url: string) => {
     setCanvasImage(url);
     addVersion(url, "Original");
     setActiveTab("editor");
     toast.success("Thumbnail loaded into canvas");
+    
+    // Auto-save on initial load/upload
+    const savedId = await saveProject(url, projectTitle, projectId);
+    if (savedId && !projectId) setProjectId(savedId);
   };
 
   const handleSelectVersion = (version: ThumbnailVersion) => {
