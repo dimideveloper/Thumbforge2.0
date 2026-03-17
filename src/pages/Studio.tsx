@@ -168,6 +168,25 @@ const Studio = () => {
     setActiveVersionId(version.id);
   };
 
+  const handleDeleteVersion = useCallback((id: string) => {
+    setVersions((prev) => {
+      const filtered = prev.filter((v) => v.id !== id);
+      
+      // If we deleted the active version, switch to the last one available
+      if (id === activeVersionId && filtered.length > 0) {
+        const lastVersion = filtered[filtered.length - 1];
+        setCanvasImage(lastVersion.url);
+        setActiveVersionId(lastVersion.id);
+      } else if (filtered.length === 0) {
+        setCanvasImage(null);
+        setActiveVersionId(null);
+      }
+      
+      return filtered;
+    });
+    toast.success("Version removed");
+  }, [activeVersionId]);
+
   const handleApplyEdit = async (prompt: string, mode: string = "pro", referenceImage?: string) => {
     if (!canvasImage) {
       toast.error("Please load an image first");
@@ -335,6 +354,7 @@ const Studio = () => {
               versions={versions}
               activeVersionId={activeVersionId}
               onSelectVersion={handleSelectVersion}
+              onDeleteVersion={handleDeleteVersion}
             />
             <ThumbnailCanvas
               imageUrl={canvasImage}
