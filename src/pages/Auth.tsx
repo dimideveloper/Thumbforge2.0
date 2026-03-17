@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Zap, Mail, Lock, User, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 
-type AuthMode = "login" | "signup" | "forgot";
+type AuthMode = "login" | "signup" | "forgot" | "verify";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -14,6 +14,7 @@ const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
+  const [otpCode, setOtpCode] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -21,6 +22,7 @@ const Auth = () => {
       login: "Sign In – ThumbForge",
       signup: "Create Account – ThumbForge",
       forgot: "Reset Password – ThumbForge",
+      verify: "Verify Code – ThumbForge",
     };
     document.title = titles[mode] ?? "ThumbForge";
   }, [mode]);
@@ -45,14 +47,31 @@ const Auth = () => {
       password,
       options: {
         data: { display_name: displayName },
-        emailRedirectTo: window.location.origin + "/dashboard",
       },
     });
     setLoading(false);
     if (error) {
       toast.error(error.message);
     } else {
-      toast.success("Confirmation email sent! Please check your inbox.");
+      setMode("verify");
+      toast.success("Check your email for the 6-digit verification code!");
+    }
+  };
+
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    const { error } = await supabase.auth.verifyOtp({
+      email,
+      token: otpCode,
+      type: 'signup',
+    });
+    setLoading(false);
+    if (error) {
+      toast.error(error.message);
+    } else {
+      toast.success("Email verified successfully!");
+      navigate("/dashboard");
     }
   };
 
@@ -93,15 +112,22 @@ const Auth = () => {
             {mode === "login" && "Welcome back."}
             {mode === "signup" && "Create an account."}
             {mode === "forgot" && "Reset your password."}
+            {mode === "verify" && "Enter code."}
           </h1>
           <p className="text-white/40 text-center text-[15px] font-light mb-10 relative z-10">
             {mode === "login" && "Sign in to continue"}
             {mode === "signup" && "Sign up to continue"}
             {mode === "signup" && "Access to all Pro features"}
             {mode === "forgot" && "We'll send you a reset link"}
+            {mode === "verify" && `Code sent to ${email}`}
           </p>
 
-          <form onSubmit={mode === "login" ? handleLogin : mode === "signup" ? handleSignup : handleForgotPassword} className="space-y-4 relative z-10">
+          <form onSubmit={
+            mode === "login" ? handleLogin : 
+            mode === "signup" ? handleSignup : 
+            mode === "verify" ? handleVerifyOtp :
+            handleForgotPassword
+          } className="space-y-4 relative z-10">
             {mode === "signup" && (
               <div className="relative group">
                 <User className="absolute left-4 top-1/2 -translate-y-1/2 h-[18px] w-[18px] text-white/40 group-focus-within:text-white/80 transition-colors" />
@@ -115,19 +141,36 @@ const Auth = () => {
               </div>
             )}
 
-            <div className="relative group">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-[18px] w-[18px] text-white/40 group-focus-within:text-white/80 transition-colors" />
-              <Input
-                type="email"
-                placeholder="Email Address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="pl-12 h-14 bg-white/[0.03] border-white/10 text-white placeholder:text-white/30 rounded-2xl focus-visible:ring-1 focus-visible:ring-white/30 focus-visible:border-white/30 focus-visible:bg-white/[0.05] transition-all font-light text-[15px]"
-                required
-              />
-            </div>
+            {mode !== "verify" && (
+              <div className="relative group">
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-[18px] w-[18px] text-white/40 group-focus-within:text-white/80 transition-colors" />
+                <Input
+                  type="email"
+                  placeholder="Email Address"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="pl-12 h-14 bg-white/[0.03] border-white/10 text-white placeholder:text-white/30 rounded-2xl focus-visible:ring-1 focus-visible:ring-white/30 focus-visible:border-white/30 focus-visible:bg-white/[0.05] transition-all font-light text-[15px]"
+                  required
+                />
+              </div>
+            )}
 
-            {mode !== "forgot" && (
+            {mode === "verify" && (
+              <div className="relative group">
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-[18px] w-[18px] text-white/40 group-focus-within:text-white/80 transition-colors" />
+                <Input
+                  type="text"
+                  placeholder="6-Digit Code"
+                  value={otpCode}
+                  onChange={(e) => setOtpCode(e.target.value)}
+                  className="pl-12 h-14 bg-white/[0.03] border-white/10 text-white placeholder:text-white/30 rounded-2xl focus-visible:ring-1 focus-visible:ring-white/30 focus-visible:border-white/30 focus-visible:bg-white/[0.05] transition-all font-light text-[15px] tracking-[0.5em] text-center"
+                  required
+                  maxLength={6}
+                />
+              </div>
+            )}
+
+            {mode !== "forgot" && mode !== "verify" && (
               <div className="relative group">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-[18px] w-[18px] text-white/40 group-focus-within:text-white/80 transition-colors" />
                 <Input
@@ -148,12 +191,25 @@ const Auth = () => {
                  className="w-full h-14 rounded-2xl bg-white text-black font-medium text-[15px] hover:bg-white/90 active:scale-[0.98] transition-all disabled:opacity-50 disabled:pointer-events-none shadow-[0_0_20px_rgba(255,255,255,0.1)]"
                  disabled={loading}
                >
-                 {loading ? "Processing..." : mode === "login" ? "Sign in" : mode === "signup" ? "Sign up" : "Send link"}
+                 {loading ? "Processing..." : mode === "login" ? "Sign in" : mode === "signup" ? "Sign up" : mode === "verify" ? "Verify Code" : "Send link"}
                </button>
             </div>
           </form>
 
           <div className="mt-8 space-y-4 text-center text-[15px] font-light relative z-10 w-full">
+            {mode === "verify" && (
+              <>
+                <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent w-full my-6" />
+                <button 
+                  type="button"
+                  onClick={() => setMode("signup")} 
+                  className="text-white/50 hover:text-white transition-colors flex items-center justify-center gap-1.5 mx-auto"
+                >
+                  <ArrowLeft className="h-4 w-4" /> Back to signup
+                </button>
+              </>
+            )}
+
             {mode === "login" && (
               <>
                 <button onClick={() => setMode("forgot")} className="text-white/40 hover:text-white transition-colors block w-full">
