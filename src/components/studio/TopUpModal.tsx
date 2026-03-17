@@ -1,0 +1,104 @@
+import { Dialog, DialogContent, DialogTitle, DialogHeader, DialogDescription } from "@/components/ui/dialog";
+import { Check, Coins, Zap } from "lucide-react";
+
+export interface TopUpModalProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+const plans = [
+  {
+    name: "Starter",
+    price: "$9",
+    period: "/mo",
+    credits: "50 credits",
+    features: ["All templates", "1080p export", "No watermark", "Expression AI"],
+    highlighted: false,
+    checkoutUrl: "https://whop.com/checkout/plan_fuejd6S6TntYV",
+  },
+  {
+    name: "Pro",
+    price: "$24",
+    period: "/mo",
+    credits: "200 credits",
+    features: ["Everything in Starter", "4K export", "Face Insert AI", "Priority rendering"],
+    highlighted: true,
+    checkoutUrl: "https://whop.com/checkout/plan_JE8rZQKDftpTz",
+  },
+  {
+    name: "Premium",
+    price: "$49",
+    period: "/mo",
+    credits: "Unlimited",
+    features: ["Everything in Pro", "API access", "Custom branding", "Dedicated support", "Transcript Analyzer"],
+    highlighted: false,
+    checkoutUrl: "https://whop.com/checkout/plan_mYEWSJxkCa7vv",
+  },
+];
+
+const TopUpModal = ({ open, onOpenChange }: TopUpModalProps) => {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-4xl bg-[#0a0a0a] border-white/10 text-white p-0 overflow-hidden">
+        <DialogHeader className="p-8 pb-0 text-center">
+          <div className="mx-auto w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-4">
+            <Zap className="h-6 w-6 text-white" />
+          </div>
+          <DialogTitle className="text-2xl font-medium tracking-tight">Upgrade Your Plan</DialogTitle>
+          <DialogDescription className="text-white/50 text-base mt-2">
+            Get more credits and unlock pro features.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="p-8">
+          <div className="grid md:grid-cols-3 gap-6">
+            {plans.map((plan) => (
+              <div
+                key={plan.name}
+                className={`flex flex-col rounded-2xl p-6 border transition-all ${
+                  plan.highlighted
+                    ? "bg-white text-black border-white"
+                    : "bg-[#111] border-white/10 text-white hover:border-white/20"
+                }`}
+              >
+                <h3 className="text-lg font-medium">{plan.name}</h3>
+                <div className="mt-4 flex items-baseline gap-1">
+                  <span className="text-4xl font-medium tracking-tight">{plan.price}</span>
+                  <span className={`text-sm ${plan.highlighted ? "text-black/60" : "text-white/50"}`}>
+                    {plan.period}
+                  </span>
+                </div>
+                <div className={`mt-2 flex items-center gap-1.5 text-sm font-medium ${plan.highlighted ? "text-black/80" : "text-white/70"}`}>
+                  <Coins className="h-4 w-4 shrink-0" />
+                  {plan.credits}
+                </div>
+                
+                <ul className="mt-8 space-y-3 flex-1">
+                  {plan.features.map((f) => (
+                    <li key={f} className={`flex items-center gap-3 text-sm ${plan.highlighted ? "text-black/80" : "text-white/70"}`}>
+                      <Check className={`h-4 w-4 shrink-0 ${plan.highlighted ? "text-black" : "text-white"}`} />
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+                
+                <button
+                  onClick={() => window.open(plan.checkoutUrl, '_blank')}
+                  className={`mt-8 h-12 w-full rounded-full font-medium transition-transform active:scale-95 ${
+                    plan.highlighted
+                      ? "bg-black text-white hover:bg-black/90"
+                      : "bg-white text-black hover:bg-white/90"
+                  }`}
+                >
+                  Choose {plan.name}
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+export default TopUpModal;

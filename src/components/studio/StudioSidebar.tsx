@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import TopUpModal from "./TopUpModal";
 
 interface StudioSidebarProps {
   credits: number;
@@ -29,6 +30,7 @@ const accountItems = [
 
 const StudioSidebar = ({ credits, userEmail, collapsed, onToggle, activePage, onPageChange }: StudioSidebarProps) => {
   const navigate = useNavigate();
+  const [isTopUpOpen, setIsTopUpOpen] = useState(false);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -123,23 +125,22 @@ const StudioSidebar = ({ credits, userEmail, collapsed, onToggle, activePage, on
               <div className="flex-1">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-medium text-white/70">Credits</span>
-                  <span className="text-sm font-semibold text-white">{credits}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-semibold text-white">{credits}</span>
+                  </div>
                 </div>
               </div>
             )}
           </div>
-          {!collapsed && credits < 10 && (
+          {!collapsed && (
             <>
               <div className="h-px w-full bg-white/5" />
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] text-red-300/80 uppercase tracking-wider font-semibold">Low credits</span>
-                <button
-                  onClick={() => navigate("/")}
-                  className="text-xs bg-white hover:bg-white/90 text-black px-2 py-1 rounded-md font-medium transition-colors"
-                >
-                  Top up
-                </button>
-              </div>
+              <button
+                onClick={() => setIsTopUpOpen(true)}
+                className="w-full text-xs bg-white hover:bg-white/90 text-black px-3 py-1.5 rounded-lg font-medium transition-colors flex items-center justify-center gap-1.5"
+              >
+                Top up limits
+              </button>
             </>
           )}
         </div>
@@ -159,6 +160,9 @@ const StudioSidebar = ({ credits, userEmail, collapsed, onToggle, activePage, on
           </button>
         </div>
       </div>
+
+      {/* Top Up Modal */}
+      <TopUpModal open={isTopUpOpen} onOpenChange={setIsTopUpOpen} />
     </aside>
   );
 };
