@@ -38,7 +38,7 @@ const testimonials = [
     name: "GrindKing",
     handle: "@grindking_yt",
     subs: "175K subs",
-    avatar: "https://api.dicebear.com/7.x/pixel-art/svg?seed=Gaming&backgroundColor=ffd5dc",
+    avatar: "/thumbnailpreview/profile-picture/gaming-profile-pictures-pfp-screenshot.avif",
     text: "Best investment I made for my channel. The quick edits feature alone saves me hours every week.",
     stars: 5,
   },
