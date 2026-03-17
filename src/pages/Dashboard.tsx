@@ -22,8 +22,22 @@ const Dashboard = () => {
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Handle window resize for mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 1024;
+      setIsMobile(mobile);
+      if (!mobile) setSidebarOpen(true);
+      else setSidebarOpen(false);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   // Auth check
   useEffect(() => {
@@ -234,10 +248,19 @@ const Dashboard = () => {
 
   return (
     <div className="h-screen flex bg-[#050505] overflow-hidden selection:bg-white/20 font-light text-foreground">
+      {/* Mobile Overlay */}
+      {isMobile && sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 lg:hidden" 
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
       <aside
-        className={`${sidebarOpen ? "w-72" : "w-0"
-          } transition-all duration-300 border-r border-white/5 bg-[#0a0a0a]/80 backdrop-blur-xl flex flex-col overflow-hidden shrink-0 z-20`}
+        className={`${
+          sidebarOpen ? (isMobile ? "fixed inset-y-0 left-0 w-72" : "w-72") : "w-0"
+        } transition-all duration-300 border-r border-white/5 bg-[#0a0a0a]/80 backdrop-blur-xl flex flex-col overflow-hidden shrink-0 z-40`}
       >
         <div className="h-16 px-6 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2.5">
@@ -266,7 +289,10 @@ const Dashboard = () => {
                   ? "bg-white/10 text-white shadow-sm ring-1 ring-white/5"
                   : "text-white/50 hover:bg-white/5 hover:text-white/90"
                 }`}
-              onClick={() => setActiveChatId(chat.id)}
+              onClick={() => {
+                setActiveChatId(chat.id);
+                if (isMobile) setSidebarOpen(false);
+              }}
             >
               <MessageSquare className={`h-4 w-4 shrink-0 transition-colors ${activeChatId === chat.id ? "text-white/80" : "text-white/30 group-hover:text-white/50"}`} />
               <span className="truncate flex-1 font-medium">{chat.title}</span>
@@ -323,36 +349,37 @@ const Dashboard = () => {
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] bg-white/[0.02] blur-[120px] rounded-full pointer-events-none" />
 
         {/* Top bar */}
-        <div className="h-16 border-b border-white/5 flex items-center px-6 gap-4 shrink-0 bg-transparent backdrop-blur-md z-10">
-          {!sidebarOpen && (
-            <button onClick={() => setSidebarOpen(true)} className="text-white/40 hover:text-white transition-colors p-1 -ml-1">
-              <Menu className="h-5 w-5" />
-            </button>
-          )}
-          <h2 className="font-medium text-white/90 truncate">
+        <div className="h-16 border-b border-white/5 flex items-center px-4 sm:px-6 gap-4 shrink-0 bg-transparent backdrop-blur-md z-10">
+          <button 
+            onClick={() => setSidebarOpen(!sidebarOpen)} 
+            className={`${sidebarOpen && !isMobile ? "hidden" : "flex"} text-white/40 hover:text-white transition-colors p-2 -ml-2 rounded-xl hover:bg-white/5`}
+          >
+            {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+          <h2 className="font-medium text-white/90 truncate flex-1">
             {activeChatId ? chats.find((c) => c.id === activeChatId)?.title || "Chat" : "ThumbForge Assistant"}
           </h2>
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto px-4 py-8 relative z-10 scroll-smooth">
+        <div className="flex-1 overflow-y-auto px-4 py-6 sm:py-8 relative z-10 scroll-smooth">
           {messages.length === 0 && !activeChatId ? (
-            <div className="h-full flex flex-col items-center justify-center text-center max-w-md mx-auto">
-              <div className="h-20 w-20 rounded-[2rem] border border-white/10 bg-gradient-to-b from-white/5 to-transparent flex items-center justify-center mb-8 shadow-2xl">
-                <Sparkles className="h-8 w-8 text-white/60" />
+            <div className="h-full flex flex-col items-center justify-center text-center max-w-md mx-auto px-4">
+              <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-[1.5rem] sm:rounded-[2rem] border border-white/10 bg-gradient-to-b from-white/5 to-transparent flex items-center justify-center mb-6 sm:mb-8 shadow-2xl">
+                <Sparkles className="h-6 w-6 sm:h-8 sm:w-8 text-white/60" />
               </div>
-              <h2 className="text-3xl font-medium tracking-tight text-white mb-4">How can I help?</h2>
-              <p className="text-white/40 font-light text-base leading-relaxed">
+              <h2 className="text-2xl sm:text-3xl font-medium tracking-tight text-white mb-3 sm:mb-4">How can I help?</h2>
+              <p className="text-white/40 font-light text-sm sm:text-base leading-relaxed">
                 I'm your AI assistant for thumbnails, YouTube SEO and content creation. Ask me anything.
               </p>
             </div>
           ) : (
-            <div className="max-w-3xl mx-auto space-y-8 pb-4">
+            <div className="max-w-3xl mx-auto space-y-6 sm:space-y-8 pb-4">
               {messages.map((msg, i) => (
                 <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"} animate-in fade-in slide-in-from-bottom-2 duration-300`}>
                   <div
-                    className={`max-w-[85%] sm:max-w-[75%] px-6 py-4 ${msg.role === "user"
-                        ? "bg-white text-black rounded-3xl rounded-tr-sm shadow-xl"
+                    className={`max-w-[90%] sm:max-w-[75%] px-4 py-3 sm:px-6 sm:py-4 ${msg.role === "user"
+                        ? "bg-white text-black rounded-2xl sm:rounded-3xl rounded-tr-sm shadow-xl"
                         : "bg-transparent text-white/80"
                       }`}
                   >
