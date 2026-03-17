@@ -1,6 +1,7 @@
 import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Search, Book, Wand2, CreditCard, UserCircle, MessageCircle } from "lucide-react";
 
 const categories = [
@@ -9,10 +10,10 @@ const categories = [
     title: "Thumbnail Generation",
     description: "Learn how to write better prompts and use the AI tools.",
     articles: [
-      "How to write the perfect thumbnail prompt",
-      "Using the Skin Replacer tool",
-      "Understanding styles and lighting",
-      "Aspect ratios and export quality",
+      { title: "How to write the perfect thumbnail prompt", slug: "how-to-write-the-perfect-thumbnail-prompt" },
+      { title: "Using the Skin Replacer tool", slug: "using-the-skin-replacer-tool" },
+      { title: "Understanding styles and lighting", slug: "understanding-styles-and-lighting" },
+      { title: "Aspect ratios and export quality", slug: "aspect-ratios-and-export-quality" },
     ]
   },
   {
@@ -20,10 +21,10 @@ const categories = [
     title: "Account & Profile",
     description: "Manage your account settings and preferences.",
     articles: [
-      "How to change your email address",
-      "Resetting a forgotten password",
-      "Linking your Discord account",
-      "Deleting your account",
+      { title: "How to change your email address", slug: "how-to-change-your-email-address" },
+      { title: "Resetting a forgotten password", slug: "resetting-a-forgotten-password" },
+      { title: "Linking your Discord account", slug: "linking-your-discord-account" },
+      { title: "Deleting your account", slug: "deleting-your-account" },
     ]
   },
   {
@@ -31,10 +32,10 @@ const categories = [
     title: "Billing & Credits",
     description: "Information about subscriptions, payments, and usage.",
     articles: [
-      "How does the credit system work?",
-      "Upgrading to a Pro plan",
-      "How to cancel your subscription",
-      "Refund policy",
+      { title: "How does the credit system work?", slug: "how-does-the-credit-system-work" },
+      { title: "Upgrading to a Pro plan", slug: "upgrading-to-a-pro-plan" },
+      { title: "How to cancel your subscription", slug: "how-to-cancel-your-subscription" },
+      { title: "Refund policy", slug: "refund-policy" },
     ]
   }
 ];
@@ -89,11 +90,11 @@ const HelpCenter = () => {
                   
                   <ul className="space-y-4">
                     {category.articles.map((article) => (
-                      <li key={article}>
-                        <a href="#" className="flex items-center gap-3 text-sm text-white/60 hover:text-white transition-colors group">
+                      <li key={article.slug}>
+                        <Link to={`/help/${article.slug}`} className="flex items-center gap-3 text-sm text-white/60 hover:text-white transition-colors group">
                           <Book className="h-4 w-4 text-white/30 group-hover:text-white/60 transition-colors" />
-                          {article}
-                        </a>
+                          {article.title}
+                        </Link>
                       </li>
                     ))}
                   </ul>
