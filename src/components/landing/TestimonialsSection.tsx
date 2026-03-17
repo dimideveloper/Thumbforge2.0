@@ -46,7 +46,7 @@ const testimonials = [
     name: "VortexClips",
     handle: "@vortexclips",
     subs: "38K subs",
-    avatar: "https://api.dicebear.com/7.x/minecraft-character/svg?seed=Vortex",
+    avatar: "https://api.dicebear.com/7.x/adventurer/svg?seed=Vortex&backgroundColor=c0aede",
     text: "As a small creator without budget for a designer, this is EXACTLY what I needed. Pro thumbnails, zero skills required.",
     stars: 5,
   },
