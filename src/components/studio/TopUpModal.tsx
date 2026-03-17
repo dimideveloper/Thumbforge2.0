@@ -12,6 +12,7 @@ const plans = [
     price: "$9",
     period: "/mo",
     credits: "50 credits",
+    estimate: "Up to 50 thumbnails",
     features: ["All templates", "1080p export", "No watermark", "Expression AI"],
     highlighted: false,
     checkoutUrl: "https://whop.com/checkout/plan_fuejd6S6TntYV",
@@ -21,6 +22,7 @@ const plans = [
     price: "$24",
     period: "/mo",
     credits: "200 credits",
+    estimate: "Up to 200 thumbnails",
     features: ["Everything in Starter", "4K export", "Face Insert AI", "Priority rendering"],
     highlighted: true,
     checkoutUrl: "https://whop.com/checkout/plan_JE8rZQKDftpTz",
@@ -30,6 +32,7 @@ const plans = [
     price: "$49",
     period: "/mo",
     credits: "Unlimited",
+    estimate: "Unlimited thumbnails",
     features: ["Everything in Pro", "API access", "Custom branding", "Dedicated support", "Transcript Analyzer"],
     highlighted: false,
     checkoutUrl: "https://whop.com/checkout/plan_mYEWSJxkCa7vv",
@@ -71,6 +74,9 @@ const TopUpModal = ({ open, onOpenChange }: TopUpModalProps) => {
                 <div className={`mt-2 flex items-center gap-1.5 text-sm font-medium ${plan.highlighted ? "text-black/80" : "text-white/70"}`}>
                   <Coins className="h-4 w-4 shrink-0" />
                   {plan.credits}
+                </div>
+                <div className={`mt-1 text-xs ${plan.highlighted ? "text-black/50" : "text-white/40"}`}>
+                  ({plan.estimate})
                 </div>
                 
                 <ul className="mt-8 space-y-3 flex-1">

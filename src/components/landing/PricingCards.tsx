@@ -11,6 +11,7 @@ const plans = [
     price: "$0",
     period: "/mo",
     credits: "10 credits/mo",
+    estimate: "Up to 10 thumbnails",
     audience: "For casual creators",
     features: ["Basic templates", "720p export", "Watermark"],
     highlighted: false,
@@ -21,6 +22,7 @@ const plans = [
     price: "$9",
     period: "/mo",
     credits: "50 credits/mo",
+    estimate: "Up to 50 thumbnails",
     audience: "For growing channels",
     features: ["All templates", "1080p export", "No watermark", "Expression AI"],
     highlighted: false,
@@ -31,6 +33,7 @@ const plans = [
     price: "$24",
     period: "/mo",
     credits: "200 credits/mo",
+    estimate: "Up to 200 thumbnails",
     audience: "For serious creators",
     features: ["Everything in Starter", "4K export", "Face Insert AI", "Priority rendering"],
     highlighted: false,
@@ -41,6 +44,7 @@ const plans = [
     price: "$49",
     period: "/mo",
     credits: "Unlimited",
+    estimate: "Unlimited thumbnails",
     audience: "For heavy creators",
     features: ["Everything in Pro", "API access", "Custom branding", "Dedicated support", "Transcript Analyzer"],
     highlighted: true,
@@ -101,6 +105,9 @@ const PricingCards = () => {
               </div>
               <p className={`text-sm font-medium mt-3 ${plan.highlighted ? "text-black/80" : "text-white/70"}`}>
                 {plan.credits}
+              </p>
+              <p className={`text-xs mt-1 ${plan.highlighted ? "text-black/50" : "text-white/40"}`}>
+                ({plan.estimate})
               </p>
             </div>
             <ul className="space-y-4 mb-10 flex-1">
