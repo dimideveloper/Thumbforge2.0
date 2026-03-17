@@ -182,8 +182,8 @@ const AccountSettingsPage = ({ user }: AccountSettingsPageProps) => {
             onClick={() => setActiveSection(s.id)}
             className={`w-full flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors ${
               activeSection === s.id
-                ? "bg-primary/15 text-primary font-medium"
-                : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                ? "bg-white/10 text-white font-medium"
+                : "text-muted-foreground hover:bg-white/5 hover:text-white"
             }`}
           >
             <s.icon className="h-4 w-4" />
@@ -212,14 +212,14 @@ const AccountSettingsPage = ({ user }: AccountSettingsPageProps) => {
                 <div className="flex items-center gap-4">
                   <Avatar className="h-16 w-16">
                     {avatarUrl && <AvatarImage src={avatarUrl} />}
-                    <AvatarFallback className="bg-primary/20 text-primary text-lg font-bold">
+                    <AvatarFallback className="bg-white/10 text-white text-lg font-bold">
                       {initials}
                     </AvatarFallback>
                   </Avatar>
                   <div>
                     <Label
                       htmlFor="avatar-upload"
-                      className="inline-flex items-center gap-2 cursor-pointer text-sm text-primary hover:underline"
+                      className="inline-flex items-center gap-2 cursor-pointer text-sm text-white hover:underline"
                     >
                       {avatarUploading ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
@@ -259,7 +259,7 @@ const AccountSettingsPage = ({ user }: AccountSettingsPageProps) => {
                   <p className="text-xs text-muted-foreground">Email cannot be changed here</p>
                 </div>
 
-                <Button onClick={handleSaveProfile} disabled={profileSaving}>
+                <Button onClick={handleSaveProfile} disabled={profileSaving} className="bg-white text-black hover:bg-white/90">
                   {profileSaving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
                   Save Changes
                 </Button>
@@ -316,7 +316,7 @@ const AccountSettingsPage = ({ user }: AccountSettingsPageProps) => {
               </div>
             </div>
 
-            <Button onClick={handleChangePassword} disabled={passwordSaving}>
+            <Button onClick={handleChangePassword} disabled={passwordSaving} className="bg-white text-black hover:bg-white/90">
               {passwordSaving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Shield className="h-4 w-4 mr-2" />}
               Update Password
             </Button>
