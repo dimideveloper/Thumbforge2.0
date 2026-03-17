@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
+import ReactMarkdown from "react-markdown";
 import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
 import { ArrowLeft, BookOpen, Clock } from "lucide-react";
@@ -173,27 +174,6 @@ const Article = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
   
-  // Format content to basic HTML paragraphs if dealing with simple markdown-like text
-  const formatContent = (text: string) => {
-    return text.split('\n\n').map((paragraph, i) => {
-      const trimmed = paragraph.trim();
-      if (!trimmed) return null;
-      
-      if (trimmed.startsWith('### ')) {
-        return <h3 key={i} className="text-xl font-medium text-white mt-8 mb-3">{trimmed.replace('### ', '')}</h3>;
-      }
-      if (trimmed.startsWith('- ')) {
-        const items = trimmed.split('\n').map(item => item.replace('- ', ''));
-        return (
-          <ul key={i} className="list-disc pl-5 space-y-2 my-4 text-white/70">
-            {items.map((item, j) => <li key={j}>{item}</li>)}
-          </ul>
-        );
-      }
-      return <p key={i} className="text-white/70 leading-relaxed font-light mb-4">{trimmed}</p>;
-    });
-  };
-
   const article = slug ? articlesData[slug] : undefined;
 
   useEffect(() => {
@@ -231,8 +211,8 @@ const Article = () => {
             <div className="h-px bg-white/10 w-full" />
           </div>
 
-          <div className="prose prose-invert max-w-none">
-            {formatContent(article.content.trim())}
+          <div className="prose prose-invert prose-p:text-white/70 prose-a:text-white prose-strong:text-white prose-ul:text-white/70 max-w-none">
+            <ReactMarkdown>{article.content.trim()}</ReactMarkdown>
           </div>
 
         </article>
