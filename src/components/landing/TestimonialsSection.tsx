@@ -30,7 +30,7 @@ const testimonials = [
     name: "PixelRush",
     handle: "@pixelrush",
     subs: "61K subs",
-    avatar: "https://api.dicebear.com/7.x/minecraft-character/svg?seed=Pixel",
+    avatar: "/thumbnailpreview/profile-picture/f8da0787336023.5db5360d419ed.png",
     text: "Never thought AI could actually understand 'make it more epic'. ThumbForge nails it every time. My channel growth spiked.",
     stars: 5,
   },
