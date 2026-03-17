@@ -175,19 +175,22 @@ const Article = () => {
   
   // Format content to basic HTML paragraphs if dealing with simple markdown-like text
   const formatContent = (text: string) => {
-    return text.split('\\n\\n').map((paragraph, i) => {
-      if (paragraph.startsWith('### ')) {
-        return <h3 key={i} className="text-xl font-medium text-white mt-8 mb-3">{paragraph.replace('### ', '')}</h3>;
+    return text.split('\n\n').map((paragraph, i) => {
+      const trimmed = paragraph.trim();
+      if (!trimmed) return null;
+      
+      if (trimmed.startsWith('### ')) {
+        return <h3 key={i} className="text-xl font-medium text-white mt-8 mb-3">{trimmed.replace('### ', '')}</h3>;
       }
-      if (paragraph.startsWith('- ')) {
-        const items = paragraph.split('\\n').map(item => item.replace('- ', ''));
+      if (trimmed.startsWith('- ')) {
+        const items = trimmed.split('\n').map(item => item.replace('- ', ''));
         return (
           <ul key={i} className="list-disc pl-5 space-y-2 my-4 text-white/70">
             {items.map((item, j) => <li key={j}>{item}</li>)}
           </ul>
         );
       }
-      return <p key={i} className="text-white/70 leading-relaxed font-light mb-4">{paragraph}</p>;
+      return <p key={i} className="text-white/70 leading-relaxed font-light mb-4">{trimmed}</p>;
     });
   };
 

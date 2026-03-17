@@ -98,10 +98,6 @@ const HelpCenter = () => {
                       </li>
                     ))}
                   </ul>
-                  
-                  <a href="#" className="inline-flex mt-8 text-sm font-medium text-white/50 hover:text-white transition-colors">
-                    View all {category.articles.length} articles →
-                  </a>
                 </div>
               ))}
             </div>
