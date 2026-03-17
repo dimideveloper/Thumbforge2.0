@@ -54,6 +54,7 @@ const Studio = () => {
   const [projectTitle, setProjectTitle] = useState("My first thumbnail");
   const [versions, setVersions] = useState<ThumbnailVersion[]>([]);
   const [activeVersionId, setActiveVersionId] = useState<string | null>(null);
+  const [projectId, setProjectId] = useState<string | null>(null);
 
   const addVersion = useCallback((url: string, label: string) => {
     const newVersion: ThumbnailVersion = {
@@ -106,6 +107,34 @@ const Studio = () => {
       setCredits(nextCredits);
     } catch {
       // ignore; credits will refresh on next reload
+    }
+  }, [user]);
+
+  // Auto-save current canvas image to thumbnail_projects
+  const saveProject = useCallback(async (imageUrl: string, title: string, existingProjectId: string | null) => {
+    if (!user) return null;
+    try {
+      if (existingProjectId) {
+        // Update existing project
+        const { error } = await supabase
+          .from("thumbnail_projects")
+          .update({ canvas_image_url: imageUrl, title, updated_at: new Date().toISOString() })
+          .eq("id", existingProjectId);
+        if (error) console.warn("Auto-save update failed:", error.message);
+        return existingProjectId;
+      } else {
+        // Create new project row
+        const { data, error } = await supabase
+          .from("thumbnail_projects")
+          .insert({ user_id: user.id, title, canvas_image_url: imageUrl })
+          .select("id")
+          .single();
+        if (error) { console.warn("Auto-save insert failed:", error.message); return null; }
+        return data?.id ?? null;
+      }
+    } catch (e) {
+      console.warn("saveProject error:", e);
+      return null;
     }
   }, [user]);
 
@@ -231,7 +260,12 @@ const Studio = () => {
       setCanvasImage(data.imageUrl);
       addVersion(data.imageUrl, prompt.slice(0, 30));
       refreshCredits();
-      toast.success("Edit applied!");
+
+      // Auto-save to Supabase
+      const savedId = await saveProject(data.imageUrl, projectTitle, projectId);
+      if (savedId && !projectId) setProjectId(savedId);
+
+      toast.success("Edit applied & saved!");
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Edit failed";
       console.error("Edit error:", errorMessage);
@@ -242,12 +276,16 @@ const Studio = () => {
     }
   };
 
-  const handleSkinResult = (url: string, label: string) => {
+  const handleSkinResult = async (url: string, label: string) => {
     setCanvasImage(url);
     addVersion(url, label);
     setIsCanvasLoading(false);
     refreshCredits();
     setSkinModalOpen(false);
+
+    // Auto-save skin replacement result
+    const savedId = await saveProject(url, projectTitle, projectId);
+    if (savedId && !projectId) setProjectId(savedId);
   };
 
   const handleSkinStart = () => {
