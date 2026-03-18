@@ -40,7 +40,7 @@ const creativityLevels: {
     icon: Rocket,
     label: "Remix",
     subtitle: "Total reimagination",
-    description: "Dramatic transformation",
+    description: "Creative reimagination",
   },
 ];
 
@@ -50,7 +50,7 @@ const reshootPrompts: Record<CreativityLevel, string> = {
   balanced:
     "Reshoot this thumbnail with a slightly different camera angle and improved composition. Keep the same subject and scene but give it a fresh, more dynamic look with better framing, enhanced lighting, and boosted energy. Make it feel like a new, better take of the same shot.",
   remix:
-    "Dramatically reimagine this thumbnail with a completely new camera angle, bold composition changes, and intense cinematic effects. Transform it into something visually striking with dramatic lighting, strong depth of field, and maximum visual impact while keeping the same subject and theme.",
+    "Creatively reimagine this thumbnail with a fresh perspective and professional touch. Think outside the box to improve the overall appeal, lighting, and composition while staying true to the original subject and core message. Make it look like a high-end, polished version with a unique creative twist.",
 };
 
 const ToolsModal = ({ open, onClose, onInsertMe, hasImage, onReshoot }: ToolsModalProps) => {
