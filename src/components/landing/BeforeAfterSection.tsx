@@ -1,48 +1,32 @@
 import { useState, useRef, useEffect } from "react";
-import { motion, useInView, useAnimation } from "framer-motion";
+import { motion, useInView, animate } from "framer-motion";
 
 const BeforeAfterSection = () => {
   const [sliderPosition, setSliderPosition] = useState(50);
   const [isDragging, setIsDragging] = useState(false);
-  const [hasAnimated, setHasAnimated] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(containerRef, { once: true, amount: 0.5 });
 
   useEffect(() => {
-    if (isInView && !hasAnimated) {
-      // Clean intro animation: slide from 10% to 90% and back to 50%
-      const animate = async () => {
-        setHasAnimated(true);
-        // Start at 10%
-        setSliderPosition(10);
-        
-        // Smoothly slide to 90%
-        await new Promise(resolve => setTimeout(resolve, 500));
-        let pos = 10;
-        const interval = setInterval(() => {
-          pos += 1.5;
-          if (pos >= 90) {
-            clearInterval(interval);
-            // Slide back to 50%
-            setTimeout(() => {
-              const backInterval = setInterval(() => {
-                pos -= 1.5;
-                if (pos <= 50) {
-                  clearInterval(backInterval);
-                  setSliderPosition(50);
-                } else {
-                  setSliderPosition(pos);
-                }
-              }, 16);
-            }, 500);
-          } else {
-            setSliderPosition(pos);
-          }
-        }, 16);
-      };
-      animate();
+    if (isInView) {
+      // High-performance Framer Motion animation
+      const controls = animate(10, 90, {
+        duration: 1.5,
+        ease: "easeInOut",
+        delay: 0.5,
+        onUpdate: (latest) => setSliderPosition(latest),
+        onComplete: () => {
+          animate(90, 50, {
+            duration: 1.2,
+            ease: "circOut",
+            delay: 0.3,
+            onUpdate: (latest) => setSliderPosition(latest),
+          });
+        }
+      });
+      return () => controls.stop();
     }
-  }, [isInView, hasAnimated]);
+  }, [isInView]);
 
   const handleMove = (clientX: number) => {
     if (!containerRef.current) return;
