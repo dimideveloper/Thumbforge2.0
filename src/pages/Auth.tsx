@@ -42,7 +42,7 @@ const Auth = () => {
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -53,8 +53,13 @@ const Auth = () => {
     if (error) {
       toast.error(error.message);
     } else {
-      setMode("verify");
-      toast.success("Check your email for the 6-digit verification code!");
+      if (data.session) {
+        toast.success("Account created successfully!");
+        navigate("/dashboard");
+      } else {
+        setMode("verify");
+        toast.success("Check your email for the 6-digit verification code!");
+      }
     }
   };
 
