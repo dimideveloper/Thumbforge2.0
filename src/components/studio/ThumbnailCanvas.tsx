@@ -204,8 +204,8 @@ const ThumbnailCanvas = ({ imageUrl, title, onTitleChange, onImageLoad, isLoadin
 
   return (
     <div className="flex-1 flex flex-col min-w-0 bg-transparent relative z-10">
-      <div className="h-14 border-b border-white/5 flex items-center px-5 gap-4 shrink-0 bg-[#0a0a0a]/50 backdrop-blur-md relative z-20">
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/5 text-[11px] text-white/70 font-medium tracking-wide shadow-sm">
+      <div className="h-14 border-b border-white/5 flex items-center px-4 sm:px-5 gap-2 sm:gap-4 shrink-0 bg-[#0a0a0a]/50 backdrop-blur-md relative z-20">
+        <div className="flex items-center gap-2 px-2 sm:px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/5 text-[10px] sm:text-[11px] text-white/70 font-medium tracking-wide shadow-sm shrink-0">
           <span className="h-1.5 w-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)] animate-pulse" />
           MAIN
         </div>
@@ -213,16 +213,16 @@ const ThumbnailCanvas = ({ imageUrl, title, onTitleChange, onImageLoad, isLoadin
         <input
           value={title}
           onChange={(e) => onTitleChange(e.target.value)}
-          className="bg-transparent text-sm font-semibold text-white/90 focus:outline-none border-none flex-1 truncate placeholder:text-white/30 transition-colors focus:text-white"
+          className="bg-transparent text-xs sm:text-sm font-semibold text-white/90 focus:outline-none border-none flex-1 truncate placeholder:text-white/30 transition-colors focus:text-white min-w-0"
           placeholder="Untitled Thumbnail"
         />
 
         <button
           onClick={() => fileInputRef.current?.click()}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs text-black bg-white hover:bg-white/90 font-medium transition-all shadow-[0_0_15px_rgba(255,255,255,0.1)]"
+          className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl text-[10px] sm:text-xs text-black bg-white hover:bg-white/90 font-medium transition-all shadow-[0_0_15px_rgba(255,255,255,0.1)] shrink-0"
         >
-           <Upload className="h-3.5 w-3.5 object-contain" />
-           <span className="hidden sm:inline">Upload</span>
+           <Upload className="h-3 w-3 sm:h-3.5 sm:w-3.5 object-contain" />
+           <span>Upload</span>
         </button>
 
         <input
@@ -235,7 +235,7 @@ const ThumbnailCanvas = ({ imageUrl, title, onTitleChange, onImageLoad, isLoadin
       </div>
 
       <div
-        className={`flex-1 flex items-center justify-center p-8 overflow-hidden relative z-10 ${
+        className={`flex-1 flex items-center justify-center p-4 sm:p-8 overflow-hidden relative z-10 ${
           isPanning ? "cursor-grabbing" : zoom > 1 ? "cursor-grab" : "cursor-default"
         }`}
         onDragOver={handleDragOver}
@@ -313,18 +313,18 @@ const ThumbnailCanvas = ({ imageUrl, title, onTitleChange, onImageLoad, isLoadin
         </div>
       </div>
 
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 h-12 border border-white/10 bg-[#111]/80 backdrop-blur-xl rounded-full flex items-center justify-center gap-1.5 px-3 z-30 shadow-[0_8px_30px_rgba(0,0,0,0.5)]">
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 h-10 sm:h-12 border border-white/10 bg-[#111]/80 backdrop-blur-xl rounded-full flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-3 z-30 shadow-[0_8px_30px_rgba(0,0,0,0.5)] max-w-[95vw] overflow-x-auto no-scrollbar">
         <button
           onClick={handleZoomOut}
           disabled={zoom <= MIN_ZOOM}
-          className="p-2 rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-30 disabled:hover:bg-transparent h-8 w-8 flex items-center justify-center"
+          className="p-1.5 sm:p-2 rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-30 disabled:hover:bg-transparent h-7 w-7 sm:h-8 sm:w-8 flex items-center justify-center shrink-0"
         >
-           <ZoomOut className="h-4 w-4" />
+           <ZoomOut className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
         </button>
 
         <button
           onClick={handleResetZoom}
-          className="text-[11px] text-white/70 font-medium min-w-[48px] text-center hover:text-white transition-colors"
+          className="text-[10px] sm:text-[11px] text-white/70 font-medium min-w-[40px] sm:min-w-[48px] text-center hover:text-white transition-colors shrink-0"
         >
           {zoomPercentage}%
         </button>
@@ -332,39 +332,39 @@ const ThumbnailCanvas = ({ imageUrl, title, onTitleChange, onImageLoad, isLoadin
         <button
           onClick={handleZoomIn}
           disabled={zoom >= MAX_ZOOM}
-          className="p-2 rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-30 disabled:hover:bg-transparent h-8 w-8 flex items-center justify-center"
+          className="p-1.5 sm:p-2 rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-30 disabled:hover:bg-transparent h-7 w-7 sm:h-8 sm:w-8 flex items-center justify-center shrink-0"
         >
-           <ZoomIn className="h-4 w-4" />
+           <ZoomIn className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
         </button>
 
-        <div className="w-[1px] h-5 bg-white/10 mx-1" />
+        <div className="w-[1px] h-4 sm:h-5 bg-white/10 mx-0.5 sm:mx-1 shrink-0" />
 
         <button
            onClick={handleResetZoom}
-           className="p-2 rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-colors h-8 w-8 flex items-center justify-center"
+           className="p-1.5 sm:p-2 rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-colors h-7 w-7 sm:h-8 sm:w-8 flex items-center justify-center shrink-0"
            title="Reset zoom"
         >
-           <RotateCcw className="h-3.5 w-3.5" />
+           <RotateCcw className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
         </button>
 
         <button
            onClick={handleFullscreen}
            disabled={!imageUrl}
-           className="p-2 rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-30 disabled:hover:bg-transparent h-8 w-8 flex items-center justify-center"
+           className="p-1.5 sm:p-2 rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-30 disabled:hover:bg-transparent h-7 w-7 sm:h-8 sm:w-8 flex items-center justify-center shrink-0"
            title="Vollbild"
         >
-           <Maximize2 className="h-3.5 w-3.5" />
+           <Maximize2 className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
         </button>
 
-        <div className="w-[1px] h-5 bg-white/10 mx-1" />
+        <div className="w-[1px] h-4 sm:h-5 bg-white/10 mx-0.5 sm:mx-1 shrink-0" />
 
         <button
            onClick={handleDownload}
            disabled={!imageUrl}
-           className="p-2 rounded-full text-white hover:scale-105 bg-white/10 hover:bg-white/20 transition-all disabled:opacity-30 disabled:hover:scale-100 disabled:hover:bg-white/10 h-8 w-8 flex items-center justify-center"
+           className="p-1.5 sm:p-2 rounded-full text-white hover:scale-105 bg-white/10 hover:bg-white/20 transition-all disabled:opacity-30 disabled:hover:scale-100 disabled:hover:bg-white/10 h-7 w-7 sm:h-8 sm:w-8 flex items-center justify-center shrink-0"
            title="Download"
         >
-           <Download className="h-3.5 w-3.5" />
+           <Download className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
         </button>
       </div>
     </div>

@@ -46,6 +46,18 @@ const Studio = () => {
   const [user, setUser] = useState<User | null>(null);
   const [credits, setCredits] = useState(0);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 1024;
+      setIsMobile(mobile);
+      if (mobile) setSidebarCollapsed(true);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
   const [activePage, setActivePage] = useState("studio");
   const [activeTab, setActiveTab] = useState<RightTab>("inspiration");
   const [skinModalOpen, setSkinModalOpen] = useState(false);
@@ -334,121 +346,169 @@ const Studio = () => {
   const isStudio = activePage === "studio";
 
   return (
-    <div className="h-screen flex overflow-hidden bg-[#050505] font-light text-foreground selection:bg-white/20 relative">
-      <StudioSidebar
-        credits={credits}
-        userEmail={user?.email}
-        collapsed={sidebarCollapsed}
-        onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
-        activePage={activePage}
-        onPageChange={setActivePage}
-      />
+    <div className="h-screen flex flex-col lg:flex-row overflow-hidden bg-[#050505] font-light text-foreground selection:bg-white/20 relative">
+      <div className={`${isMobile && !sidebarCollapsed ? "fixed inset-0 z-[100]" : "hidden lg:block"}`}>
+        <StudioSidebar
+          credits={credits}
+          userEmail={user?.email}
+          collapsed={sidebarCollapsed}
+          onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
+          activePage={activePage}
+          onPageChange={(page) => {
+            setActivePage(page);
+            if (isMobile) setSidebarCollapsed(true);
+          }}
+        />
+        {isMobile && !sidebarCollapsed && (
+          <div 
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[-1]" 
+            onClick={() => setSidebarCollapsed(true)}
+          />
+        )}
+      </div>
 
-      {isStudio ? (
-        <>
-          <div className="flex-1 flex flex-col min-w-0 relative z-10">
-            {/* Subtle background glow */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] bg-white/[0.02] blur-[120px] rounded-full pointer-events-none" />
+      <div className="flex-1 flex flex-col min-w-0 relative h-full">
+        {isStudio ? (
+          <div className="flex-1 flex flex-col lg:flex-row min-w-0 h-full">
+            <div className="flex-1 flex flex-col min-w-0 relative z-10 h-full">
+              {/* Subtle background glow */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full lg:w-[800px] h-[300px] bg-white/[0.02] blur-[120px] rounded-full pointer-events-none" />
+              
+              <div className="flex items-center lg:hidden h-14 border-b border-white/5 px-4 bg-[#0a0a0a]/50 backdrop-blur-md shrink-0">
+                <button 
+                  onClick={() => setSidebarCollapsed(false)}
+                  className="p-2 -ml-2 text-white/40 hover:text-white"
+                >
+                  <div className="h-5 w-5 flex flex-col justify-center gap-1">
+                    <div className="h-0.5 w-5 bg-current rounded-full" />
+                    <div className="h-0.5 w-5 bg-current rounded-full" />
+                    <div className="h-0.5 w-3 bg-current rounded-full" />
+                  </div>
+                </button>
+                <span className="ml-3 font-medium text-sm text-white/90">Studio</span>
+              </div>
+
+              <VersionHistoryBar
+                versions={versions}
+                activeVersionId={activeVersionId}
+                onSelectVersion={handleSelectVersion}
+                onDeleteVersion={handleDeleteVersion}
+              />
+              <ThumbnailCanvas
+                imageUrl={canvasImage}
+                title={projectTitle}
+                onTitleChange={setProjectTitle}
+                isLoading={isCanvasLoading}
+                onImageLoad={(url) => {
+                  setCanvasImage(url);
+                  addVersion(url, "Upload");
+                }}
+              />
+            </div>
+
+            <div className={`
+              ${isMobile ? "fixed bottom-0 left-0 right-0 z-30 max-h-[60vh]" : "w-80 border-l"} 
+              border-white/5 bg-[#0a0a0a]/80 backdrop-blur-xl flex flex-col shrink-0 relative shadow-[-10px_0_30px_-15px_rgba(0,0,0,0.5)]
+            `}>
+              <div className="flex border-b border-white/5 shrink-0 px-2 pt-2">
+                {tabConfig.map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`flex-1 flex items-center justify-center gap-1.5 py-3 text-xs font-medium transition-all duration-200 relative rounded-t-lg ${
+                      activeTab === tab.id
+                        ? "text-white bg-white/5"
+                        : "text-white/40 hover:text-white/90 hover:bg-white/[0.02]"
+                    }`}
+                  >
+                    <tab.icon className={`h-3.5 w-3.5 ${activeTab === tab.id ? "text-white" : "text-white/40"}`} />
+                    {tab.label}
+                    {activeTab === tab.id && (
+                      <span className="absolute bottom-[-1px] left-0 right-0 h-[2px] bg-white rounded-t-full shadow-[0_0_8px_rgba(255,255,255,0.8)]" />
+                    )}
+                  </button>
+                ))}
+              </div>
+
+              <div className="flex-1 overflow-hidden">
+                {activeTab === "editor" ? (
+                  <EditorPanel
+                    hasImage={!!canvasImage}
+                    credits={credits}
+                    onApplyEdit={handleApplyEdit}
+                    onSwitchToSkin={() => setSkinModalOpen(true)}
+                  />
+                ) : (
+                  <InspirationPanel onSelectThumbnail={handleSelectThumbnail} />
+                )}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="flex-1 flex flex-col h-full">
+            <div className="flex items-center lg:hidden h-14 border-b border-white/5 px-4 bg-[#0a0a0a]/50 backdrop-blur-md shrink-0">
+              <button 
+                onClick={() => setSidebarCollapsed(false)}
+                className="p-2 -ml-2 text-white/40 hover:text-white"
+              >
+                <div className="h-5 w-5 flex flex-col justify-center gap-1">
+                  <div className="h-0.5 w-5 bg-current rounded-full" />
+                  <div className="h-0.5 w-5 bg-current rounded-full" />
+                  <div className="h-0.5 w-3 bg-current rounded-full" />
+                </div>
+              </button>
+              <span className="ml-3 font-medium text-sm text-white/90 capitalize">{activePage}</span>
+            </div>
             
-            <VersionHistoryBar
-              versions={versions}
-              activeVersionId={activeVersionId}
-              onSelectVersion={handleSelectVersion}
-              onDeleteVersion={handleDeleteVersion}
-            />
-            <ThumbnailCanvas
-              imageUrl={canvasImage}
-              title={projectTitle}
-              onTitleChange={setProjectTitle}
-              isLoading={isCanvasLoading}
-              onImageLoad={(url) => {
-                setCanvasImage(url);
-                addVersion(url, "Upload");
+            <div className="flex-1 overflow-y-auto">
+              {activePage === "videos" && user ? (
+                <MyVideosPage
+                  userId={user.id}
+                  onOpenProject={(project) => {
+                    setProjectTitle(project.title);
+                    if (project.canvas_image_url) {
+                      setCanvasImage(project.canvas_image_url);
+                      setVersions([]);
+                      addVersion(project.canvas_image_url, "Gespeichert");
+                    } else {
+                      setCanvasImage(null);
+                      setVersions([]);
+                      setActiveVersionId(null);
+                    }
+                    setActivePage("studio");
+                    toast.success("Project loaded");
+                  }}
+                />
+              ) : activePage === "account" && user ? (
+                <AccountSettingsPage user={user} />
+              ) : (
+                <PlaceholderPage
+                  title={placeholderPages[activePage]?.title || "Seite"}
+                  description={placeholderPages[activePage]?.description || "Diese Seite ist noch in Arbeit."}
+                />
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+
+      <Dialog open={skinModalOpen} onOpenChange={setSkinModalOpen}>
+        <DialogContent className="p-0 border-none bg-transparent shadow-none max-w-[520px] w-[95vw]">
+          <DialogTitle className="sr-only">Skin Replacer</DialogTitle>
+          <div className="rounded-2xl overflow-hidden border border-white/10 bg-[#0a0a0a]/90 backdrop-blur-xl">
+            <SkinReplacerPanel
+              canvasImage={canvasImage}
+              onResult={handleSkinResult}
+              onStart={handleSkinStart}
+              onError={handleSkinError}
+              onCreditSpent={() => {
+                setCredits((prev) => Math.max(0, prev - 1));
+                refreshCredits();
               }}
             />
           </div>
-
-          <div className="w-80 border-l border-white/5 bg-[#0a0a0a]/80 backdrop-blur-xl flex flex-col shrink-0 relative z-20 shadow-[-10px_0_30px_-15px_rgba(0,0,0,0.5)]">
-            <div className="flex border-b border-white/5 shrink-0 px-2 pt-2">
-              {tabConfig.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex-1 flex items-center justify-center gap-1.5 py-3 text-xs font-medium transition-all duration-200 relative rounded-t-lg ${
-                    activeTab === tab.id
-                      ? "text-white bg-white/5"
-                      : "text-white/40 hover:text-white/90 hover:bg-white/[0.02]"
-                  }`}
-                >
-                  <tab.icon className={`h-3.5 w-3.5 ${activeTab === tab.id ? "text-white" : "text-white/40"}`} />
-                  {tab.label}
-                  {activeTab === tab.id && (
-                    <span className="absolute bottom-[-1px] left-0 right-0 h-[2px] bg-white rounded-t-full shadow-[0_0_8px_rgba(255,255,255,0.8)]" />
-                  )}
-                </button>
-              ))}
-            </div>
-
-            <div className="flex-1 overflow-hidden">
-              {activeTab === "editor" ? (
-                <EditorPanel
-                  hasImage={!!canvasImage}
-                  credits={credits}
-                  onApplyEdit={handleApplyEdit}
-                  onSwitchToSkin={() => setSkinModalOpen(true)}
-                />
-              ) : (
-                <InspirationPanel onSelectThumbnail={handleSelectThumbnail} />
-              )}
-            </div>
-
-            <Dialog open={skinModalOpen} onOpenChange={setSkinModalOpen}>
-              <DialogContent className="p-0 border-none bg-transparent shadow-none max-w-[520px]">
-                <DialogTitle className="sr-only">Skin Replacer</DialogTitle>
-                <div className="rounded-2xl overflow-hidden border border-white/10 bg-[#0a0a0a]/90 backdrop-blur-xl">
-                  <SkinReplacerPanel
-                    canvasImage={canvasImage}
-                    onResult={handleSkinResult}
-                    onStart={handleSkinStart}
-                    onError={handleSkinError}
-                    onCreditSpent={() => {
-                      setCredits((prev) => Math.max(0, prev - 1));
-                      refreshCredits();
-                    }}
-                  />
-                </div>
-              </DialogContent>
-            </Dialog>
-          </div>
-        </>
-      ) : (
-        activePage === "videos" && user ? (
-          <MyVideosPage
-            userId={user.id}
-            onOpenProject={(project) => {
-              setProjectTitle(project.title);
-              if (project.canvas_image_url) {
-                setCanvasImage(project.canvas_image_url);
-                setVersions([]);
-                addVersion(project.canvas_image_url, "Gespeichert");
-              } else {
-                setCanvasImage(null);
-                setVersions([]);
-                setActiveVersionId(null);
-              }
-              setActivePage("studio");
-              toast.success("Project loaded");
-            }}
-          />
-        ) : activePage === "account" && user ? (
-          <AccountSettingsPage user={user} />
-        ) : (
-          <PlaceholderPage
-            title={placeholderPages[activePage]?.title || "Seite"}
-            description={placeholderPages[activePage]?.description || "Diese Seite ist noch in Arbeit."}
-          />
-        )
-      )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
