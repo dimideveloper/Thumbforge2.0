@@ -3,6 +3,7 @@ import HeroSection from "@/components/landing/HeroSection";
 import StatsSection from "@/components/landing/StatsSection";
 import FeaturesGrid from "@/components/landing/FeaturesGrid";
 import HowItWorksSection from "@/components/landing/HowItWorksSection";
+import BeforeAfterSection from "@/components/landing/BeforeAfterSection";
 import ShowcaseSection from "@/components/landing/ShowcaseSection";
 import TestimonialsSection from "@/components/landing/TestimonialsSection";
 import ComparisonTable from "@/components/landing/ComparisonTable";
@@ -22,6 +23,7 @@ const Index = () => {
         <StatsSection />
         <FeaturesGrid />
         <HowItWorksSection />
+        <BeforeAfterSection />
         <ShowcaseSection />
         <TestimonialsSection />
         <ComparisonTable />
