@@ -42,7 +42,7 @@ const BeforeAfterSection = () => {
             viewport={{ once: true }}
             className="text-3xl md:text-5xl font-medium tracking-tight mb-4"
           >
-            Vom Entwurf zum <span className="text-white/60">Meisterwerk</span>
+            From Draft to <span className="text-white/60">Masterpiece</span>
           </motion.h2>
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
@@ -51,7 +51,7 @@ const BeforeAfterSection = () => {
             transition={{ delay: 0.1 }}
             className="text-white/40 text-lg max-w-2xl mx-auto font-light"
           >
-            Sieh selbst, wie ThumbForge deine Thumbnails mit nur einem Klick transformiert. Ziehe den Slider, um den Unterschied zu sehen.
+            See for yourself how ThumbForge transforms your thumbnails with just one click. Drag the slider to see the difference.
           </motion.p>
         </div>
 
@@ -100,10 +100,10 @@ const BeforeAfterSection = () => {
 
             {/* Labels */}
             <div className="absolute top-6 left-6 px-4 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-xs font-medium tracking-wider text-white/70 pointer-events-none uppercase">
-              Vorher
+              Before
             </div>
             <div className="absolute top-6 right-6 px-4 py-1.5 rounded-full bg-white text-black border border-white/10 text-xs font-medium tracking-wider pointer-events-none uppercase">
-              Nachher
+              After
             </div>
           </div>
           
