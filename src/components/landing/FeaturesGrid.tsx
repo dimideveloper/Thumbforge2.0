@@ -38,10 +38,10 @@ const FeaturesGrid = () => (
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: i * 0.1, duration: 0.6, ease: "easeOut" }}
-            className="rounded-3xl border border-white/10 bg-[#0a0a0a] p-10 hover:bg-[#111] transition-colors"
+            className="glass-card rounded-2xl p-10 hover:border-primary/50 transition-all duration-300 hover:-translate-y-1"
           >
             <div className="mb-8">
-              <f.icon className="h-8 w-8 text-white/80" strokeWidth={1.5} />
+              <f.icon className="h-8 w-8 text-primary drop-shadow-[0_0_15px_rgba(37,99,235,0.5)]" strokeWidth={1.5} />
             </div>
             <h3 className="text-xl font-medium text-white mb-3">{f.title}</h3>
             <p className="text-white/50 leading-relaxed font-light">{f.description}</p>

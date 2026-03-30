@@ -28,7 +28,7 @@ const CTASection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.7 }}
-          className="relative rounded-3xl border border-white/10 bg-[#0a0a0a] overflow-hidden p-12 md:p-20 text-center"
+          className="relative glass-card rounded-2xl overflow-hidden p-12 md:p-20 text-center"
         >
           {/* Glow */}
           <div className="absolute inset-0 pointer-events-none">
@@ -36,8 +36,8 @@ const CTASection = () => {
           </div>
 
           <div className="relative z-10">
-            <div className="inline-flex h-14 w-14 rounded-2xl border border-white/10 bg-white/5 items-center justify-center mb-8 mx-auto">
-              <Zap className="h-6 w-6 text-white/70" strokeWidth={1.5} />
+            <div className="inline-flex h-16 w-16 rounded-xl border border-primary/20 bg-primary/10 items-center justify-center mb-8 mx-auto shadow-[0_0_20px_rgba(37,99,235,0.2)]">
+              <Zap className="h-8 w-8 text-primary drop-shadow-[0_0_10px_rgba(37,99,235,0.5)]" strokeWidth={1.5} />
             </div>
 
             <h2 className="text-3xl md:text-6xl font-medium text-white tracking-tight mb-6 max-w-3xl mx-auto leading-tight">
@@ -52,7 +52,7 @@ const CTASection = () => {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <button
                 onClick={() => navigate(isLoggedIn ? "/dashboard" : "/auth")}
-                className="h-14 px-10 rounded-full bg-white text-black font-semibold text-base hover:scale-105 active:scale-95 transition-transform flex items-center gap-2 shadow-[0_0_40px_rgba(255,255,255,0.15)]"
+                className="h-14 px-10 rounded-full bg-primary text-primary-foreground font-semibold text-base hover:bg-primary/90 active:scale-95 transition-all flex items-center gap-2 shadow-[0_0_30px_hsl(221_83%_53%_/_0.3)] hover:shadow-[0_0_40px_hsl(221_83%_53%_/_0.5)]"
               >
                 {isLoggedIn ? "Open Studio" : "Start for free"} <ArrowRight className="h-5 w-5" />
               </button>

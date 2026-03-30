@@ -80,7 +80,7 @@ const ShowcaseSection = () => {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5, ease: "easeOut" }}
-                className="aspect-video rounded-[2rem] overflow-hidden border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.5)] relative bg-[#111] z-10"
+                className="aspect-video rounded-2xl overflow-hidden glass-card shadow-[0_0_40px_rgba(37,99,235,0.15)] relative z-10"
               >
                  <img 
                    src={showcaseImages[currentIndex].url} 
@@ -96,13 +96,13 @@ const ShowcaseSection = () => {
               {/* Quick Navigation Arrows on Hover */}
               <button 
                 onClick={prev}
-                className="absolute left-4 top-1/2 -translate-y-1/2 z-20 h-10 w-10 rounded-full bg-white/10 backdrop-blur-md border border-white/10 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute left-4 top-1/2 -translate-y-1/2 z-20 h-10 w-10 rounded-full bg-primary/20 hover:bg-primary/40 backdrop-blur-md border border-primary/30 flex items-center justify-center text-primary opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110"
               >
                 <ChevronLeft className="h-5 w-5" />
               </button>
               <button 
                 onClick={next}
-                className="absolute right-4 top-1/2 -translate-y-1/2 z-20 h-10 w-10 rounded-full bg-white/10 backdrop-blur-md border border-white/10 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute right-4 top-1/2 -translate-y-1/2 z-20 h-10 w-10 rounded-full bg-primary/20 hover:bg-primary/40 backdrop-blur-md border border-primary/30 flex items-center justify-center text-primary opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110"
               >
                 <ChevronRight className="h-5 w-5" />
               </button>
@@ -128,7 +128,7 @@ const ShowcaseSection = () => {
                 key={i}
                 onClick={() => setCurrentIndex(i)}
                 className={`h-1.5 rounded-full transition-all duration-300 ${
-                  currentIndex === i ? "bg-white w-8" : "bg-white/10 hover:bg-white/30 w-1.5"
+                  currentIndex === i ? "bg-primary w-8 shadow-[0_0_10px_rgba(37,99,235,0.5)]" : "bg-white/10 hover:bg-white/30 w-1.5"
                 }`}
               />
             ))}

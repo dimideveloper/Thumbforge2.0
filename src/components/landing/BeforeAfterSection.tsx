@@ -80,7 +80,7 @@ const BeforeAfterSection = () => {
         <div className="max-w-4xl mx-auto relative group">
           <div 
             ref={containerRef}
-            className="relative aspect-video rounded-[2rem] overflow-hidden border border-white/10 bg-[#0a0a0a] cursor-ew-resize select-none shadow-2xl"
+            className="relative aspect-video rounded-2xl overflow-hidden glass-card cursor-ew-resize select-none shadow-[0_0_40px_rgba(37,99,235,0.15)] group-hover:shadow-[0_0_50px_rgba(37,99,235,0.25)] transition-shadow duration-500"
             onMouseMove={handleMouseMove}
             onTouchMove={handleTouchMove}
             onMouseDown={() => setIsDragging(true)}
@@ -109,13 +109,13 @@ const BeforeAfterSection = () => {
 
             {/* Slider Handle */}
             <div 
-              className="absolute inset-y-0 w-1 bg-white shadow-[0_0_15px_rgba(255,255,255,0.5)] z-10"
+              className="absolute inset-y-0 w-1 bg-primary shadow-[0_0_15px_rgba(37,99,235,0.5)] z-10"
               style={{ left: `${sliderPosition}%` }}
             >
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-2xl border-4 border-black/20 group-active:scale-110 transition-transform">
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-primary rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(37,99,235,0.5)] border-4 border-white/10 group-active:scale-110 transition-transform">
                 <div className="flex gap-1">
-                  <div className="w-1 h-3 bg-black/20 rounded-full" />
-                  <div className="w-1 h-3 bg-black/20 rounded-full" />
+                  <div className="w-1 h-3 bg-white/60 rounded-full" />
+                  <div className="w-1 h-3 bg-white/60 rounded-full" />
                 </div>
               </div>
             </div>
@@ -124,7 +124,7 @@ const BeforeAfterSection = () => {
             <div className="absolute top-6 left-6 px-4 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-xs font-medium tracking-wider text-white/70 pointer-events-none uppercase">
               Before
             </div>
-            <div className="absolute top-6 right-6 px-4 py-1.5 rounded-full bg-white text-black border border-white/10 text-xs font-medium tracking-wider pointer-events-none uppercase">
+            <div className="absolute top-6 right-6 px-4 py-1.5 rounded-full bg-primary text-primary-foreground border border-primary/50 shadow-[0_0_15px_rgba(37,99,235,0.4)] text-xs font-medium tracking-wider pointer-events-none uppercase">
               After
             </div>
           </div>

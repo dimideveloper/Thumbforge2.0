@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Outfit:wght@100..900&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,40 +6,40 @@
 
 @layer base {
   :root {
-    --background: 0 0% 4%;
+    --background: 230 20% 4%;
     --foreground: 0 0% 100%;
 
-    --card: 0 0% 9%;
+    --card: 230 20% 6%;
     --card-foreground: 0 0% 100%;
 
-    --popover: 0 0% 9%;
+    --popover: 230 20% 6%;
     --popover-foreground: 0 0% 100%;
 
-    --primary: 263 70% 66%;
+    --primary: 221 83% 53%; /* Electric Blue */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 187 94% 43%;
+    --secondary: 279 82% 58%; /* Violet */
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 64%;
+    --muted: 230 20% 15%;
+    --muted-foreground: 230 10% 65%;
 
-    --accent: 263 70% 66%;
+    --accent: 279 82% 58%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 15%;
-    --input: 0 0% 15%;
-    --ring: 263 70% 66%;
+    --border: 230 20% 15%;
+    --input: 230 20% 15%;
+    --ring: 221 83% 53%;
 
     --radius: 0.75rem;
 
-    --surface: 0 0% 9%;
-    --surface-hover: 0 0% 12%;
-    --glow-primary: 263 70% 66%;
-    --glow-secondary: 187 94% 43%;
+    --surface: 230 20% 6%;
+    --surface-hover: 230 20% 10%;
+    --glow-primary: 221 83% 53%;
+    --glow-secondary: 279 82% 58%;
   }
 }
 
@@ -57,26 +57,27 @@
 
 @layer utilities {
   .glow-primary {
-    box-shadow: 0 0 30px hsl(263 70% 66% / 0.3), 0 0 60px hsl(263 70% 66% / 0.1);
+    box-shadow: 0 0 30px hsl(221 83% 53% / 0.3), 0 0 60px hsl(221 83% 53% / 0.1);
   }
   .glow-secondary {
-    box-shadow: 0 0 30px hsl(187 94% 43% / 0.3), 0 0 60px hsl(187 94% 43% / 0.1);
+    box-shadow: 0 0 30px hsl(279 82% 58% / 0.3), 0 0 60px hsl(279 82% 58% / 0.1);
   }
   .glow-text-primary {
-    text-shadow: 0 0 20px hsl(263 70% 66% / 0.5);
+    text-shadow: 0 0 20px hsl(221 83% 53% / 0.5);
   }
   .glow-text-secondary {
-    text-shadow: 0 0 20px hsl(187 94% 43% / 0.5);
+    text-shadow: 0 0 20px hsl(279 82% 58% / 0.5);
   }
   .hero-radial {
-    background: radial-gradient(ellipse 60% 40% at 50% 40%, hsl(263 70% 66% / 0.15) 0%, transparent 70%);
+    background: radial-gradient(ellipse 60% 40% at 50% 40%, hsl(221 83% 53% / 0.15) 0%, transparent 70%);
   }
   .card-hover {
-    @apply transition-all duration-200;
+    @apply transition-all duration-300;
   }
   .card-hover:hover {
-    border-color: hsl(263 70% 66% / 0.6);
-    box-shadow: 0 0 20px hsl(263 70% 66% / 0.1);
+    border-color: hsl(221 83% 53% / 0.5);
+    box-shadow: 0 0 25px hsl(221 83% 53% / 0.15);
+    background-color: hsl(230 20% 10%);
   }
   .scrollbar-none {
     scrollbar-width: none;
@@ -84,5 +85,8 @@
   }
   .scrollbar-none::-webkit-scrollbar {
     display: none;
+  }
+  .glass-card {
+    @apply bg-white/[0.03] backdrop-blur-xl border border-white/10 shadow-[0_4px_24px_-8px_rgba(0,0,0,0.5)];
   }
 }

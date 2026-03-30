@@ -87,33 +87,33 @@ const PricingCards = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: i * 0.1, duration: 0.6, ease: "easeOut" }}
-            className={`relative rounded-3xl p-8 flex flex-col transition-all ${plan.highlighted
-                ? "bg-white text-black scale-[1.02] shadow-2xl"
-                : "bg-[#0a0a0a] border border-white/10 text-white hover:bg-[#111]"
+            className={`relative glass-card rounded-2xl p-8 flex flex-col transition-all duration-300 hover:-translate-y-1 ${plan.highlighted
+                ? "border-primary/50 bg-primary/10 shadow-[0_0_30px_rgba(37,99,235,0.15)] scale-[1.02]"
+                : "hover:border-primary/30"
               }`}
           >
             <div className="mb-8">
               <h3 className="text-xl font-medium">{plan.name}</h3>
-              <p className={`text-sm mt-2 ${plan.highlighted ? "text-black/60" : "text-white/50"}`}>
+              <p className="text-sm mt-2 text-white/50">
                 {plan.audience}
               </p>
               <div className="mt-6 flex items-baseline gap-1">
-                <span className="text-5xl font-medium tracking-tight">{plan.price}</span>
-                <span className={`text-sm ${plan.highlighted ? "text-black/60" : "text-white/50"}`}>
+                <span className="text-5xl font-semibold tracking-tight">{plan.price}</span>
+                <span className="text-sm text-white/50">
                   {plan.period}
                 </span>
               </div>
-              <p className={`text-sm font-medium mt-3 ${plan.highlighted ? "text-black/80" : "text-white/70"}`}>
+              <p className="text-sm font-medium mt-3 text-white/80">
                 {plan.credits}
               </p>
-              <p className={`text-xs mt-1 ${plan.highlighted ? "text-black/50" : "text-white/40"}`}>
+              <p className="text-xs mt-1 text-white/40">
                 ({plan.estimate})
               </p>
             </div>
             <ul className="space-y-4 mb-10 flex-1">
               {plan.features.map((f) => (
-                <li key={f} className={`flex items-center gap-3 text-sm ${plan.highlighted ? "text-black/80" : "text-white/70"}`}>
-                  <Check className={`h-4 w-4 shrink-0 ${plan.highlighted ? "text-black" : "text-white"}`} />
+                <li key={f} className="flex items-center gap-3 text-sm text-white/80">
+                  <Check className={`h-4 w-4 shrink-0 ${plan.highlighted ? "text-primary drop-shadow-[0_0_8px_rgba(37,99,235,0.5)]" : "text-primary/70"}`} />
                   {f}
                 </li>
               ))}
@@ -128,9 +128,9 @@ const PricingCards = () => {
                   navigate("/auth");
                 }
               }}
-              className={`h-12 w-full rounded-full font-medium transition-transform active:scale-95 ${plan.highlighted
-                  ? "bg-black text-white hover:bg-black/90"
-                  : "bg-white text-black hover:bg-white/90"
+              className={`h-12 w-full rounded-xl font-medium transition-all active:scale-95 ${plan.highlighted
+                  ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_20px_rgba(37,99,235,0.3)]"
+                  : "bg-white/5 text-white hover:bg-white/10 border border-white/10"
                 }`}
             >
               {isLoggedIn && !plan.checkoutUrl ? "Go to Dashboard" : "Get Started"}

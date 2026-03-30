@@ -83,12 +83,12 @@ const TestimonialsSection = () => (
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: i * 0.08, duration: 0.5 }}
-            className="rounded-3xl border border-white/[0.07] bg-[#0a0a0a] p-7 flex flex-col gap-5 hover:border-white/15 transition-colors"
+            className="glass-card rounded-2xl p-7 flex flex-col gap-5 hover:border-primary/50 transition-all duration-300 hover:-translate-y-1"
           >
             {/* Stars */}
             <div className="flex gap-0.5">
               {Array.from({ length: t.stars }).map((_, s) => (
-                <Star key={s} className="h-3.5 w-3.5 fill-white/80 text-white/80" />
+                <Star key={s} className="h-3.5 w-3.5 fill-secondary text-secondary drop-shadow-[0_0_8px_rgba(236,72,153,0.5)]" />
               ))}
             </div>
 
@@ -98,11 +98,11 @@ const TestimonialsSection = () => (
             </p>
 
             {/* Author */}
-            <div className="flex items-center gap-3 pt-2 border-t border-white/5">
+            <div className="flex items-center gap-3 pt-4 border-t border-white/10">
               <img 
                 src={t.avatar} 
                 alt={t.name}
-                className="h-9 w-9 rounded-full bg-white/10 shrink-0 object-cover border border-white/5"
+                className="h-10 w-10 rounded-full bg-white/10 shrink-0 object-cover border-2 border-primary/30"
               />
               <div>
                 <div className="text-sm font-medium text-white">{t.name}</div>

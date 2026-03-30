@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
@@ -31,19 +32,15 @@ const CREDIT_COSTS: Record<EditMode, number> = {
   character: 3,
 };
 
-const modeConfig: Record<EditMode, { model: string; systemPrompt: string }> = {
-  quick: {
-    model: "google/gemini-3.1-flash-image-preview",
-    systemPrompt: `You are a YouTube thumbnail editor. Apply fast, impactful improvements:
+const modeSystemPrompts: Record<EditMode, string> = {
+  quick: `You are a YouTube thumbnail editor. Apply fast, impactful improvements:
 - Boost contrast and saturation by ~20%
 - Sharpen the main subject
 - Add subtle vignette for focus
 - Make colors pop more
 Keep the edit subtle but noticeable. Maintain the original composition exactly.`,
-  },
-  pro: {
-    model: "google/gemini-3-pro-image-preview",
-    systemPrompt: `You are an elite YouTube thumbnail designer who creates thumbnails for channels with 10M+ subscribers.
+
+  pro: `You are an elite YouTube thumbnail designer who creates thumbnails for channels with 10M+ subscribers.
 Apply professional-grade edits:
 - Cinematic color grading with rich, deep colors
 - Dramatic lighting with volumetric light rays and lens flares where appropriate
@@ -54,10 +51,8 @@ Apply professional-grade edits:
 - Bold, vibrant color palette optimized for YouTube CTR
 - Clean edges and sharp details on the main subject
 Make it look like a Hollywood movie poster meets top-tier YouTube content. The result must be stunning and click-worthy.`,
-  },
-  background: {
-    model: "google/gemini-3-pro-image-preview",
-    systemPrompt: `You are a background specialist for YouTube thumbnails.
+
+  background: `You are a background specialist for YouTube thumbnails.
 Focus exclusively on improving the background:
 - Generate epic, dramatic backgrounds that complement the foreground subject
 - Add depth with atmospheric perspective, fog, or particle effects
@@ -66,10 +61,8 @@ Focus exclusively on improving the background:
 - Add volumetric lighting and god rays
 - Ensure the background supports the thumbnail's story without distracting from the subject
 Keep the foreground subject exactly as-is. Only transform the background.`,
-  },
-  character: {
-    model: "google/gemini-3-pro-image-preview",
-    systemPrompt: `You are a character enhancement specialist for gaming YouTube thumbnails.
+
+  character: `You are a character enhancement specialist for gaming YouTube thumbnails.
 Focus on making characters and objects look more impressive:
 - Add dynamic glow and rim lighting to characters
 - Enhance armor, weapons, and items with shiny/reflective effects
@@ -78,10 +71,8 @@ Focus on making characters and objects look more impressive:
 - Add motion blur or action lines for dynamic poses
 - Make items look legendary/epic quality with golden glows or enchantment effects
 Keep the background and overall composition unchanged. Only enhance the characters and objects.`,
-  },
-  enhance: {
-    model: "google/gemini-3-pro-image-preview",
-    systemPrompt: `You are a YouTube thumbnail optimization expert who maximizes click-through rate.
+
+  enhance: `You are a YouTube thumbnail optimization expert who maximizes click-through rate.
 Apply comprehensive thumbnail optimization:
 - Maximize contrast between subject and background (subject should pop)
 - Apply cinematic color grading (teal-orange, dramatic warm/cool split)
@@ -93,7 +84,6 @@ Apply comprehensive thumbnail optimization:
 - Ensure text areas remain readable with good contrast
 - Make the overall image feel "premium" and "cinematic"
 The goal is to make this thumbnail impossible to scroll past on YouTube.`,
-  },
 };
 
 const isValidImageInput = (value: unknown): value is string => {
@@ -103,25 +93,25 @@ const isValidImageInput = (value: unknown): value is string => {
   return false;
 };
 
-const extractImageUrlFromAiResponse = (data: any): string | null => {
-  const directImage = data?.choices?.[0]?.message?.images?.[0]?.image_url;
-  if (typeof directImage === "string") return directImage;
-  if (typeof directImage?.url === "string") return directImage.url;
-
-  const content = data?.choices?.[0]?.message?.content;
-  if (Array.isArray(content)) {
-    for (const part of content) {
-      if (part?.type === "image_url") {
-        if (typeof part?.image_url === "string") return part.image_url;
-        if (typeof part?.image_url?.url === "string") return part.image_url.url;
-      }
-      if (part?.type === "output_image" && typeof part?.image_url === "string") {
-        return part.image_url;
-      }
-    }
+// Fetch an image URL and return it as base64 + mimeType for Gemini
+const imageToBase64 = async (url: string): Promise<{ data: string; mimeType: string }> => {
+  if (url.startsWith("data:image/")) {
+    const [header, data] = url.split(",");
+    const mimeType = header.match(/data:(.*);base64/)?.[1] ?? "image/jpeg";
+    return { data, mimeType };
   }
-
-  return null;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Failed to fetch image: ${res.status}`);
+  const buffer = await res.arrayBuffer();
+  const bytes = new Uint8Array(buffer);
+  let binary = "";
+  for (let i = 0; i < bytes.byteLength; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  const data = btoa(binary);
+  const contentType = res.headers.get("content-type") ?? "image/jpeg";
+  const mimeType = contentType.split(";")[0].trim();
+  return { data, mimeType };
 };
 
 serve(async (req) => {
@@ -132,7 +122,7 @@ serve(async (req) => {
     return jsonResponse(200, {
       success: true,
       function: "edit-thumbnail",
-      version: "2026-03-16-1",
+      version: "2026-03-30-gemini-direct",
     });
   }
 
@@ -141,51 +131,38 @@ serve(async (req) => {
     const body = await req.json().catch(() => ({}));
     const imageUrl = body?.imageUrl;
     const prompt = typeof body?.prompt === "string" ? body.prompt.trim() : "";
-    const mode: EditMode = (body?.mode && modeConfig[body.mode]) ? body.mode : "quick";
+    const mode: EditMode =
+      body?.mode && modeSystemPrompts[body.mode as EditMode]
+        ? (body.mode as EditMode)
+        : "quick";
     const referenceImageUrl = body?.referenceImageUrl;
 
-    console.log("edit-thumbnail request body summary:", {
-      errorId,
-      hasBody: !!body,
-      hasImageUrl: !!imageUrl,
-      hasPrompt: !!prompt,
-      mode,
-      hasReferenceImageUrl: !!referenceImageUrl,
-    });
+    console.log("edit-thumbnail request:", { errorId, hasImage: !!imageUrl, hasPrompt: !!prompt, mode });
 
     if (!imageUrl || !prompt) {
       return jsonResponse(400, {
         success: false,
         error: "Missing required fields",
-        details: {
-          required: ["imageUrl", "prompt"],
-          received: {
-            hasImageUrl: !!imageUrl,
-            hasPrompt: !!prompt,
-          },
-        },
+        details: { required: ["imageUrl", "prompt"], received: { hasImageUrl: !!imageUrl, hasPrompt: !!prompt } },
       });
     }
 
     if (!isValidImageInput(imageUrl)) {
-      return jsonResponse(400, {
-        success: false,
-        error: "A valid imageUrl is required",
-      });
+      return jsonResponse(400, { success: false, error: "A valid imageUrl is required" });
     }
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    // Load env vars
+    const GOOGLE_API_KEY = Deno.env.get("GOOGLE_API_KEY");
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
-    const aiKey = LOVABLE_API_KEY;
     const missingEnv: string[] = [];
-    if (!aiKey) missingEnv.push("LOVABLE_API_KEY");
+    if (!GOOGLE_API_KEY) missingEnv.push("GOOGLE_API_KEY");
     if (!SUPABASE_URL) missingEnv.push("SUPABASE_URL");
     if (!SUPABASE_SERVICE_ROLE_KEY) missingEnv.push("SUPABASE_SERVICE_ROLE_KEY");
 
     if (missingEnv.length > 0) {
-      console.error("edit-thumbnail missing env vars:", { errorId, missingEnv });
+      console.error("Missing env vars:", missingEnv);
       return jsonResponse(500, {
         success: false,
         error: "Server configuration error: missing environment variables",
@@ -193,51 +170,29 @@ serve(async (req) => {
       });
     }
 
+    // Auth
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
-      console.error("edit-thumbnail missing Authorization header", { errorId });
       return jsonResponse(401, { success: false, error: "Unauthorized: Missing Authorization header", details: { errorId } });
     }
 
-    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+    const supabaseClient = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
 
-    let user: any = null;
-    try {
-      const token = authHeader.replace("Bearer ", "");
-      const userResp = await supabaseClient.auth.getUser(token);
-      user = userResp.data.user;
-      if (userResp.error) {
-        console.error("edit-thumbnail auth.getUser error", { errorId, error: userResp.error });
-        return jsonResponse(401, { success: false, error: "Unauthorized: Invalid token", details: { errorId } });
-      }
-      if (!user) {
-        console.error("edit-thumbnail auth.getUser missing user", { errorId });
-        return jsonResponse(401, { success: false, error: "Unauthorized: Invalid token", details: { errorId } });
-      }
-    } catch (authCrash) {
-      const message = authCrash instanceof Error ? authCrash.message : String(authCrash);
-      console.error("edit-thumbnail auth.getUser crashed", { errorId, message });
-      return jsonResponse(500, { success: false, error: "Auth lookup failed", details: { errorId, message } });
-    }
-    
-    let profile: any = null;
-    let profileError: any = null;
-    try {
-      const profileResp = await supabaseClient
-        .from("profiles")
-        .select("credits")
-        .eq("user_id", user.id)
-        .single();
-      profile = profileResp.data;
-      profileError = profileResp.error;
-    } catch (profileCrash) {
-      const message = profileCrash instanceof Error ? profileCrash.message : String(profileCrash);
-      console.error("edit-thumbnail profile query crashed", { errorId, message });
-      return jsonResponse(500, { success: false, error: "Failed to load user profile", details: { errorId, message } });
+    const token = authHeader.replace("Bearer ", "");
+    const userResp = await supabaseClient.auth.getUser(token);
+    const user = userResp.data.user;
+    if (userResp.error || !user) {
+      return jsonResponse(401, { success: false, error: "Unauthorized: Invalid token", details: { errorId } });
     }
 
-    if (profileError || !profile) {
-      console.error("edit-thumbnail profile query error", { errorId, profileError });
+    // Load profile / credits
+    const profileResp = await supabaseClient
+      .from("profiles")
+      .select("credits")
+      .eq("user_id", user.id)
+      .single();
+    const profile = profileResp.data;
+    if (profileResp.error || !profile) {
       return jsonResponse(500, { success: false, error: "Failed to load user profile", details: { errorId } });
     }
 
@@ -246,90 +201,105 @@ serve(async (req) => {
       return jsonResponse(402, { success: false, error: "Nicht genügend Credits. Bitte lade dein Konto auf." });
     }
 
-    const config = modeConfig[mode];
-
-    let response: Response;
+    // Convert main image to base64
+    let mainImage: { data: string; mimeType: string };
     try {
-      response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      mainImage = await imageToBase64(imageUrl);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      console.error("Failed to load main image:", message);
+      return jsonResponse(400, { success: false, error: "Could not load the provided image", details: { errorId } });
+    }
+
+    // Build Gemini request parts
+    const systemPrompt = modeSystemPrompts[mode];
+    const userText = isValidImageInput(referenceImageUrl)
+      ? `${systemPrompt}\n\nEdit this YouTube thumbnail. I'm also providing a reference image for style inspiration. User instruction: ${prompt}`
+      : `${systemPrompt}\n\nUser instruction: ${prompt}`;
+
+    const parts: any[] = [
+      { text: userText },
+      { inlineData: { mimeType: mainImage.mimeType, data: mainImage.data } },
+    ];
+
+    // Optionally attach reference image
+    if (isValidImageInput(referenceImageUrl)) {
+      try {
+        const refImage = await imageToBase64(referenceImageUrl);
+        parts.push({ inlineData: { mimeType: refImage.mimeType, data: refImage.data } });
+      } catch (e) {
+        console.warn("Could not load reference image, skipping:", e);
+      }
+    }
+
+    // Call Google Gemini image generation API
+    const geminiModel = "gemini-2.0-flash-exp-image-generation";
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${GOOGLE_API_KEY}`;
+
+    console.log("Calling Gemini API:", { errorId, model: geminiModel, mode });
+
+    let aiResponse: Response;
+    try {
+      aiResponse = await fetch(geminiUrl, {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${aiKey}`,
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: config.model,
-          messages: [
-            {
-              role: "system",
-              content: config.systemPrompt,
-            },
-            {
-              role: "user",
-              content: [
-                {
-                  type: "text",
-                  text: isValidImageInput(referenceImageUrl)
-                    ? `Edit this YouTube thumbnail based on the reference image I'm providing: ${prompt}`
-                    : `Edit this YouTube thumbnail: ${prompt}`,
-                },
-                {
-                  type: "image_url",
-                  image_url: { url: imageUrl },
-                },
-                ...(isValidImageInput(referenceImageUrl)
-                  ? [{ type: "image_url" as const, image_url: { url: referenceImageUrl } }]
-                  : []),
-              ],
-            },
-          ],
-          modalities: ["image", "text"],
+          contents: [{ parts }],
+          generationConfig: {
+            responseModalities: ["TEXT", "IMAGE"],
+          },
         }),
       });
     } catch (fetchError) {
       const message = fetchError instanceof Error ? fetchError.message : String(fetchError);
-      console.error("AI image edit network error:", message);
-      return jsonResponse(502, {
-        success: false,
-        error: "AI image edit network error",
-        details: { message },
-      });
+      console.error("Gemini network error:", message);
+      return jsonResponse(502, { success: false, error: "AI network error", details: { message, errorId } });
     }
 
-    console.log("edit-thumbnail AI response status:", { errorId, status: response.status });
+    console.log("Gemini response status:", { errorId, status: aiResponse.status });
 
-    if (!response.ok) {
-      const gatewayError = await response.text();
-      console.error("AI image edit error:", { errorId, status: response.status, gatewayError: gatewayError.slice(0, 800) });
+    if (!aiResponse.ok) {
+      const errorText = await aiResponse.text();
+      console.error("Gemini API error:", { errorId, status: aiResponse.status, body: errorText.slice(0, 800) });
 
-      if (response.status === 429) {
+      if (aiResponse.status === 429) {
         return jsonResponse(429, {
           success: false,
           error: "Rate limit exceeded. Please wait a moment and try again.",
         });
       }
-      if (response.status === 402) {
-        return jsonResponse(402, {
+      if (aiResponse.status === 400) {
+        return jsonResponse(400, {
           success: false,
-          error: "AI credits exhausted. Please add funds.",
+          error: "Invalid request. Please try a different image or prompt.",
+          details: { errorId },
         });
       }
-
       return jsonResponse(502, {
         success: false,
-        error: "AI image edit request failed",
-        details: { errorId, gatewayError: gatewayError.slice(0, 500) },
+        error: "AI request failed",
+        details: { errorId, status: aiResponse.status },
       });
     }
 
-    const data = await response.json().catch((parseError) => {
-      const message = parseError instanceof Error ? parseError.message : String(parseError);
-      console.error("edit-thumbnail AI JSON parse error:", message);
-      throw new Error("Failed to parse AI response JSON");
-    });
-    const editedImageUrl = extractImageUrlFromAiResponse(data);
+    const aiData = await aiResponse.json();
+
+    // Extract image from Gemini response (base64 inlineData)
+    let editedImageUrl: string | null = null;
+    const candidates = aiData?.candidates ?? [];
+    for (const candidate of candidates) {
+      const contentParts = candidate?.content?.parts ?? [];
+      for (const part of contentParts) {
+        if (part?.inlineData?.data && part?.inlineData?.mimeType) {
+          editedImageUrl = `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
+          break;
+        }
+      }
+      if (editedImageUrl) break;
+    }
 
     if (!editedImageUrl) {
-      console.error("No image in AI response", { errorId, data: JSON.stringify(data).slice(0, 1000) });
+      console.error("No image in Gemini response:", { errorId, preview: JSON.stringify(aiData).slice(0, 600) });
       return jsonResponse(502, {
         success: false,
         error: "The AI did not return an edited image. Please try again with a different image or prompt.",
@@ -337,15 +307,14 @@ serve(async (req) => {
       });
     }
 
-    // Deduct credits upon success
+    // Deduct credits on success
     const { error: deductError } = await supabaseClient
       .from("profiles")
       .update({ credits: Math.max(0, profile.credits - cost) })
       .eq("user_id", user.id);
 
     if (deductError) {
-      console.error("Failed to deduct credit:", { errorId, deductError });
-      // We still return success but ideally we log it properly
+      console.error("Failed to deduct credits:", { errorId, deductError });
     }
 
     return jsonResponse(200, {
@@ -359,10 +328,6 @@ serve(async (req) => {
     const errorId = createErrorId();
     const message = e instanceof Error ? e.message : "Unknown error";
     console.error("edit-thumbnail unhandled error:", { errorId, message });
-    return jsonResponse(500, {
-      success: false,
-      error: message,
-      details: { errorId },
-    });
+    return jsonResponse(500, { success: false, error: message, details: { errorId } });
   }
 });

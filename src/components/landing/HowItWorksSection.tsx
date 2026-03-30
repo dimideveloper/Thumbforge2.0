@@ -60,10 +60,10 @@ const HowItWorksSection = () => (
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: i * 0.15, duration: 0.6, ease: "easeOut" }}
-            className="flex flex-col items-center text-center p-8 rounded-3xl border border-white/[0.06] bg-[#0a0a0a] hover:bg-[#0f0f0f] transition-colors relative"
+            className="flex flex-col items-center text-center p-8 glass-card rounded-2xl hover:border-primary/50 transition-all duration-300 relative group hover:-translate-y-1"
           >
-            <div className="h-14 w-14 rounded-2xl border border-white/10 bg-white/5 flex items-center justify-center mb-6 relative z-10">
-              <step.icon className="h-6 w-6 text-white/70" strokeWidth={1.5} />
+            <div className="h-14 w-14 rounded-xl border border-primary/20 bg-primary/10 flex items-center justify-center mb-6 relative z-10 group-hover:scale-110 transition-transform duration-300">
+              <step.icon className="h-6 w-6 text-primary drop-shadow-[0_0_10px_rgba(37,99,235,0.5)]" strokeWidth={1.5} />
             </div>
             <span className="text-[10px] font-bold text-white/20 tracking-[0.2em] uppercase mb-3">
               Step {step.number}

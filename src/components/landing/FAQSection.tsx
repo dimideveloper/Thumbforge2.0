@@ -57,8 +57,8 @@ const FAQSection = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1, duration: 0.4 }}
-                className={`border rounded-2xl overflow-hidden transition-colors duration-300 ${
-                  isOpen ? "bg-[#111] border-white/20" : "bg-[#0a0a0a] border-white/5 hover:border-white/10"
+                className={`glass-card rounded-2xl overflow-hidden transition-all duration-300 ${
+                  isOpen ? "bg-white/[0.05] border-primary/50 shadow-[0_0_20px_rgba(37,99,235,0.15)]" : "border-white/10 hover:border-primary/50 hover:-translate-y-1"
                 }`}
               >
                 <button
@@ -67,8 +67,8 @@ const FAQSection = () => {
                 >
                   <span className="font-medium text-white text-lg pr-8">{faq.question}</span>
                   <ChevronDown
-                    className={`h-5 w-5 text-white/50 transition-transform duration-300 ${
-                      isOpen ? "rotate-180 text-white" : ""
+                    className={`h-5 w-5 transition-transform duration-300 ${
+                      isOpen ? "rotate-180 text-primary drop-shadow-[0_0_8px_rgba(37,99,235,0.5)]" : "text-white/50 group-hover:text-white"
                     }`}
                   />
                 </button>
