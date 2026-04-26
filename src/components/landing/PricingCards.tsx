@@ -56,13 +56,17 @@ const PricingCards = () => {
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
+  const [user, setUser] = useState<any>(null);
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setIsLoggedIn(!!session);
+      setUser(session?.user || null);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setIsLoggedIn(!!session);
+      setUser(session?.user || null);
     });
 
     return () => subscription.unsubscribe();
@@ -121,7 +125,11 @@ const PricingCards = () => {
             <button
               onClick={() => {
                 if (plan.checkoutUrl) {
-                  window.open(plan.checkoutUrl, '_blank');
+                  let url = plan.checkoutUrl;
+                  if (user?.email) {
+                    url += `${url.includes('?') ? '&' : '?'}email=${encodeURIComponent(user.email)}`;
+                  }
+                  window.open(url, '_blank');
                 } else if (isLoggedIn) {
                   navigate("/dashboard");
                 } else {

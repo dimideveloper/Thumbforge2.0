@@ -1,3 +1,5 @@
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogTitle, DialogHeader, DialogDescription } from "@/components/ui/dialog";
 import { Check, Coins, Zap } from "lucide-react";
 
@@ -40,6 +42,14 @@ const plans = [
 ];
 
 const TopUpModal = ({ open, onOpenChange }: TopUpModalProps) => {
+  const [email, setEmail] = useState<string | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setEmail(user?.email || null);
+    });
+  }, []);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl bg-[#0a0a0a] border-white/10 text-white p-0 overflow-hidden">
@@ -89,7 +99,13 @@ const TopUpModal = ({ open, onOpenChange }: TopUpModalProps) => {
                 </ul>
                 
                 <button
-                  onClick={() => window.open(plan.checkoutUrl, '_blank')}
+                  onClick={() => {
+                    let url = plan.checkoutUrl;
+                    if (email) {
+                      url += `${url.includes('?') ? '&' : '?'}email=${encodeURIComponent(email)}`;
+                    }
+                    window.open(url, '_blank');
+                  }}
                   className={`mt-8 h-12 w-full rounded-full font-medium transition-transform active:scale-95 ${
                     plan.highlighted
                       ? "bg-black text-white hover:bg-black/90"

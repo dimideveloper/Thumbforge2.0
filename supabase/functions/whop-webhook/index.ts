@@ -22,6 +22,7 @@ serve(async (req) => {
 
     const event = payload.action; // "membership.went_valid" or "membership.went_invalid"
     const membership = payload.data;
+    const planId = membership?.plan_id || membership?.plan?.id;
 
     if (!membership || !membership.user) {
       return new Response(JSON.stringify({ error: "No user data found in webhook" }), {
@@ -40,13 +41,12 @@ serve(async (req) => {
       });
     }
 
-    console.log(`Updating user ${email}: is_pro = ${isPro}`);
+    console.log(`Processing ${event} for ${email} (Plan: ${planId})`);
 
-    // Update profile by email instead of ID directly because Whop sends the email
-    // Ideally, users sign up with the same email used for Whop.
+    // Find profile
     const { data: profile, error: searchError } = await supabaseClient
       .from("profiles")
-      .select("id")
+      .select("id, credits")
       .eq("email", email)
       .maybeSingle();
 
@@ -59,20 +59,41 @@ serve(async (req) => {
     }
 
     if (!profile) {
-      console.log(`User with email ${email} not found in DB. Need to create user first or await login.`);
-      // Depending on flow: you might want to create a shadow user here if they haven't signed up yet. 
-      // For now, we return 200 so Whop doesn't keep retrying. 
+      console.log(`User with email ${email} not found in DB.`);
       return new Response(JSON.stringify({ message: "User not found, skipping sync" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
+    // Determine plan and credits
+    let planName = "free";
+    let creditsToGrant = 5;
+
+    if (isPro) {
+      if (planId === "plan_lj2lAPEbLwxH5") {
+        planName = "starter";
+        creditsToGrant = 50;
+      } else if (planId === "plan_C53jPL5MeUWxg") {
+        planName = "pro";
+        creditsToGrant = 200;
+      } else if (planId === "plan_OAZXDwdWr2Xs9") {
+        planName = "premium";
+        creditsToGrant = 999999;
+      } else {
+        // Fallback for unknown plans
+        planName = "pro";
+        creditsToGrant = 100;
+      }
+    }
+
+    console.log(`Updating ${email}: plan=${planName}, credits=${creditsToGrant}`);
+
     const { error: updateError } = await supabaseClient
       .from("profiles")
       .update({
-        is_pro: isPro,
-        plan: isPro ? "pro" : "free",
-        credits: isPro ? 999999 : 5, // give "unlimited" or base credits depending on plan
+        is_pro: isPro && planName !== "free",
+        plan: planName,
+        credits: creditsToGrant,
       })
       .eq("id", profile.id);
 
@@ -84,7 +105,7 @@ serve(async (req) => {
       });
     }
 
-    return new Response(JSON.stringify({ success: true, message: `Updated ${email} pro status` }), {
+    return new Response(JSON.stringify({ success: true, message: `Updated ${email} to ${planName}` }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
     });
