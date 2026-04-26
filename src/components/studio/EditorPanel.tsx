@@ -60,23 +60,60 @@ const EditorPanel = ({ hasImage, credits, onApplyEdit, onSwitchToSkin }: EditorP
   const [selectedMode, setSelectedMode] = useState<EditMode>("pro");
   const [attachedImage, setAttachedImage] = useState<string | null>(null);
   const [attachedImageName, setAttachedImageName] = useState<string | null>(null);
-  const [toolsOpen, setToolsOpen] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
-  const handleAttachImage = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (!file.type.startsWith("image/")) return;
+  const processFile = (file: File) => {
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please provide an image file.");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image too large. Max 5MB.");
+      return;
+    }
 
     const reader = new FileReader();
     reader.onload = (ev) => {
       if (ev.target?.result) {
         setAttachedImage(ev.target.result as string);
         setAttachedImageName(file.name);
+        toast.success("Image attached!");
       }
     };
     reader.readAsDataURL(file);
+  };
+
+  const handleAttachImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) processFile(file);
     e.target.value = "";
+  };
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    const items = e.clipboardData.items;
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.indexOf("image") !== -1) {
+        const file = items[i].getAsFile();
+        if (file) processFile(file);
+        break;
+      }
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) processFile(file);
   };
 
   const removeAttachment = () => {
@@ -134,8 +171,28 @@ const EditorPanel = ({ hasImage, credits, onApplyEdit, onSwitchToSkin }: EditorP
     }
   };
 
+  const [toolsOpen, setToolsOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   return (
-    <div className="flex flex-col h-full bg-[#0a0a0a]/50 overflow-y-auto">
+    <div 
+      className={`flex flex-col h-full bg-[#0a0a0a]/50 overflow-y-auto relative transition-colors duration-300 ${isDragging ? "bg-white/[0.03]" : ""}`}
+      onPaste={handlePaste}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+    >
+      {/* Drag Overlay */}
+      {isDragging && (
+        <div className="absolute inset-0 z-50 bg-white/[0.02] backdrop-blur-sm flex items-center justify-center border-2 border-dashed border-white/20 m-2 rounded-3xl pointer-events-none animate-in fade-in duration-300">
+          <div className="flex flex-col items-center gap-4">
+            <div className="h-16 w-16 rounded-full bg-white/5 flex items-center justify-center">
+              <Image className="h-8 w-8 text-white/50" />
+            </div>
+            <p className="text-sm text-white/50 font-medium">Drop image here</p>
+          </div>
+        </div>
+      )}
 
       {/* Edit history & Pending */}
       <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-2 sm:space-y-3 relative min-h-[120px]">
@@ -295,28 +352,41 @@ const EditorPanel = ({ hasImage, credits, onApplyEdit, onSwitchToSkin }: EditorP
              </button>
            </div>
            
-           <Button
-             size="sm"
+           <button
              onClick={handleGenerate}
              disabled={pendingPrompts.length === 0 || !hasImage || isProcessing}
-             className={`h-8 sm:h-9 px-3 sm:px-5 rounded-lg sm:rounded-xl font-semibold shadow-lg transition-all flex-shrink-0 text-xs gap-2 ${
-               pendingPrompts.length > 0 
-                ? "bg-white text-black hover:bg-white/90 animate-in zoom-in-95" 
-                : "bg-white/5 text-white/20"
-             }`}
+             className="uiverse-generate-button shrink-0"
            >
-             {isProcessing ? (
-               <>
-                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                 <span>Generating...</span>
-               </>
-             ) : (
-               <>
-                 <Sparkles className="h-3.5 w-3.5" />
-                 <span>Generate {pendingPrompts.length > 0 && `(${pendingPrompts.length})`}</span>
-               </>
-             )}
-           </Button>
+             <div className="inner">
+               <div className="svgs">
+                 <svg
+                   viewBox="0 0 256 256"
+                   height="1.2em"
+                   width="1.2em"
+                   xmlns="http://www.w3.org/2000/svg"
+                   className={`svg-l ${isProcessing ? "animate-spin" : ""}`}
+                 >
+                   <path
+                     d="M240 128a15.79 15.79 0 0 1-10.5 15l-63.44 23.07L143 229.5a16 16 0 0 1-30 0l-23.06-63.44L26.5 143a16 16 0 0 1 0-30l63.44-23.06L113 26.5a16 16 0 0 1 30 0l23.07 63.44L229.5 113a15.79 15.79 0 0 1 10.5 15"
+                     fill="currentColor"
+                   ></path>
+                 </svg>
+                 <svg
+                   viewBox="0 0 256 256"
+                   height="1em"
+                   width="1em"
+                   xmlns="http://www.w3.org/2000/svg"
+                   className="svg-s"
+                 >
+                   <path
+                     d="M240 128a15.79 15.79 0 0 1-10.5 15l-63.44 23.07L143 229.5a16 16 0 0 1-30 0l-23.06-63.44L26.5 143a16 16 0 0 1 0-30l63.44-23.06L113 26.5a16 16 0 0 1 30 0l23.07 63.44L229.5 113a15.79 15.79 0 0 1 10.5 15"
+                     fill="currentColor"
+                   ></path>
+                 </svg>
+               </div>
+               {isProcessing ? "Optimizing..." : `Generate ${pendingPrompts.length > 0 ? `(${pendingPrompts.length})` : ""}`}
+             </div>
+           </button>
         </div>
       </div>
 
