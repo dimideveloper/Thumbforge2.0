@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  Paintbrush, Film, Settings, MessageSquare,
+  Paintbrush, Film, Settings, Users,
   LogOut, ChevronLeft, ChevronRight, Zap, Coins,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -25,7 +25,7 @@ const platformItems = [
 
 const accountItems = [
   { icon: Settings, label: "Account", id: "account" },
-  { icon: MessageSquare, label: "Community", id: "community" },
+  { icon: Users, label: "Affiliate", id: "affiliates" },
 ];
 
 const StudioSidebar = ({ credits, userEmail, collapsed, onToggle, activePage, onPageChange }: StudioSidebarProps) => {

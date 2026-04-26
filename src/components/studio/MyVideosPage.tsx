@@ -128,17 +128,18 @@ const MyVideosPage = ({ userId, onOpenProject }: MyVideosPageProps) => {
 
   if (loading) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-background">
-        <div className="animate-spin h-8 w-8 border-2 border-primary border-t-transparent rounded-full" />
+      <div className="h-[calc(100vh-60px)] w-full flex flex-col items-center justify-center bg-transparent">
+        <div className="loader" />
+        <p className="text-white/30 text-[10px] mt-6 tracking-widest uppercase animate-pulse">Loading Projects</p>
       </div>
     );
   }
 
   if (projects.length === 0) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-background">
+      <div className="flex-1 flex items-center justify-center bg-transparent">
         <div className="text-center space-y-4 max-w-md px-8">
-          <div className="mx-auto h-16 w-16 rounded-2xl bg-muted flex items-center justify-center">
+          <div className="mx-auto h-16 w-16 rounded-2xl bg-white/5 flex items-center justify-center">
             <Film className="h-8 w-8 text-muted-foreground" />
           </div>
           <h2 className="font-display text-xl font-bold text-foreground">
@@ -153,7 +154,7 @@ const MyVideosPage = ({ userId, onOpenProject }: MyVideosPageProps) => {
   }
 
   return (
-    <div className="flex-1 bg-background overflow-y-auto">
+    <div className="flex-1 bg-transparent overflow-y-auto">
       <div className="max-w-6xl mx-auto px-6 py-8">
         <div className="mb-8">
           <h1 className="font-display text-2xl font-bold text-foreground">

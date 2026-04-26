@@ -49,14 +49,23 @@ const CTASection = () => {
               Join 2,500+ creators using ThumbForge to grow their channels. Start for free — no credit card needed.
             </p>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <div className="flex flex-col items-center gap-6">
               <button
                 onClick={() => navigate(isLoggedIn ? "/dashboard" : "/auth")}
-                className="h-14 px-10 rounded-full bg-primary text-primary-foreground font-semibold text-base hover:bg-primary/90 active:scale-95 transition-all flex items-center gap-2 shadow-[0_0_30px_hsl(221_83%_53%_/_0.3)] hover:shadow-[0_0_40px_hsl(221_83%_53%_/_0.5)]"
+                className="btn-shine"
               >
-                {isLoggedIn ? "Open Studio" : "Start for free"} <ArrowRight className="h-5 w-5" />
+                {isLoggedIn ? "Open Studio" : "Start for free"}
+                <svg className="btn-icon" viewBox="0 0 24 24" fill="currentColor">
+                  <path
+                    fillRule="evenodd"
+                    d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm4.28 10.28a.75.75 0 000-1.06l-3-3a.75.75 0 10-1.06 1.06l1.72 1.72H8.25a.75.75 0 000 1.5h5.69l-1.72 1.72a.75.75 0 101.06 1.06l3-3z"
+                    clipRule="evenodd"
+                  ></path>
+                </svg>
               </button>
-              <p className="text-white/30 text-sm font-light">No credit card · Free tier always available</p>
+              <p className="text-white/20 text-xs font-light tracking-wide">
+                No credit card required · Free tier always available
+              </p>
             </div>
           </div>
         </motion.div>

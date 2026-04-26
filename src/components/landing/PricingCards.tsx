@@ -128,12 +128,20 @@ const PricingCards = () => {
                   navigate("/auth");
                 }
               }}
-              className={`h-12 w-full rounded-xl font-medium transition-all active:scale-95 ${plan.highlighted
-                  ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_20px_rgba(37,99,235,0.3)]"
-                  : "bg-white/5 text-white hover:bg-white/10 border border-white/10"
-                }`}
+              className={plan.highlighted ? "btn-shine w-full" : "h-12 w-full rounded-xl font-medium transition-all active:scale-95 bg-white/5 text-white hover:bg-white/10 border border-white/10"}
             >
-              {isLoggedIn && !plan.checkoutUrl ? "Go to Dashboard" : "Get Started"}
+              <span className="flex-1 text-center">
+                {isLoggedIn && !plan.checkoutUrl ? "Go to Dashboard" : "Get Started"}
+              </span>
+              {plan.highlighted && (
+                <svg className="btn-icon" viewBox="0 0 24 24" fill="currentColor">
+                  <path
+                    fillRule="evenodd"
+                    d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm4.28 10.28a.75.75 0 000-1.06l-3-3a.75.75 0 10-1.06 1.06l1.72 1.72H8.25a.75.75 0 000 1.5h5.69l-1.72 1.72a.75.75 0 101.06 1.06l3-3z"
+                    clipRule="evenodd"
+                  ></path>
+                </svg>
+              )}
             </button>
           </motion.div>
         ))}

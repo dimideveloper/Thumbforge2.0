@@ -127,9 +127,9 @@ const InspirationPanel = ({ onSelectThumbnail }: InspirationPanelProps) => {
 
       <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
         {isSearching && (
-          <div className="flex flex-col items-center justify-center py-16 gap-3">
-            <Loader2 className="h-6 w-6 text-white/60 animate-spin" />
-            <p className="text-xs text-white/40 font-light">Searching…</p>
+          <div className="flex flex-col items-center justify-center py-20 gap-6">
+            <div className="loader" />
+            <p className="text-xs text-white/40 font-light tracking-wide">Searching for inspiration…</p>
           </div>
         )}
 

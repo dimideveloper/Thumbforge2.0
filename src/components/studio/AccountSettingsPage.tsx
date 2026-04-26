@@ -172,39 +172,47 @@ const AccountSettingsPage = ({ user }: AccountSettingsPageProps) => {
     : (user.email?.slice(0, 2).toUpperCase() || "??");
 
   return (
-    <div className="flex-1 flex bg-background overflow-hidden">
+    <div className="flex-1 flex bg-transparent overflow-hidden">
       {/* Section nav */}
-      <div className="w-52 border-r border-border p-4 space-y-1 shrink-0">
-        <h2 className="font-display text-lg font-bold text-foreground mb-4">Settings</h2>
+      <div className="w-64 border-r border-white/5 p-6 space-y-1.5 shrink-0 bg-white/[0.01]">
+        <div className="mb-8">
+          <h2 className="text-xl font-medium text-white tracking-tight">Settings</h2>
+          <p className="text-xs text-white/30 mt-1 font-light">Manage your preferences</p>
+        </div>
+        
         {sections.map((s) => (
           <button
             key={s.id}
             onClick={() => setActiveSection(s.id)}
-            className={`w-full flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors ${
+            className={`w-full flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all duration-300 ${
               activeSection === s.id
-                ? "bg-white/10 text-white font-medium"
-                : "text-muted-foreground hover:bg-white/5 hover:text-white"
+                ? "bg-white/10 text-white shadow-lg ring-1 ring-white/5"
+                : "text-white/40 hover:bg-white/5 hover:text-white/80"
             }`}
           >
-            <s.icon className="h-4 w-4" />
-            {s.label}
+            <s.icon className={`h-4 w-4 ${activeSection === s.id ? "text-white" : "text-white/30"}`} />
+            <span className="font-medium">{s.label}</span>
           </button>
         ))}
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto p-8 max-w-2xl">
+      <div className="flex-1 overflow-y-auto p-10 md:p-16 max-w-4xl relative">
+        {/* Subtle glow */}
+        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-primary/5 blur-[120px] rounded-full pointer-events-none" />
+
         {activeSection === "profile" && (
-          <div className="space-y-6">
+          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
             <div>
-              <h3 className="text-lg font-bold text-foreground">Profile</h3>
-              <p className="text-sm text-muted-foreground">Manage your public profile information</p>
+              <h3 className="text-2xl font-medium text-white tracking-tight">Profile</h3>
+              <p className="text-sm text-white/40 mt-1 font-light leading-relaxed">Manage your public profile information</p>
             </div>
-            <Separator />
+            <Separator className="bg-white/5" />
 
             {profileLoading ? (
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Loader2 className="h-4 w-4 animate-spin" /> Loading…
+              <div className="flex flex-col items-center justify-center py-24 gap-6 text-muted-foreground animate-in fade-in duration-500">
+                <div className="loader" />
+                <p className="text-[10px] uppercase tracking-widest text-white/30 font-medium">Loading profile…</p>
               </div>
             ) : (
               <>

@@ -150,7 +150,7 @@ const ThumbnailCanvas = ({ imageUrl, title, onTitleChange, onImageLoad, isLoadin
       a.download = `${title || "thumbnail"}.jpg`;
       a.click();
       URL.revokeObjectURL(url);
-      toast.success("Download gestartet");
+      toast.success("Download started");
     } catch {
       toast.error("Download failed");
     }
@@ -267,16 +267,12 @@ const ThumbnailCanvas = ({ imageUrl, title, onTitleChange, onImageLoad, isLoadin
                 onError={() => setImageError(true)}
               />
               {isLoading && (
-                <div className="absolute inset-0 flex items-center justify-center z-10 transition-all duration-500 bg-black/40 backdrop-blur-sm">
-                  <div className="bg-[#111]/90 backdrop-blur-2xl border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.8)] rounded-3xl p-8 flex flex-col items-center gap-5 animate-in fade-in zoom-in-95 duration-500 scale-100 min-w-[240px]">
-                    <div className="relative flex items-center justify-center h-14 w-14">
-                      <div className="absolute inset-0 rounded-full border-[3px] border-white/10" />
-                      <div className="absolute inset-0 rounded-full border-[3px] border-white border-t-transparent animate-spin" />
-                      <Sparkles className="h-5 w-5 text-white absolute animate-pulse" />
-                    </div>
+                <div className="absolute inset-0 flex items-center justify-center z-10 transition-all duration-500 bg-black/60 backdrop-blur-sm">
+                  <div className="flex flex-col items-center gap-6 animate-in fade-in zoom-in-95 duration-500">
+                    <div className="loader" />
                     <div className="text-center space-y-1.5">
-                      <p className="text-sm font-semibold text-white tracking-wide">AI optimiert dein Bild</p>
-                      <p className="text-[10px] text-white/50 font-medium uppercase tracking-[0.2em]">Einen Moment bitte</p>
+                      <p className="text-sm font-semibold text-white tracking-wide">AI is optimizing your image</p>
+                      <p className="text-[10px] text-white/50 font-medium uppercase tracking-[0.2em]">Please wait a moment</p>
                     </div>
                   </div>
                 </div>

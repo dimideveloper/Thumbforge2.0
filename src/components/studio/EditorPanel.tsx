@@ -54,6 +54,7 @@ const createId = () => {
 
 const EditorPanel = ({ hasImage, credits, onApplyEdit, onSwitchToSkin }: EditorPanelProps) => {
   const [editPrompt, setEditPrompt] = useState("");
+  const [pendingPrompts, setPendingPrompts] = useState<string[]>([]);
   const [edits, setEdits] = useState<EditItem[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedMode, setSelectedMode] = useState<EditMode>("pro");
@@ -83,9 +84,21 @@ const EditorPanel = ({ hasImage, credits, onApplyEdit, onSwitchToSkin }: EditorP
     setAttachedImageName(null);
   };
 
-  const addEdit = async (prompt: string, mode?: EditMode) => {
+  const addPromptToDraft = (prompt: string) => {
     if (!prompt.trim() || !hasImage) return;
-    const useMode = mode ?? selectedMode;
+    setPendingPrompts(prev => [...prev, prompt.trim()]);
+    setEditPrompt("");
+  };
+
+  const removePromptFromDraft = (index: number) => {
+    setPendingPrompts(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleGenerate = async () => {
+    if (pendingPrompts.length === 0 || !hasImage) return;
+    
+    const combinedPrompt = pendingPrompts.join(". ");
+    const useMode = selectedMode;
     const cost = CREDIT_COSTS[useMode] ?? 1;
 
     if (credits < cost) {
@@ -95,19 +108,22 @@ const EditorPanel = ({ hasImage, credits, onApplyEdit, onSwitchToSkin }: EditorP
 
     const newEdit: EditItem = {
       id: createId(),
-      prompt,
+      prompt: combinedPrompt,
       mode: useMode,
       status: "processing",
       attachedImage: attachedImage || undefined,
     };
+
     setEdits((prev) => [...prev, newEdit]);
-    setEditPrompt("");
     const currentAttached = attachedImage || undefined;
+    
+    // Clear draft state
+    setPendingPrompts([]);
     removeAttachment();
     setIsProcessing(true);
 
     try {
-      await onApplyEdit(prompt, useMode, currentAttached);
+      await onApplyEdit(combinedPrompt, useMode, currentAttached);
       setEdits((prev) =>
         prev.map((e) => (e.id === newEdit.id ? { ...e, status: "done" } : e))
       );
@@ -118,64 +134,32 @@ const EditorPanel = ({ hasImage, credits, onApplyEdit, onSwitchToSkin }: EditorP
     }
   };
 
-  const modeObj = modes.find((m) => m.id === selectedMode)!;
-
   return (
     <div className="flex flex-col h-full bg-[#0a0a0a]/50 overflow-y-auto">
-      {/* Mode selector */}
-      <div className="p-3 sm:p-4 border-b border-white/5 space-y-3 shrink-0">
-        <p className="text-[9px] sm:text-[10px] text-white/30 uppercase tracking-wider font-semibold">
-          AI Modus
-        </p>
-        <div className="grid grid-cols-5 gap-1 sm:gap-1.5">
-          {modes.map((m) => (
-            <button
-              key={m.id}
-              onClick={() => setSelectedMode(m.id)}
-              className={`flex flex-col items-center gap-1 sm:gap-1.5 p-1.5 sm:p-2 rounded-lg sm:rounded-xl text-[9px] sm:text-[10px] transition-all duration-200 border ${
-                selectedMode === m.id
-                  ? "border-white/30 bg-white/10 text-white shadow-sm ring-1 ring-white/10"
-                  : "border-transparent text-white/40 hover:text-white/90 hover:bg-white/5"
-              }`}
-            >
-              <m.icon className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${selectedMode === m.id ? "text-white" : "text-white/40"}`} />
-              <span className="font-medium truncate w-full text-center">{m.label}</span>
-            </button>
-          ))}
-        </div>
-        <div className="flex items-center gap-2 text-[10px] sm:text-xs text-white/50 pt-1">
-          <modeObj.icon className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-white/70 shrink-0" />
-          <span className="font-light truncate">{modeObj.desc}</span>
-          <span className="ml-auto text-[9px] sm:text-[10px] bg-white text-black px-1 sm:px-1.5 py-0.5 rounded shadow-lg font-bold tracking-wide shrink-0">
-            {CREDIT_COSTS[selectedMode] ?? 1} Credits
-          </span>
-        </div>
-      </div>
 
-      {/* Edit history */}
+      {/* Edit history & Pending */}
       <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-2 sm:space-y-3 relative min-h-[120px]">
-        {edits.length === 0 && (
+        {edits.length === 0 && pendingPrompts.length === 0 && (
           <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 space-y-4">
             <div className="h-12 w-12 rounded-full border border-white/10 bg-gradient-to-b from-white/5 to-transparent flex items-center justify-center">
               <Wand2 className="h-5 w-5 text-white/30" />
             </div>
             <p className="text-sm text-white/40 font-light max-w-[200px] leading-relaxed">
               {hasImage
-                ? "Describe what you want to change. You can also attach a reference image."
+                ? "Describe what you want to change. You can queue multiple instructions."
                 : "Load a thumbnail into the canvas first."}
             </p>
           </div>
         )}
 
+        {/* Previous Edits */}
         {edits.map((edit) => (
           <div
             key={edit.id}
             className={`rounded-xl p-3 text-xs border backdrop-blur-md transition-all ${
               edit.status === "done"
                 ? "border-white/10 bg-white/[0.03]"
-                : edit.status === "processing"
-                  ? "border-white/20 bg-white/[0.05] shadow-[0_0_15px_rgba(255,255,255,0.05)] animate-pulse"
-                  : "border-white/5 bg-black/40"
+                : "border-white/20 bg-white/[0.05] shadow-[0_0_15px_rgba(255,255,255,0.05)] animate-pulse"
               }`}
           >
             <div className="flex items-start gap-3">
@@ -187,18 +171,32 @@ const EditorPanel = ({ hasImage, credits, onApplyEdit, onSwitchToSkin }: EditorP
               <div className="min-w-0 flex-1">
                 <span className="text-white/90 block font-medium mb-1 leading-snug">{edit.prompt}</span>
                 <span className="text-[10px] text-white/40 capitalize font-light">
-                  {edit.mode} mode · {CREDIT_COSTS[edit.mode] ?? 1} Credits
+                   Finished · {edit.mode} mode
                 </span>
-                {edit.attachedImage && (
-                  <div className="mt-2">
-                     <img
-                      src={edit.attachedImage}
-                      alt="Referenz"
-                      className="h-12 w-12 rounded-md object-cover border border-white/10 shadow-sm"
-                    />
-                  </div>
-                )}
               </div>
+            </div>
+          </div>
+        ))}
+
+        {/* Pending Edits (Draft) */}
+        {pendingPrompts.map((prompt, idx) => (
+          <div
+            key={`pending-${idx}`}
+            className="rounded-xl p-3 text-xs border border-white/10 bg-white/[0.01] group animate-in slide-in-from-right-2 duration-300"
+          >
+            <div className="flex items-center gap-3">
+              <div className="h-5 w-5 rounded-full bg-white/5 flex items-center justify-center text-[10px] text-white/40 font-bold">
+                {idx + 1}
+              </div>
+              <div className="flex-1 min-w-0">
+                <span className="text-white/70 block leading-snug">{prompt}</span>
+              </div>
+              <button 
+                onClick={() => removePromptFromDraft(idx)}
+                className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:text-red-400 text-white/30"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
             </div>
           </div>
         ))}
@@ -214,7 +212,7 @@ const EditorPanel = ({ hasImage, credits, onApplyEdit, onSwitchToSkin }: EditorP
             {quickEdits.map((qe) => (
                <button
                  key={qe.label}
-                 onClick={() => addEdit(qe.prompt)}
+                 onClick={() => addPromptToDraft(qe.prompt)}
                  disabled={isProcessing}
                  className="flex items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-2 sm:py-2.5 rounded-lg sm:rounded-xl bg-white/[0.02] border border-white/5 text-[10px] sm:text-xs text-white/60 hover:text-white/90 hover:border-white/20 hover:bg-white/[0.04] transition-all duration-200 disabled:opacity-50"
                >
@@ -258,17 +256,27 @@ const EditorPanel = ({ hasImage, credits, onApplyEdit, onSwitchToSkin }: EditorP
              className="hidden"
              onChange={handleAttachImage}
            />
-           <input
-             value={editPrompt}
-             onChange={(e) => setEditPrompt(e.target.value)}
-             onKeyDown={(e) => e.key === "Enter" && addEdit(editPrompt)}
-             placeholder={hasImage ? `e.g. "make it more epic"...` : "Upload an image first..."}
-             disabled={!hasImage || isProcessing}
-             className="flex-1 h-9 sm:h-10 px-3 sm:px-4 rounded-lg sm:rounded-xl bg-white/[0.03] border border-white/10 text-xs sm:text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 focus:bg-white/[0.05] transition-all disabled:opacity-50 min-w-0 font-light"
-           />
+           <div className="flex-1 relative">
+             <input
+               value={editPrompt}
+               onChange={(e) => setEditPrompt(e.target.value)}
+               onKeyDown={(e) => e.key === "Enter" && addPromptToDraft(editPrompt)}
+               placeholder={hasImage ? `Add instructions...` : "Upload an image first..."}
+               disabled={!hasImage || isProcessing}
+               className="w-full h-9 sm:h-10 px-3 sm:px-4 rounded-lg sm:rounded-xl bg-white/[0.03] border border-white/10 text-xs sm:text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 focus:bg-white/[0.05] transition-all disabled:opacity-50 min-w-0 font-light pr-12"
+             />
+             {editPrompt.trim() && (
+               <button 
+                 onClick={() => addPromptToDraft(editPrompt)}
+                 className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-white/60 hover:text-white bg-white/10 px-2 py-1 rounded-md transition-all"
+               >
+                 Add
+               </button>
+             )}
+           </div>
         </div>
         <div className="flex items-center gap-2 justify-between">
-           <div className="flex items-center gap-1 sm:gap-1.5">
+           <div className="flex items-center gap-1.5">
              <button
                onClick={() => fileInputRef.current?.click()}
                disabled={!hasImage || isProcessing}
@@ -285,25 +293,27 @@ const EditorPanel = ({ hasImage, credits, onApplyEdit, onSwitchToSkin }: EditorP
              >
                <Wrench className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
              </button>
-             <span className="text-[9px] sm:text-[10px] text-white/30 ml-1 sm:ml-2 font-light hidden xs:inline">
-               📎 Ref · 🔧 Tools
-             </span>
            </div>
+           
            <Button
              size="sm"
-             onClick={() => addEdit(editPrompt)}
-             disabled={!editPrompt.trim() || !hasImage || isProcessing}
-             className="h-8 sm:h-9 px-3 sm:px-5 bg-white hover:bg-white/90 text-black rounded-lg sm:rounded-xl font-medium shadow-[0_0_15px_rgba(255,255,255,0.1)] transition-all flex-shrink-0 text-xs"
+             onClick={handleGenerate}
+             disabled={pendingPrompts.length === 0 || !hasImage || isProcessing}
+             className={`h-8 sm:h-9 px-3 sm:px-5 rounded-lg sm:rounded-xl font-semibold shadow-lg transition-all flex-shrink-0 text-xs gap-2 ${
+               pendingPrompts.length > 0 
+                ? "bg-white text-black hover:bg-white/90 animate-in zoom-in-95" 
+                : "bg-white/5 text-white/20"
+             }`}
            >
              {isProcessing ? (
                <>
-                 <Loader2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 animate-spin mr-1.5 sm:mr-2" />
-                 <span>Lädt...</span>
+                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                 <span>Generating...</span>
                </>
              ) : (
                <>
-                 <Wand2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
-                 <span>Edit</span>
+                 <Sparkles className="h-3.5 w-3.5" />
+                 <span>Generate {pendingPrompts.length > 0 && `(${pendingPrompts.length})`}</span>
                </>
              )}
            </Button>
@@ -315,7 +325,7 @@ const EditorPanel = ({ hasImage, credits, onApplyEdit, onSwitchToSkin }: EditorP
         onClose={() => setToolsOpen(false)}
         hasImage={hasImage}
         onInsertMe={() => onSwitchToSkin?.()}
-        onReshoot={() => addEdit("Reshoot this idea", "pro")}
+        onReshoot={async (prompt) => addPromptToDraft(prompt)}
       />
     </div>
   );

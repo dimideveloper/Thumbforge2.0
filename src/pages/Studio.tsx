@@ -26,9 +26,9 @@ const placeholderPages: Record<string, { title: string; description: string }> =
   community: { title: "Community", description: "Join our Discord community and connect with other creators." },
 };
 
-type RightTab = "editor" | "inspiration";
+type RightTab = "editor" | "inspiration" | null;
 
-const tabConfig: { id: RightTab; icon: typeof Paintbrush; label: string }[] = [
+const tabConfig: { id: "editor" | "inspiration"; icon: typeof Paintbrush; label: string }[] = [
   { id: "editor", icon: Paintbrush, label: "Editor" },
   { id: "inspiration", icon: Lightbulb, label: "Inspiration" },
 ];
@@ -59,7 +59,7 @@ const Studio = () => {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
   const [activePage, setActivePage] = useState("studio");
-  const [activeTab, setActiveTab] = useState<RightTab>("inspiration");
+  const [activeTab, setActiveTab] = useState<RightTab>(window.innerWidth < 1024 ? null : "inspiration");
   const [skinModalOpen, setSkinModalOpen] = useState(false);
   const [canvasImage, setCanvasImage] = useState<string | null>(null);
   const [isCanvasLoading, setIsCanvasLoading] = useState(false);
@@ -79,15 +79,27 @@ const Studio = () => {
     setActiveVersionId(newVersion.id);
   }, []);
 
+  const [isSessionLoading, setIsSessionLoading] = useState(true);
+
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!session) navigate("/auth");
-      else setUser(session.user);
+      if (!session) {
+        navigate("/auth");
+      } else {
+        setUser(session.user);
+        setIsSessionLoading(false);
+      }
     });
+
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) navigate("/auth");
-      else setUser(session.user);
+      if (!session) {
+        navigate("/auth");
+      } else {
+        setUser(session.user);
+        setIsSessionLoading(false);
+      }
     });
+
     return () => subscription.unsubscribe();
   }, [navigate]);
 
@@ -96,7 +108,7 @@ const Studio = () => {
       studio: "Studio – ThumbForge",
       videos: "My Thumbnails – ThumbForge",
       account: "Account – ThumbForge",
-      community: "Community – ThumbForge",
+      affiliates: "Affiliate – ThumbForge",
     };
     document.title = titles[activePage] ?? "ThumbForge";
   }, [activePage]);
@@ -345,8 +357,17 @@ const Studio = () => {
 
   const isStudio = activePage === "studio";
 
+  if (isSessionLoading) {
+    return (
+      <div className="h-screen w-full bg-black flex flex-col items-center justify-center gap-6">
+        <div className="loader" />
+        <p className="text-white/40 text-xs font-light tracking-[0.2em] uppercase animate-pulse">Loading Studio</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="h-screen flex flex-col lg:flex-row overflow-hidden bg-[#050505] font-light text-foreground selection:bg-white/20 relative">
+    <div className="h-screen flex flex-col lg:flex-row overflow-hidden bg-[#0a0a0a] font-light text-foreground selection:bg-white/20 relative">
       <div className={`${isMobile && !sidebarCollapsed ? "fixed inset-0 z-[100]" : "hidden lg:block"}`}>
         <StudioSidebar
           credits={credits}
@@ -407,15 +428,28 @@ const Studio = () => {
             </div>
 
             <div className={`
-              ${isMobile ? "fixed bottom-0 left-0 right-0 z-30 max-h-[60vh]" : "w-80 border-l"} 
-              border-white/5 bg-[#0a0a0a]/80 backdrop-blur-xl flex flex-col shrink-0 relative shadow-[-10px_0_30px_-15px_rgba(0,0,0,0.5)]
+              ${isMobile 
+                ? `fixed bottom-0 left-0 right-0 z-30 transition-all duration-500 ease-in-out ${activeTab === null ? "translate-y-[calc(100%-44px)]" : "translate-y-0"}` 
+                : "w-80 border-l"
+              } 
+              border-white/5 bg-[#0a0a0a]/90 backdrop-blur-2xl flex flex-col shrink-0 relative shadow-[-10px_0_40px_-15px_rgba(0,0,0,0.7)]
+              ${isMobile ? "rounded-t-[32px] h-[65vh]" : ""}
             `}>
-              <div className="flex border-b border-white/5 shrink-0 px-2 pt-2">
+              {isMobile && (
+                <div 
+                  className="h-11 flex items-center justify-center shrink-0 cursor-pointer"
+                  onClick={() => setActiveTab(activeTab ? null : "editor")}
+                >
+                  <div className="w-10 h-1 bg-white/10 rounded-full" />
+                </div>
+              )}
+
+              <div className="flex border-b border-white/5 shrink-0 px-2 pt-1 lg:pt-2">
                 {tabConfig.map((tab) => (
                   <button
                     key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`flex-1 flex items-center justify-center gap-1.5 py-3 text-xs font-medium transition-all duration-200 relative rounded-t-lg ${
+                    onClick={() => setActiveTab(tab.id as RightTab)}
+                    className={`flex-1 flex items-center justify-center gap-1.5 py-3 text-[10px] sm:text-xs font-medium transition-all duration-200 relative rounded-t-xl ${
                       activeTab === tab.id
                         ? "text-white bg-white/5"
                         : "text-white/40 hover:text-white/90 hover:bg-white/[0.02]"
@@ -438,15 +472,19 @@ const Studio = () => {
                     onApplyEdit={handleApplyEdit}
                     onSwitchToSkin={() => setSkinModalOpen(true)}
                   />
-                ) : (
+                ) : activeTab === "inspiration" ? (
                   <InspirationPanel onSelectThumbnail={handleSelectThumbnail} />
+                ) : (
+                  <div className="flex items-center justify-center h-full text-white/20 text-xs font-light">
+                    Tap a tab to open tools
+                  </div>
                 )}
               </div>
             </div>
           </div>
         ) : (
           <div className="flex-1 flex flex-col h-full">
-            <div className="flex items-center lg:hidden h-14 border-b border-white/5 px-4 bg-[#0a0a0a]/50 backdrop-blur-md shrink-0">
+            <div className="flex items-center lg:hidden h-14 border-b border-white/5 px-4 bg-[#0a0a0a] shrink-0 z-20">
               <button 
                 onClick={() => setSidebarCollapsed(false)}
                 className="p-2 -ml-2 text-white/40 hover:text-white"
@@ -457,11 +495,12 @@ const Studio = () => {
                   <div className="h-0.5 w-3 bg-current rounded-full" />
                 </div>
               </button>
-              <span className="ml-3 font-medium text-sm text-white/90 capitalize">{activePage}</span>
+              <span className="ml-3 font-medium text-sm text-white/90 capitalize">{activePage === "affiliates" ? "Affiliate" : activePage}</span>
             </div>
             
-            <div className="flex-1 overflow-y-auto">
-              {activePage === "videos" && user ? (
+            <div className="flex-1 overflow-y-auto bg-[#0a0a0a] relative flex flex-col">
+              <div className="relative z-10 flex-1 flex flex-col">
+                {activePage === "videos" && user ? (
                 <MyVideosPage
                   userId={user.id}
                   onOpenProject={(project) => {
@@ -487,6 +526,7 @@ const Studio = () => {
                   description={placeholderPages[activePage]?.description || "Diese Seite ist noch in Arbeit."}
                 />
               )}
+              </div>
             </div>
           </div>
         )}

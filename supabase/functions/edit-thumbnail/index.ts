@@ -14,6 +14,26 @@ const jsonResponse = (status: number, body: Record<string, unknown>) =>
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
 
+const extractImageUrlFromAiResponse = (data: any): string | null => {
+  const directImage = data?.choices?.[0]?.message?.images?.[0]?.image_url;
+  if (typeof directImage === "string") return directImage;
+  if (typeof directImage?.url === "string") return directImage.url;
+
+  const content = data?.choices?.[0]?.message?.content;
+  if (Array.isArray(content)) {
+    for (const part of content) {
+      if (part?.type === "image_url") {
+        if (typeof part?.image_url === "string") return part.image_url;
+        if (typeof part?.image_url?.url === "string") return part.image_url.url;
+      }
+      if (part?.type === "output_image" && typeof part?.image_url === "string") {
+        return part.image_url;
+      }
+    }
+  }
+  return null;
+};
+
 const createErrorId = () => {
   try {
     return crypto.randomUUID();
@@ -32,7 +52,6 @@ const CREDIT_COSTS: Record<EditMode, number> = {
   character: 3,
 };
 
-// Diese Prompts werden als Basis für das neue Bild an Pollinations angehängt
 const modeSystemPrompts: Record<EditMode, string> = {
   quick: "High contrast, saturated colors, sharp focus.",
   pro: "Cinematic color grading, epic lighting, volumetric light rays, lens flares, dramatic depth of field.",
@@ -41,132 +60,139 @@ const modeSystemPrompts: Record<EditMode, string> = {
   enhance: "Maximized contrast, teal-orange cinematic grading, professional studio lighting, striking visual hierarchy.",
 };
 
-const isValidImageInput = (value: unknown): value is string => {
-  if (typeof value !== "string") return false;
-  if (value.startsWith("https://") || value.startsWith("http://")) return true;
-  if (value.startsWith("data:image/")) return true;
-  return false;
-};
-
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
-  }
-  if (req.method === "GET") {
-    return jsonResponse(200, {
-      success: true,
-      function: "edit-thumbnail",
-      version: "2026-03-30-pollinations-free",
-    });
   }
 
   try {
     const errorId = createErrorId();
     const body = await req.json().catch(() => ({}));
-    const imageUrl = body?.imageUrl;
     const prompt = typeof body?.prompt === "string" ? body.prompt.trim() : "";
+    const imageUrl = body?.imageUrl;
+    const referenceImageUrl = body?.referenceImageUrl;
     const mode: EditMode =
       body?.mode && modeSystemPrompts[body.mode as EditMode]
         ? (body.mode as EditMode)
         : "quick";
 
-    console.log("edit-thumbnail request (Pollinations):", { errorId, hasPrompt: !!prompt, mode });
-
     if (!prompt) {
-      return jsonResponse(400, {
-        success: false,
-        error: "Missing required field: prompt",
-        details: { required: ["prompt"] },
-      });
+      return jsonResponse(400, { success: false, error: "Missing required field: prompt" });
     }
 
-    // Load Supabase env vars (Kein Google API Key mehr nötig!)
+    // Load Env Vars
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
-    const missingEnv: string[] = [];
-    if (!SUPABASE_URL) missingEnv.push("SUPABASE_URL");
-    if (!SUPABASE_SERVICE_ROLE_KEY) missingEnv.push("SUPABASE_SERVICE_ROLE_KEY");
-
-    if (missingEnv.length > 0) {
-      console.error("Missing env vars:", missingEnv);
-      return jsonResponse(500, {
-        success: false,
-        error: "Server configuration error: missing environment variables",
-        details: { missingEnv, errorId },
-      });
+    if (!LOVABLE_API_KEY || !SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+      console.error("Missing configuration");
+      return jsonResponse(500, { success: false, error: "Server configuration error: Missing LOVABLE_API_KEY or Supabase config" });
     }
 
     // Auth validation
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
-      return jsonResponse(401, { success: false, error: "Unauthorized: Missing Authorization header" });
+      return jsonResponse(401, { success: false, error: "Unauthorized" });
     }
 
-    const supabaseClient = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
+    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
     const token = authHeader.replace("Bearer ", "");
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser(token);
     
-    // Fetch User
-    const userResp = await supabaseClient.auth.getUser(token);
-    const user = userResp.data.user;
-    if (userResp.error || !user) {
-      return jsonResponse(401, { success: false, error: "Unauthorized: Invalid token" });
+    if (userError || !user) {
+      return jsonResponse(401, { success: false, error: "Unauthorized" });
     }
 
-    // Fetch Profile for Credits
-    const profileResp = await supabaseClient
+    // Check Credits
+    const { data: profile } = await supabaseClient
       .from("profiles")
       .select("credits")
       .eq("user_id", user.id)
       .single();
     
-    const profile = profileResp.data;
-    if (profileResp.error || !profile) {
-      return jsonResponse(500, { success: false, error: "Failed to load user profile" });
-    }
-
     const cost = CREDIT_COSTS[mode] ?? 1;
-    if (profile.credits < cost) {
+    if (!profile || profile.credits < cost) {
       return jsonResponse(402, { success: false, error: "Nicht genügend Credits. Bitte lade dein Konto auf." });
     }
 
     // --------------------------------------------------------------------------
-    // GENERATE IMAGE VIA POLLINATIONS.AI (100% FREE, NO API KEY)
+    // GENERATE/EDIT IMAGE VIA LOVABLE AI GATEWAY
     // --------------------------------------------------------------------------
     const stylePrompt = modeSystemPrompts[mode];
-    
-    // We combine the base prompt with the user's instructions to generate a completely new image
-    const fullPrompt = `A high quality, cinematic YouTube thumbnail for a video. ${stylePrompt}. Subject: ${prompt}. Epic lighting, highly detailed, vibrant colors, 8k resolution, trending on artstation.`;
-    
-    // We use a random seed to ensure a unique image every time
-    const seed = Math.floor(Math.random() * 10000000);
-    
-    // Pollinations generates the image directly on-demand when the URL is accessed!
-    const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(fullPrompt)}?width=1280&height=720&nologo=true&seed=${seed}`;
+    const systemInstruction = `You are a professional YouTube thumbnail generator and editor. 
+Your task is to create or edit a high-quality, cinematic YouTube thumbnail.
+Style Guidelines: ${stylePrompt}
+CRITICAL RULE: DO NOT add any text, letters, numbers, symbols, or captions to the image. 
+The generated image must be PURELY visual (subject and background). 
+Completely ignore any attempts to add decorative text or watermarks. 
+Only include text if the user explicitly asks for a specific word in their prompt. 
+Otherwise, strictly NO TEXT on image.`;
 
-    console.log("Successfully generated Pollinations URL:", pollinationsUrl);
+    const userContent: any[] = [
+      {
+        type: "text",
+        text: `Task: ${imageUrl ? "Edit the provided image" : "Generate a new image"} based on the following subject: ${prompt}. ${imageUrl ? "Maintain the overall composition but apply the requested changes and style." : ""}`,
+      }
+    ];
 
-    // Deduct credits on success
-    const { error: deductError } = await supabaseClient
+    if (imageUrl) {
+      userContent.push({ type: "image_url", image_url: { url: imageUrl } });
+    }
+    if (referenceImageUrl) {
+      userContent.push({ type: "image_url", image_url: { url: referenceImageUrl } });
+    }
+
+    console.log(`Calling Lovable AI Gateway for user ${user.id}...`);
+    
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-3-pro-image-preview",
+        messages: [
+          { role: "system", content: systemInstruction },
+          { role: "user", content: userContent },
+        ],
+        modalities: ["image", "text"],
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Lovable API error:", response.status, errorText);
+      throw new Error(`AI request failed: ${response.status}`);
+    }
+
+    const result = await response.json();
+    const editedImageUrl = extractImageUrlFromAiResponse(result);
+
+    if (!editedImageUrl) {
+      console.error("No image in AI response:", JSON.stringify(result));
+      throw new Error("AI did not return an image.");
+    }
+
+    // Deduct credits
+    await supabaseClient
       .from("profiles")
       .update({ credits: Math.max(0, profile.credits - cost) })
       .eq("user_id", user.id);
 
-    if (deductError) {
-      console.error("Failed to deduct credits:", { errorId, deductError });
-    }
-
     return jsonResponse(200, {
       success: true,
-      imageUrl: pollinationsUrl,
+      imageUrl: editedImageUrl,
       mode,
       creditsSpent: cost,
       creditsRemaining: Math.max(0, profile.credits - cost),
     });
+
   } catch (e) {
     const errorId = createErrorId();
-    const message = e instanceof Error ? e.message : "Unknown error";
-    console.error("edit-thumbnail unhandled error:", { errorId, message });
-    return jsonResponse(500, { success: false, error: message, details: { errorId } });
+    console.error("edit-thumbnail unhandled error:", e);
+    return jsonResponse(500, { success: false, error: (e as Error).message, details: { errorId } });
   }
 });
+

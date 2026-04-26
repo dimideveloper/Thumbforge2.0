@@ -6,15 +6,17 @@ interface PlaceholderPageProps {
 }
 
 const PlaceholderPage = ({ title, description }: PlaceholderPageProps) => (
-  <div className="flex-1 flex items-center justify-center bg-background">
-    <div className="text-center space-y-4 max-w-md px-8">
-      <div className="mx-auto h-16 w-16 rounded-2xl bg-muted flex items-center justify-center">
-        <Construction className="h-8 w-8 text-primary/40" />
+  <div className="min-h-[80vh] flex flex-col items-center justify-center">
+    <div className="text-center space-y-6 max-w-md px-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="mx-auto h-20 w-20 rounded-3xl bg-white/[0.03] border border-white/10 flex items-center justify-center shadow-2xl">
+        <Construction className="h-10 w-10 text-white/20" strokeWidth={1} />
       </div>
-      <h2 className="font-display text-xl font-bold text-foreground">{title}</h2>
-      <p className="text-sm text-muted-foreground">{description}</p>
-      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-xs font-medium">
-        Kommt bald
+      <div className="space-y-2">
+        <h2 className="text-3xl font-semibold text-white tracking-tight">{title}</h2>
+        <p className="text-base text-white/40 font-light leading-relaxed">{description}</p>
+      </div>
+      <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/5 text-white/30 text-[10px] font-medium tracking-wider uppercase">
+        Coming Soon
       </div>
     </div>
   </div>

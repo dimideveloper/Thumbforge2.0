@@ -247,7 +247,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="h-screen flex bg-[#050505] overflow-hidden selection:bg-white/20 font-light text-foreground">
+    <div className="h-screen flex bg-black overflow-hidden selection:bg-white/20 font-light text-foreground">
       {/* Mobile Overlay */}
       {isMobile && sidebarOpen && (
         <div 
@@ -344,7 +344,7 @@ const Dashboard = () => {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col min-w-0 bg-[#050505] relative">
+      <main className="flex-1 flex flex-col min-w-0 bg-black relative">
         {/* Subtle background glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] bg-white/[0.02] blur-[120px] rounded-full pointer-events-none" />
 
