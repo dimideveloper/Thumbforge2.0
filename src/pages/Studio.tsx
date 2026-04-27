@@ -18,6 +18,7 @@ import { getOrCreateProfileCredits } from "@/lib/profile";
 import { toast } from "sonner";
 import { NewsModal } from "@/components/studio/NewsModal";
 import { CommunityShowcase } from "@/components/studio/CommunityShowcase";
+import { OnboardingTour } from "@/components/studio/OnboardingTour";
 
 const placeholderPages: Record<string, { title: string; description: string }> = {
   videos: { title: "My Videos", description: "Soon you'll see all your saved thumbnail projects and video analyses here." },
@@ -598,6 +599,15 @@ const Studio = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {user && (
+        <OnboardingTour 
+          user={user} 
+          onComplete={(name) => {
+            // Optional: update local state if needed
+          }} 
+        />
+      )}
     </div>
   );
 };
