@@ -271,6 +271,28 @@ const ThumbnailCanvas = ({ imageUrl, title, onTitleChange, onImageLoad, isLoadin
                 draggable={false}
                 onError={() => setImageError(true)}
               />
+
+              {/* YouTube UI Overlay - Synced with Zoom/Pan */}
+              <AnimatePresence>
+                {showOverlays && imageUrl && !isLoading && (
+                  <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="absolute inset-0 pointer-events-none z-20"
+                    style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: 'center' }}
+                  >
+                    {/* Timestamp Box (Bottom Right) */}
+                    <div className="absolute bottom-[8%] right-[4%] bg-black/90 text-white text-[2.5vw] font-bold px-[1.5vw] py-[0.5vw] rounded-[0.5vw] flex items-center justify-center shadow-2xl border border-white/10">
+                      10:04
+                    </div>
+                    
+                    {/* Safe Zone Borders */}
+                    <div className="absolute inset-0 border-[2px] border-dashed border-red-500/20 m-[5%]" />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
               {isLoading && (
                 <div className="absolute inset-0 flex items-center justify-center z-50 transition-all duration-500 bg-black/60 backdrop-blur-sm">
                   <div className="flex flex-col items-center gap-6 animate-in fade-in zoom-in-95 duration-500">
@@ -283,29 +305,20 @@ const ThumbnailCanvas = ({ imageUrl, title, onTitleChange, onImageLoad, isLoadin
                 </div>
               )}
 
-              {/* YouTube UI Overlay */}
-              <AnimatePresence>
-                {showOverlays && imageUrl && !isLoading && (
-                  <motion.div 
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="absolute inset-0 pointer-events-none z-20"
-                  >
-                    {/* Timestamp Box (Bottom Right) */}
-                    <div className="absolute bottom-[8%] right-[4%] bg-black/90 text-white text-[2.5vw] font-bold px-[1.5vw] py-[0.5vw] rounded-[0.5vw] flex items-center justify-center shadow-2xl border border-white/10">
-                      10:04
-                    </div>
-                    
-                    {/* Safe Zone Borders (Optional) */}
-                    <div className="absolute inset-0 border-[2px] border-dashed border-red-500/20 m-[5%]" />
-                    <div className="absolute top-4 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-red-500 text-white text-[10px] font-bold uppercase tracking-wider shadow-lg">
+                {/* Label Overlay for safe zone (stays fixed at top) */}
+                <AnimatePresence>
+                  {showOverlays && imageUrl && !isLoading && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: -20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -20 }}
+                      className="absolute top-4 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-red-500 text-white text-[10px] font-bold uppercase tracking-wider shadow-lg z-30"
+                    >
                       YouTube UI Safe Zone Active
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </>
           ) : imageUrl && imageError ? (
             <div className="text-center space-y-4 animate-in fade-in duration-500">
               <div className="mx-auto h-20 w-20 rounded-3xl bg-red-500/10 border border-red-500/20 flex items-center justify-center shadow-inner">
@@ -343,33 +356,35 @@ const ThumbnailCanvas = ({ imageUrl, title, onTitleChange, onImageLoad, isLoadin
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="absolute bottom-24 right-8 z-50 pointer-events-none select-none"
+              className={`absolute z-50 pointer-events-none select-none flex flex-col items-center gap-3 sm:gap-4
+                ${isMobile ? 'inset-0 justify-center bg-black/40 backdrop-blur-sm p-6' : 'bottom-24 right-8'}
+              `}
             >
-              <div className="flex flex-col items-center gap-4">
+              <div className="flex flex-col items-center gap-3 sm:gap-4 w-full max-w-[320px]">
                 {/* YouTube Video Card Simulation */}
-                <div className="w-[280px] bg-[#0f0f0f] rounded-3xl overflow-hidden shadow-[0_40px_80px_-15px_rgba(0,0,0,0.8)] border border-white/5 animate-in zoom-in-95 duration-500">
+                <div className="w-full bg-[#0f0f0f] rounded-2xl sm:rounded-3xl overflow-hidden shadow-[0_40px_80px_-15px_rgba(0,0,0,0.8)] border border-white/5 animate-in zoom-in-95 duration-500">
                   {/* Thumbnail Part */}
                   <div className="relative aspect-video w-full overflow-hidden">
                     <img src={imageUrl} alt="Mobile Preview" className="w-full h-full object-cover" />
                     {/* Timestamp */}
-                    <div className="absolute bottom-2 right-2 bg-black/90 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-md flex items-center justify-center">
+                    <div className="absolute bottom-1.5 right-1.5 sm:bottom-2 sm:right-2 bg-black/90 text-white text-[9px] sm:text-[10px] font-bold px-1 sm:px-1.5 py-0.5 rounded-md flex items-center justify-center">
                       10:04
                     </div>
                   </div>
                   
                   {/* Video Info Part */}
-                  <div className="p-3 flex gap-3">
+                  <div className="p-2 sm:p-3 flex gap-2 sm:gap-3">
                     {/* Channel Avatar */}
-                    <div className="h-9 w-9 rounded-full bg-white/10 shrink-0 border border-white/5 flex items-center justify-center">
-                      <Zap className="h-4 w-4 text-white/40" />
+                    <div className="h-7 w-7 sm:h-9 sm:w-9 rounded-full bg-white/10 shrink-0 border border-white/5 flex items-center justify-center">
+                      <Zap className="h-3 w-3 sm:h-4 sm:w-4 text-white/40" />
                     </div>
                     
                     {/* Text Details */}
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-sm font-semibold text-white leading-tight line-clamp-2 mb-1">
+                      <h3 className="text-xs sm:text-sm font-semibold text-white leading-tight line-clamp-2 mb-1">
                         {title || "My awesome video title"}
                       </h3>
-                      <div className="flex flex-col text-[12px] text-[#aaaaaa] font-medium">
+                      <div className="flex flex-col text-[10px] sm:text-[12px] text-[#aaaaaa] font-medium leading-tight">
                         <span>Your Channel</span>
                         <div className="flex items-center gap-1">
                           <span>1.2M views</span>
@@ -387,10 +402,14 @@ const ThumbnailCanvas = ({ imageUrl, title, onTitleChange, onImageLoad, isLoadin
                 </div>
 
                 {/* Label */}
-                <div className="px-4 py-2 rounded-full bg-white/5 backdrop-blur-xl border border-white/10 flex items-center gap-2 shadow-2xl">
-                  <Smartphone className="h-3.5 w-3.5 text-white/80" />
-                  <span className="text-[10px] text-white/80 font-bold uppercase tracking-widest">Mobile UI Preview</span>
+                <div className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-white/10 backdrop-blur-xl border border-white/10 flex items-center gap-2 shadow-2xl">
+                  <Smartphone className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-white/80" />
+                  <span className="text-[9px] sm:text-[10px] text-white/80 font-bold uppercase tracking-widest">Mobile UI Preview</span>
                 </div>
+
+                {isMobile && (
+                  <p className="text-[10px] text-white/20 font-medium uppercase tracking-[0.2em] mt-2">Tap toggle to close</p>
+                )}
               </div>
             </motion.div>
           )}
