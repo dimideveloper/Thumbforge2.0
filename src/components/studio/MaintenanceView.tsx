@@ -4,28 +4,6 @@ import { Sparkles, Zap, BrainCircuit, Timer, Cpu } from "lucide-react";
 export function MaintenanceView() {
   return (
     <div className="fixed inset-0 z-[200] bg-black flex items-center justify-center overflow-hidden font-sans">
-      {/* Cinematic Ambient Background */}
-      <div className="absolute inset-0">
-        <motion.div 
-          animate={{ 
-            scale: [1, 1.2, 1],
-            rotate: [0, 90, 0],
-            opacity: [0.1, 0.15, 0.1]
-          }}
-          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-          className="absolute top-[-20%] left-[-10%] w-[80%] h-[80%] bg-blue-600 blur-[150px] rounded-full"
-        />
-        <motion.div 
-          animate={{ 
-            scale: [1.2, 1, 1.2],
-            rotate: [0, -90, 0],
-            opacity: [0.05, 0.1, 0.05]
-          }}
-          transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-          className="absolute bottom-[-20%] right-[-10%] w-[70%] h-[70%] bg-purple-600 blur-[150px] rounded-full"
-        />
-      </div>
-
       <div className="relative z-10 w-full max-w-4xl px-8 flex flex-col items-center">
         {/* Subtle Brand Tag */}
         <motion.div
