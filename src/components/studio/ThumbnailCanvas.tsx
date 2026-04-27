@@ -2,6 +2,7 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import { Zap, ZoomIn, ZoomOut, Maximize2, Download, Upload, RotateCcw, Loader2, Sparkles, Trophy, Eye, Smartphone, Layout } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
+import { PremiumTooltip } from "@/components/studio/PremiumTooltip";
 
 interface ThumbnailCanvasProps {
   imageUrl: string | null;
@@ -420,106 +421,118 @@ const ThumbnailCanvas = ({ imageUrl, title, onTitleChange, onImageLoad, isLoadin
         id="studio-toolbar"
         className="absolute bottom-6 left-1/2 -translate-x-1/2 h-10 sm:h-12 border border-white/10 bg-[#111]/80 backdrop-blur-xl rounded-full flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-3 z-30 shadow-[0_8px_30px_rgba(0,0,0,0.5)] max-w-[95vw] overflow-x-auto no-scrollbar"
       >
-        <button
-          onClick={handleZoomOut}
-          disabled={zoom <= MIN_ZOOM}
-          className="p-1.5 sm:p-2 rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-30 disabled:hover:bg-transparent h-7 w-7 sm:h-8 sm:w-8 flex items-center justify-center shrink-0"
-        >
-           <ZoomOut className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-        </button>
+        <PremiumTooltip content="Zoom Out">
+          <button
+            onClick={handleZoomOut}
+            disabled={zoom <= MIN_ZOOM}
+            className="p-1.5 sm:p-2 rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-30 disabled:hover:bg-transparent h-7 w-7 sm:h-8 sm:w-8 flex items-center justify-center shrink-0"
+          >
+             <ZoomOut className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+          </button>
+        </PremiumTooltip>
 
-        <button
-          onClick={handleResetZoom}
-          className="text-[10px] sm:text-[11px] text-white/70 font-medium min-w-[40px] sm:min-w-[48px] text-center hover:text-white transition-colors shrink-0"
-        >
-          {zoomPercentage}%
-        </button>
+        <PremiumTooltip content="Reset Zoom">
+          <button
+            onClick={handleResetZoom}
+            className="text-[10px] sm:text-[11px] text-white/70 font-medium min-w-[40px] sm:min-w-[48px] text-center hover:text-white transition-colors shrink-0"
+          >
+            {zoomPercentage}%
+          </button>
+        </PremiumTooltip>
 
-        <button
-          onClick={handleZoomIn}
-          disabled={zoom >= MAX_ZOOM}
-          className="p-1.5 sm:p-2 rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-30 disabled:hover:bg-transparent h-7 w-7 sm:h-8 sm:w-8 flex items-center justify-center shrink-0"
-        >
-           <ZoomIn className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-        </button>
-
-        <div className="w-[1px] h-4 sm:h-5 bg-white/10 mx-0.5 sm:mx-1 shrink-0" />
-
-        <button
-           onClick={handleResetZoom}
-           className="p-1.5 sm:p-2 rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-colors h-7 w-7 sm:h-8 sm:w-8 flex items-center justify-center shrink-0"
-           title="Reset zoom"
-        >
-           <RotateCcw className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-        </button>
-
-        <button
-           onClick={handleFullscreen}
-           disabled={!imageUrl}
-           className="p-1.5 sm:p-2 rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-30 disabled:hover:bg-transparent h-7 w-7 sm:h-8 sm:w-8 flex items-center justify-center shrink-0"
-           title="Vollbild"
-        >
-           <Maximize2 className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-        </button>
+        <PremiumTooltip content="Zoom In">
+          <button
+            onClick={handleZoomIn}
+            disabled={zoom >= MAX_ZOOM}
+            className="p-1.5 sm:p-2 rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-30 disabled:hover:bg-transparent h-7 w-7 sm:h-8 sm:w-8 flex items-center justify-center shrink-0"
+          >
+             <ZoomIn className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+          </button>
+        </PremiumTooltip>
 
         <div className="w-[1px] h-4 sm:h-5 bg-white/10 mx-0.5 sm:mx-1 shrink-0" />
 
-        <button
-           onClick={handleDownload}
-           disabled={!imageUrl}
-           className="p-1.5 sm:p-2 rounded-full text-white hover:scale-105 bg-white/10 hover:bg-white/20 transition-all disabled:opacity-30 disabled:hover:scale-100 disabled:hover:bg-white/10 h-7 w-7 sm:h-8 sm:w-8 flex items-center justify-center shrink-0"
-           title="Download"
-        >
-           <Download className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-        </button>
+        <PremiumTooltip content="Reset View">
+          <button
+             onClick={handleResetZoom}
+             className="p-1.5 sm:p-2 rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-colors h-7 w-7 sm:h-8 sm:w-8 flex items-center justify-center shrink-0"
+          >
+             <RotateCcw className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+          </button>
+        </PremiumTooltip>
+
+        <PremiumTooltip content="Fullscreen">
+          <button
+             onClick={handleFullscreen}
+             disabled={!imageUrl}
+             className="p-1.5 sm:p-2 rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-30 disabled:hover:bg-transparent h-7 w-7 sm:h-8 sm:w-8 flex items-center justify-center shrink-0"
+          >
+             <Maximize2 className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+          </button>
+        </PremiumTooltip>
 
         <div className="w-[1px] h-4 sm:h-5 bg-white/10 mx-0.5 sm:mx-1 shrink-0" />
 
-        <button
-           onClick={() => {
-             if (!imageUrl) {
-               toast.info("Please load an image first to use the Reality Check.");
-               return;
-             }
-             setShowOverlays(!showOverlays);
-           }}
-           className={`p-1.5 sm:p-2 rounded-full transition-all h-7 w-7 sm:h-8 sm:w-8 flex items-center justify-center shrink-0 ${
-             showOverlays ? 'bg-white text-black shadow-[0_0_15px_rgba(255,255,255,0.5)]' : 'text-white/50 hover:text-white hover:bg-white/10'
-           }`}
-           title="YouTube UI Reality Check"
-        >
-           <Layout className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-        </button>
+        <PremiumTooltip content="Download PNG">
+          <button
+             onClick={handleDownload}
+             disabled={!imageUrl}
+             className="p-1.5 sm:p-2 rounded-full text-white hover:scale-105 bg-white/10 hover:bg-white/20 transition-all disabled:opacity-30 disabled:hover:scale-100 disabled:hover:bg-white/10 h-7 w-7 sm:h-8 sm:w-8 flex items-center justify-center shrink-0"
+          >
+             <Download className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+          </button>
+        </PremiumTooltip>
 
-        <button
-           onClick={() => {
-             if (!imageUrl) {
-               toast.info("Please load an image first to see the mobile preview.");
-               return;
-             }
-             setShowMobilePreview(!showMobilePreview);
-           }}
-           className={`p-1.5 sm:p-2 rounded-full transition-all h-7 w-7 sm:h-8 sm:w-8 flex items-center justify-center shrink-0 ${
-             showMobilePreview ? 'bg-white text-black shadow-[0_0_15px_rgba(255,255,255,0.5)]' : 'text-white/50 hover:text-white hover:bg-white/10'
-           }`}
-           title="Mobile Preview"
-        >
-           <Smartphone className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-        </button>
+        <div className="w-[1px] h-4 sm:h-5 bg-white/10 mx-0.5 sm:mx-1 shrink-0" />
 
-        <button
-           onClick={() => {
-             if (!imageUrl) {
-               toast.info("Load an image first to share it with the community!");
-               return;
-             }
-             onShare?.();
-           }}
-           className="p-1.5 sm:p-2 rounded-full text-amber-400 hover:scale-110 bg-amber-500/10 hover:bg-amber-500/20 transition-all h-7 w-7 sm:h-8 sm:w-8 flex items-center justify-center shrink-0 border border-amber-500/20 shadow-[0_0_15px_rgba(245,158,11,0.1)]"
-           title="Share to Hall of Fame"
-        >
-           <Trophy className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-        </button>
+        <PremiumTooltip content="Reality Check">
+          <button
+             onClick={() => {
+               if (!imageUrl) {
+                 toast.info("Please load an image first to use the Reality Check.");
+                 return;
+               }
+               setShowOverlays(!showOverlays);
+             }}
+             className={`p-1.5 sm:p-2 rounded-full transition-all h-7 w-7 sm:h-8 sm:w-8 flex items-center justify-center shrink-0 ${
+               showOverlays ? 'bg-white text-black shadow-[0_0_15px_rgba(255,255,255,0.5)]' : 'text-white/50 hover:text-white hover:bg-white/10'
+             }`}
+          >
+             <Layout className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+          </button>
+        </PremiumTooltip>
+
+        <PremiumTooltip content="Mobile Preview">
+          <button
+             onClick={() => {
+               if (!imageUrl) {
+                 toast.info("Please load an image first to see the mobile preview.");
+                 return;
+               }
+               setShowMobilePreview(!showMobilePreview);
+             }}
+             className={`p-1.5 sm:p-2 rounded-full transition-all h-7 w-7 sm:h-8 sm:w-8 flex items-center justify-center shrink-0 ${
+               showMobilePreview ? 'bg-white text-black shadow-[0_0_15px_rgba(255,255,255,0.5)]' : 'text-white/50 hover:text-white hover:bg-white/10'
+             }`}
+          >
+             <Smartphone className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+          </button>
+        </PremiumTooltip>
+
+        <PremiumTooltip content="Share to Hall of Fame">
+          <button
+             onClick={() => {
+               if (!imageUrl) {
+                 toast.info("Load an image first to share it with the community!");
+                 return;
+               }
+               onShare?.();
+             }}
+             className="p-1.5 sm:p-2 rounded-full text-amber-400 hover:scale-110 bg-amber-500/10 hover:bg-amber-500/20 transition-all h-7 w-7 sm:h-8 sm:w-8 flex items-center justify-center shrink-0 border border-amber-500/20 shadow-[0_0_15px_rgba(245,158,11,0.1)]"
+          >
+             <Trophy className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+          </button>
+        </PremiumTooltip>
       </div>
     </div>
   );
