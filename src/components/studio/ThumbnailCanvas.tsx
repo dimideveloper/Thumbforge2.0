@@ -3,6 +3,8 @@ import { Zap, ZoomIn, ZoomOut, Maximize2, Download, Upload, RotateCcw, Loader2, 
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { PremiumTooltip } from "@/components/studio/PremiumTooltip";
+import { DownloadModal } from "@/components/studio/DownloadModal";
+import { getOrCreateProfileCredits } from "@/lib/profile";
 
 interface ThumbnailCanvasProps {
   imageUrl: string | null;
@@ -25,8 +27,11 @@ const ThumbnailCanvas = ({ imageUrl, title, onTitleChange, onImageLoad, isLoadin
   const [panStart, setPanStart] = useState({ x: 0, y: 0 });
   const [showOverlays, setShowOverlays] = useState(false);
   const [showMobilePreview, setShowMobilePreview] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
+  
+  const canvasRef = useRef<HTMLDivElement>(null);
   const canvasFrameRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setZoom(1);
@@ -473,10 +478,15 @@ const ThumbnailCanvas = ({ imageUrl, title, onTitleChange, onImageLoad, isLoadin
 
         <div className="w-[1px] h-4 sm:h-5 bg-white/10 mx-0.5 sm:mx-1 shrink-0" />
 
-        <PremiumTooltip content="Download PNG">
+        <PremiumTooltip content="Export Thumbnail">
           <button
-             onClick={handleDownload}
-             disabled={!imageUrl}
+             onClick={() => {
+               if (!imageUrl) {
+                 toast.info("Please load an image first to download.");
+                 return;
+               }
+               setIsDownloadModalOpen(true);
+             }}
              className="p-1.5 sm:p-2 rounded-full text-white hover:scale-105 bg-white/10 hover:bg-white/20 transition-all disabled:opacity-30 disabled:hover:scale-100 disabled:hover:bg-white/10 h-7 w-7 sm:h-8 sm:w-8 flex items-center justify-center shrink-0"
           >
              <Download className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
@@ -534,6 +544,12 @@ const ThumbnailCanvas = ({ imageUrl, title, onTitleChange, onImageLoad, isLoadin
           </button>
         </PremiumTooltip>
       </div>
+      <DownloadModal 
+        isOpen={isDownloadModalOpen}
+        onClose={() => setIsDownloadModalOpen(false)}
+        imageUrl={imageUrl}
+        projectTitle={title}
+      />
     </div>
   );
 };

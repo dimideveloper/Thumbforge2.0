@@ -14,6 +14,7 @@ import HelpCenter from "./pages/HelpCenter.tsx";
 import Article from "./pages/Article.tsx";
 import TicketDetail from "./pages/TicketDetail.tsx";
 import ScrollToTop from "./components/ScrollToTop.tsx";
+import { SiteLock } from "./components/SiteLock.tsx";
 
 const queryClient = new QueryClient();
 
@@ -23,21 +24,23 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <ScrollToTop />
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/dashboard" element={<Studio />} />
-          <Route path="/studio" element={<Navigate to="/dashboard" replace />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="/privacy" element={<PrivacyPolicy />} />
-          <Route path="/terms" element={<TermsOfService />} />
-          <Route path="/help" element={<HelpCenter />} />
-          <Route path="/help/:slug" element={<Article />} />
-          <Route path="/support/tickets/:id" element={<TicketDetail />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <SiteLock>
+          <ScrollToTop />
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/dashboard" element={<Studio />} />
+            <Route path="/studio" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/terms" element={<TermsOfService />} />
+            <Route path="/help" element={<HelpCenter />} />
+            <Route path="/help/:slug" element={<Article />} />
+            <Route path="/support/tickets/:id" element={<TicketDetail />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </SiteLock>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
