@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import { NewsModal } from "@/components/studio/NewsModal";
 import { CommunityShowcase } from "@/components/studio/CommunityShowcase";
 import { OnboardingTour } from "@/components/studio/OnboardingTour";
+import { MaintenanceView } from "@/components/studio/MaintenanceView";
 
 const placeholderPages: Record<string, { title: string; description: string }> = {
   videos: { title: "My Videos", description: "Soon you'll see all your saved thumbnail projects and video analyses here." },
@@ -45,6 +46,7 @@ const createId = () => {
 };
 
 const Studio = () => {
+  const isMaintenanceMode = true;
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [credits, setCredits] = useState(0);
@@ -410,6 +412,9 @@ const Studio = () => {
         <p className="text-white/40 text-xs font-light tracking-[0.2em] uppercase animate-pulse">Loading Studio</p>
       </div>
     );
+  }
+  if (isMaintenanceMode) {
+    return <MaintenanceView />;
   }
 
   return (
