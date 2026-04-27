@@ -1,84 +1,104 @@
 import { motion } from "framer-motion";
-import { Sparkles, Hammer, Clock, ArrowLeft, Zap } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Sparkles, Zap, BrainCircuit, Timer, Cpu } from "lucide-react";
 
 export function MaintenanceView() {
   return (
-    <div className="fixed inset-0 z-[200] bg-[#050505] flex items-center justify-center overflow-hidden">
-      {/* Background Ambient Glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] bg-blue-500/10 blur-[150px] rounded-full" />
-      <div className="absolute top-1/4 left-1/4 w-[400px] h-[400px] bg-purple-500/5 blur-[120px] rounded-full animate-pulse" />
+    <div className="fixed inset-0 z-[200] bg-black flex items-center justify-center overflow-hidden font-sans">
+      {/* Cinematic Ambient Background */}
+      <div className="absolute inset-0">
+        <motion.div 
+          animate={{ 
+            scale: [1, 1.2, 1],
+            rotate: [0, 90, 0],
+            opacity: [0.1, 0.15, 0.1]
+          }}
+          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+          className="absolute top-[-20%] left-[-10%] w-[80%] h-[80%] bg-blue-600 blur-[150px] rounded-full"
+        />
+        <motion.div 
+          animate={{ 
+            scale: [1.2, 1, 1.2],
+            rotate: [0, -90, 0],
+            opacity: [0.05, 0.1, 0.05]
+          }}
+          transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+          className="absolute bottom-[-20%] right-[-10%] w-[70%] h-[70%] bg-purple-600 blur-[150px] rounded-full"
+        />
+      </div>
 
-      <div className="relative z-10 max-w-2xl w-full px-6 text-center">
+      {/* Grid Pattern Overlay */}
+      <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] pointer-events-none" />
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:64px_64px]" />
+
+      <div className="relative z-10 w-full max-w-4xl px-8 flex flex-col items-center">
+        {/* Subtle Brand Tag */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
+          className="mb-16 flex items-center gap-3 px-4 py-1.5 rounded-full bg-white/[0.03] border border-white/10 backdrop-blur-md shadow-2xl"
         >
-          {/* Status Badge */}
-          <div className="flex justify-center mb-12">
-            <div className="px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
-              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-amber-500">System Maintenance</span>
-            </div>
-          </div>
+          <div className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse shadow-[0_0_8px_rgba(59,130,246,0.8)]" />
+          <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-white/40">Lab Status: Evolving</span>
+        </motion.div>
 
-          {/* Main Icon */}
-          <div className="relative mx-auto w-24 h-24 mb-10">
-            <div className="absolute inset-0 bg-blue-500/20 blur-2xl rounded-full animate-pulse" />
-            <div className="relative h-full w-full rounded-[32px] bg-white/5 border border-white/10 flex items-center justify-center shadow-2xl">
-              <Zap className="h-10 w-10 text-white" />
-            </div>
-          </div>
-
-          <h1 className="text-5xl md:text-6xl font-medium tracking-tight text-white mb-6">
-            AI Engine <span className="text-white/40">Optimization</span>
+        {/* Hero Section */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+          className="text-center space-y-8"
+        >
+          <h1 className="text-6xl md:text-8xl font-medium tracking-tighter text-white leading-none">
+            Refining the <br />
+            <span className="bg-gradient-to-b from-white to-white/20 bg-clip-text text-transparent">Intelligence.</span>
           </h1>
           
-          <p className="text-xl text-white/40 font-light leading-relaxed mb-12 max-w-lg mx-auto">
-            We're currently fine-tuning our generation models and improving Studio performance. 
-            <span className="text-white/60 block mt-2">We'll be back online tomorrow morning.</span>
+          <p className="text-lg md:text-2xl text-white/30 font-light max-w-xl mx-auto leading-relaxed">
+            Our engineers are currently deploying next-generation AI models to ThumbForge. We'll be back online within a few hours.
           </p>
+        </motion.div>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <div className="flex items-center gap-3 px-6 py-4 rounded-2xl bg-white/[0.03] border border-white/5">
-              <Clock className="h-5 w-5 text-white/20" />
-              <div className="text-left">
-                <p className="text-[10px] uppercase tracking-widest text-white/20 font-bold">Estimated Return</p>
-                <p className="text-sm text-white/60">Tomorrow, 08:00 AM</p>
+        {/* Feature Cards / Tech Stack Status */}
+        <motion.div 
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, duration: 1 }}
+          className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-6 w-full"
+        >
+          {[
+            { icon: Cpu, label: "GPU Clusters", status: "Scaling", color: "text-blue-400" },
+            { icon: BrainCircuit, label: "Models", status: "Fine-tuning", color: "text-purple-400" },
+            { icon: Zap, label: "API Gateways", status: "Optimizing", color: "text-amber-400" }
+          ].map((item, i) => (
+            <div key={i} className="group relative p-6 rounded-[32px] bg-white/[0.02] border border-white/5 backdrop-blur-xl transition-all duration-500 hover:bg-white/[0.04] hover:border-white/10">
+              <div className="flex items-center gap-4">
+                <div className="h-10 w-10 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 group-hover:scale-110 transition-transform">
+                  <item.icon className={`h-5 w-5 ${item.color}`} />
+                </div>
+                <div className="text-left">
+                  <p className="text-[10px] uppercase tracking-widest text-white/20 font-bold mb-0.5">{item.label}</p>
+                  <p className="text-sm text-white/60 font-medium">{item.status}</p>
+                </div>
               </div>
             </div>
-          </div>
+          ))}
+        </motion.div>
 
-          <div className="mt-16 flex items-center justify-center gap-2 opacity-20">
-            <Sparkles className="h-4 w-4" />
-            <span className="text-xs font-medium uppercase tracking-[0.3em]">ThumbForge Core v2.4</span>
-          </div>
+        {/* Bottom Lockup */}
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.2 }}
+          transition={{ delay: 1 }}
+          className="mt-24 flex items-center gap-4"
+        >
+          <div className="h-px w-12 bg-white" />
+          <span className="text-[10px] uppercase tracking-[0.5em] font-bold text-white">ThumbForge Core 2.0</span>
+          <div className="h-px w-12 bg-white" />
         </motion.div>
       </div>
 
-      {/* Particle Effects */}
-      {[...Array(20)].map((_, i) => (
-        <motion.div
-          key={i}
-          initial={{ opacity: 0 }}
-          animate={{ 
-            opacity: [0, 0.2, 0],
-            y: [0, -100],
-            scale: [0, 1, 0]
-          }}
-          transition={{ 
-            duration: 5 + Math.random() * 5, 
-            repeat: Infinity,
-            delay: Math.random() * 5
-          }}
-          className="absolute w-1 h-1 bg-white rounded-full"
-          style={{ 
-            left: `${Math.random() * 100}%`, 
-            top: `${Math.random() * 100}%` 
-          }}
-        />
-      ))}
+      {/* Modern Cursor/Pointer Glow Follow (Static for simplicity but nice effect) */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] bg-white/[0.01] border border-white/[0.02] rounded-full pointer-events-none" />
     </div>
   );
 }
