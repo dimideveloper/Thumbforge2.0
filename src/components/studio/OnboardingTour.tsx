@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Sparkles, Paintbrush, Trophy, Layout, 
@@ -20,6 +20,50 @@ export function OnboardingTour({ user, onComplete }: OnboardingTourProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [displayName, setDisplayName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
+
+  const steps = [
+    {
+      icon: Sparkles,
+      title: "Welcome to the Future",
+      description: "You're about to create thumbnails that stop the scroll. Ready for a 30-second power tour?",
+      button: "Begin the Journey",
+      color: "text-purple-400",
+      bg: "bg-purple-600/20",
+      glow: "from-purple-500/20 to-transparent",
+      targetId: null
+    },
+    {
+      icon: Paintbrush,
+      title: "The AI Studio",
+      description: "This is your canvas. Generate or upload thumbnails here to start editing with our specialized YouTube AI.",
+      button: "Next: Reality Check",
+      color: "text-blue-400",
+      bg: "bg-blue-600/20",
+      glow: "from-blue-500/20 to-transparent",
+      targetId: "studio-canvas"
+    },
+    {
+      icon: Layout,
+      title: "Reality Check Tool",
+      description: "Use these controls to test your thumbnail against the YouTube UI and mobile viewports. Don't let your best parts be hidden!",
+      button: "Show me Community",
+      color: "text-amber-400",
+      bg: "bg-amber-600/20",
+      glow: "from-amber-500/20 to-transparent",
+      targetId: "studio-toolbar"
+    },
+    {
+      icon: Trophy,
+      title: "Community Hall of Fame",
+      description: "Access the community showcase here. Share your best designs and see what's trending among other creators.",
+      button: "Final Step",
+      color: "text-emerald-400",
+      bg: "bg-emerald-600/20",
+      glow: "from-emerald-600/20 to-transparent",
+      targetId: "sidebar-community"
+    }
+  ];
 
   useEffect(() => {
     const isDone = localStorage.getItem("thumbforge_onboarding_done");
@@ -30,6 +74,39 @@ export function OnboardingTour({ user, onComplete }: OnboardingTourProps) {
       return () => clearTimeout(timer);
     }
   }, []);
+
+  useEffect(() => {
+    if (isVisible && step < steps.length) {
+      const targetId = steps[step].targetId;
+      if (targetId) {
+        const el = document.getElementById(targetId);
+        if (el) {
+          setTargetRect(el.getBoundingClientRect());
+        } else {
+          setTargetRect(null);
+        }
+      } else {
+        setTargetRect(null);
+      }
+    } else {
+      setTargetRect(null);
+    }
+  }, [step, isVisible]);
+
+  // Handle window resize to update targetRect
+  useEffect(() => {
+    const handleResize = () => {
+      if (isVisible && step < steps.length) {
+        const targetId = steps[step].targetId;
+        if (targetId) {
+          const el = document.getElementById(targetId);
+          if (el) setTargetRect(el.getBoundingClientRect());
+        }
+      }
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [isVisible, step]);
 
   const handleNext = () => setStep((s) => s + 1);
   const handleSkip = () => setStep(4);
@@ -42,7 +119,6 @@ export function OnboardingTour({ user, onComplete }: OnboardingTourProps) {
 
     setIsSubmitting(true);
     try {
-      // FIX: Use display_name instead of full_name
       const { error } = await supabase
         .from("profiles")
         .update({ display_name: displayName.trim() })
@@ -58,83 +134,64 @@ export function OnboardingTour({ user, onComplete }: OnboardingTourProps) {
       setIsVisible(false);
     } catch (error) {
       console.error("Error saving profile:", error);
-      toast.error("Failed to save your name. Try again.");
+      toast.error("Failed to save your name.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const steps = [
-    {
-      icon: Sparkles,
-      title: "Welcome to the Future",
-      description: "You're about to create thumbnails that stop the scroll. Ready for a 30-second power tour?",
-      button: "Begin the Journey",
-      color: "text-purple-400",
-      bg: "bg-purple-600/20",
-      glow: "from-purple-500/20 to-transparent"
-    },
-    {
-      icon: Paintbrush,
-      title: "Pro-Level AI Editor",
-      description: "Our AI isn't generic. It's trained on millions of high-CTR YouTube thumbnails to give you that 'MrBeast' pop.",
-      button: "Check Inspiration",
-      color: "text-blue-400",
-      bg: "bg-blue-600/20",
-      glow: "from-blue-500/20 to-transparent"
-    },
-    {
-      icon: Layout,
-      title: "YouTube Context Mode",
-      description: "Never let the YouTube UI hide your best parts. Use our reality-check overlays to perfect your placement.",
-      button: "Community Spirit",
-      color: "text-amber-400",
-      bg: "bg-amber-600/20",
-      glow: "from-amber-500/20 to-transparent"
-    },
-    {
-      icon: Trophy,
-      title: "Join the Elite",
-      description: "Share your results in the Hall of Fame. The best designs get featured and inspired thousands of creators.",
-      button: "Final Step",
-      color: "text-emerald-400",
-      bg: "bg-emerald-600/20",
-      glow: "from-emerald-500/20 to-transparent"
-    }
-  ];
-
   if (!isVisible) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-0">
-      <motion.div 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="absolute inset-0 bg-black/90 backdrop-blur-md"
-      />
+    <div className="fixed inset-0 z-[100] flex items-center justify-center pointer-events-none">
+      {/* Background Overlay with Spotlight Hole */}
+      <div className="absolute inset-0 pointer-events-auto overflow-hidden">
+        <svg className="w-full h-full">
+          <defs>
+            <mask id="spotlight-mask">
+              <rect x="0" y="0" width="100%" height="100%" fill="white" />
+              {targetRect && (
+                <motion.rect
+                  initial={false}
+                  animate={{
+                    x: targetRect.left - 8,
+                    y: targetRect.top - 8,
+                    width: targetRect.width + 16,
+                    height: targetRect.height + 16,
+                    rx: 16
+                  }}
+                  transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                  fill="black"
+                />
+              )}
+            </mask>
+          </defs>
+          <rect 
+            x="0" y="0" width="100%" height="100%" 
+            fill="rgba(0,0,0,0.85)" 
+            mask="url(#spotlight-mask)"
+            className="backdrop-blur-[2px]"
+          />
+        </svg>
+      </div>
 
-      {/* Floating Particles Background */}
+      {/* Floating Particles */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {[...Array(15)].map((_, i) => (
+        {[...Array(12)].map((_, i) => (
           <motion.div
             key={i}
-            initial={{ 
-              x: Math.random() * window.innerWidth, 
-              y: Math.random() * window.innerHeight,
-              opacity: 0 
-            }}
+            initial={{ opacity: 0 }}
             animate={{ 
-              y: [null, Math.random() * -200],
-              opacity: [0, 0.3, 0],
-              scale: [0, 1, 0]
+              y: [0, -100, 0],
+              opacity: [0, 0.4, 0],
+              x: [0, Math.random() * 50 - 25, 0]
             }}
-            transition={{ 
-              duration: 5 + Math.random() * 10, 
-              repeat: Infinity,
-              ease: "linear"
-            }}
+            transition={{ duration: 10 + Math.random() * 5, repeat: Infinity }}
             className="absolute w-1 h-1 bg-white rounded-full"
+            style={{ 
+              left: `${Math.random() * 100}%`, 
+              top: `${Math.random() * 100}%` 
+            }}
           />
         ))}
       </div>
@@ -143,141 +200,90 @@ export function OnboardingTour({ user, onComplete }: OnboardingTourProps) {
         {step < 4 ? (
           <motion.div
             key={`step-${step}`}
-            initial={{ opacity: 0, scale: 0.8, rotateX: 20 }}
-            animate={{ opacity: 1, scale: 1, rotateX: 0 }}
-            exit={{ opacity: 0, scale: 1.1, rotateX: -20 }}
-            transition={{ type: "spring", damping: 20, stiffness: 100 }}
-            className="relative w-full max-w-lg bg-[#0a0a0a] border border-white/10 rounded-[40px] p-10 shadow-[0_0_100px_rgba(0,0,0,1)] overflow-hidden"
+            initial={{ opacity: 0, scale: 0.8, y: 20 }}
+            animate={{ 
+              opacity: 1, 
+              scale: 1, 
+              y: targetRect ? 0 : 0,
+              // If targetRect exists, try to position near it, otherwise center
+              ...(targetRect ? {
+                 x: targetRect.left > window.innerWidth / 2 ? -200 : 200,
+                 y: targetRect.top > window.innerHeight / 2 ? -200 : 200
+              } : {})
+            }}
+            exit={{ opacity: 0, scale: 1.1 }}
+            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            className="relative w-full max-w-md bg-[#0a0a0a] border border-white/10 rounded-[40px] p-8 shadow-[0_0_100px_rgba(0,0,0,1)] overflow-hidden pointer-events-auto"
           >
-            {/* Dynamic Glow Background */}
             <div className={`absolute inset-0 bg-gradient-to-br ${steps[step].glow} opacity-30 transition-all duration-1000`} />
             
             <div className="relative z-10">
-              <div className="flex justify-between items-center mb-10">
+              <div className="flex justify-between items-center mb-8">
                 <motion.div 
-                  initial={{ scale: 0, rotate: -45 }}
-                  animate={{ scale: 1, rotate: 0 }}
-                  transition={{ delay: 0.2, type: "spring" }}
-                  className={`h-16 w-16 rounded-[24px] ${steps[step].bg} flex items-center justify-center border border-white/10 shadow-lg`}
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className={`h-14 w-14 rounded-[20px] ${steps[step].bg} flex items-center justify-center border border-white/10`}
                 >
                   {(() => {
                     const Icon = steps[step].icon;
-                    return <Icon className={`h-8 w-8 ${steps[step].color}`} />;
+                    return <Icon className={`h-7 w-7 ${steps[step].color}`} />;
                   })()}
                 </motion.div>
-                <div className="flex items-center gap-6">
-                  <button 
-                    onClick={handleSkip}
-                    className="text-white/30 hover:text-white text-[10px] font-bold uppercase tracking-[0.3em] transition-all"
-                  >
-                    Skip
-                  </button>
-                  <div className="flex gap-2">
+                <div className="flex items-center gap-4">
+                  <button onClick={handleSkip} className="text-white/20 hover:text-white text-[10px] font-bold uppercase tracking-widest">Skip</button>
+                  <div className="flex gap-1.5">
                     {steps.map((_, i) => (
-                      <div 
-                        key={i} 
-                        className={`h-1 rounded-full transition-all duration-700 ${i === step ? 'w-8 bg-white' : 'w-2 bg-white/10'}`} 
-                      />
+                      <div key={i} className={`h-1 rounded-full transition-all duration-500 ${i === step ? 'w-6 bg-white' : 'w-1.5 bg-white/10'}`} />
                     ))}
                   </div>
                 </div>
               </div>
 
-              <motion.h2 
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 }}
-                className="text-4xl font-medium tracking-tight text-white mb-6 leading-tight"
-              >
+              <h2 className="text-3xl font-medium tracking-tight text-white mb-4 leading-tight">
                 {steps[step].title}
-              </motion.h2>
-              
-              <motion.p 
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.4 }}
-                className="text-white/40 font-light text-xl leading-relaxed mb-12 max-w-[90%]"
-              >
+              </h2>
+              <p className="text-white/40 font-light text-lg leading-relaxed mb-10">
                 {steps[step].description}
-              </motion.p>
+              </p>
 
-              <div className="flex items-center gap-4">
-                <Button 
-                  onClick={handleNext}
-                  className="group relative flex-1 h-16 bg-white text-black hover:bg-white/90 rounded-[22px] font-bold text-xl active:scale-[0.98] transition-all overflow-hidden shadow-2xl shadow-white/10"
-                >
-                  <span className="relative z-10 flex items-center justify-center gap-2">
-                    {steps[step].button}
-                    <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                  </span>
-                  <motion.div 
-                    className="absolute inset-0 bg-gradient-to-r from-transparent via-black/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" 
-                  />
-                </Button>
-              </div>
+              <Button 
+                onClick={handleNext}
+                className="w-full h-14 bg-white text-black hover:bg-white/90 rounded-[20px] font-bold text-lg active:scale-[0.95] transition-all shadow-xl"
+              >
+                {steps[step].button} <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
             </div>
           </motion.div>
         ) : (
           <motion.div
             key="name-setup"
-            initial={{ opacity: 0, y: 50, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            className="relative w-full max-w-md bg-[#0a0a0a] border border-white/10 rounded-[40px] p-10 shadow-[0_0_120px_rgba(0,0,0,0.8)]"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="relative w-full max-w-md bg-[#0a0a0a] border border-white/10 rounded-[40px] p-10 shadow-2xl pointer-events-auto"
           >
-             <div className="absolute -top-32 -right-32 w-64 h-64 bg-amber-500/10 blur-[100px] rounded-full" />
-
              <div className="relative z-10 text-center">
-                <motion.div 
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: "spring", delay: 0.2 }}
-                  className="mx-auto h-24 w-24 rounded-[32px] bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mb-10 shadow-inner"
-                >
-                  <User className="h-12 w-12 text-amber-400" />
-                </motion.div>
-
-                <h2 className="text-4xl font-medium tracking-tight text-white mb-4">
-                  Almost there!
-                </h2>
-                <p className="text-white/40 font-light text-lg mb-10">
-                  Choose a display name that represents your brand.
-                </p>
-
-                <div className="space-y-6">
-                  <div className="relative group">
-                    <Input
-                      value={displayName}
-                      onChange={(e) => setDisplayName(e.target.value)}
-                      placeholder="e.g. MrBeast Design"
-                      className="h-16 bg-white/5 border-white/10 rounded-[22px] px-8 text-xl focus:border-amber-500/50 transition-all text-center placeholder:text-white/10 font-medium"
-                      autoFocus
-                      onKeyDown={(e) => e.key === "Enter" && saveProfile()}
-                    />
-                    <motion.div 
-                      animate={{ opacity: [0.2, 0.5, 0.2] }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                      className="absolute inset-x-0 -bottom-px h-[2px] bg-gradient-to-r from-transparent via-amber-500/50 to-transparent opacity-0 group-focus-within:opacity-100 transition-opacity" 
-                    />
-                  </div>
-
+                <div className="mx-auto h-20 w-20 rounded-[32px] bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mb-8">
+                  <User className="h-10 w-10 text-amber-400" />
+                </div>
+                <h2 className="text-3xl font-medium tracking-tight text-white mb-2">Final Step</h2>
+                <p className="text-white/40 font-light mb-8 text-lg">Choose a display name for the community.</p>
+                <div className="space-y-4">
+                  <Input
+                    value={displayName}
+                    onChange={(e) => setDisplayName(e.target.value)}
+                    placeholder="Display Name"
+                    className="h-14 bg-white/5 border-white/10 rounded-[20px] px-6 text-lg text-center"
+                    autoFocus
+                    onKeyDown={(e) => e.key === "Enter" && saveProfile()}
+                  />
                   <Button 
                     onClick={saveProfile}
                     disabled={isSubmitting || !displayName.trim()}
-                    className="w-full h-16 bg-amber-500 text-black hover:bg-amber-400 rounded-[22px] font-bold text-xl shadow-2xl shadow-amber-500/20 active:scale-[0.98] transition-all disabled:opacity-50"
+                    className="w-full h-14 bg-amber-500 text-black hover:bg-amber-400 rounded-[20px] font-bold text-lg"
                   >
-                    {isSubmitting ? (
-                      <div className="h-6 w-6 border-3 border-black/20 border-t-black animate-spin rounded-full" />
-                    ) : (
-                      <span className="flex items-center gap-2">
-                        Get Started <Zap className="h-5 w-5 fill-current" />
-                      </span>
-                    )}
+                    {isSubmitting ? "Saving..." : "Start Creating"}
                   </Button>
                 </div>
-
-                <p className="mt-8 text-[11px] text-white/10 uppercase tracking-[0.4em] font-bold">
-                  Secure Onboarding v2.1
-                </p>
              </div>
           </motion.div>
         )}

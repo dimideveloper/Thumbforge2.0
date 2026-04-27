@@ -78,6 +78,7 @@ const StudioSidebar = ({ credits, userEmail, collapsed, onToggle, activePage, on
           {platformItems.map((item) => (
             <button
               key={item.id}
+              id={`sidebar-${item.id}`}
               onClick={() => onPageChange(item.id)}
               className={`w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-all duration-200 ${
                 activePage === item.id
@@ -103,6 +104,7 @@ const StudioSidebar = ({ credits, userEmail, collapsed, onToggle, activePage, on
             {accountItems.map((item) => (
               <button
                 key={item.id}
+                id={`sidebar-${item.id}`}
                 onClick={() => onPageChange(item.id)}
                 className={`w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-all duration-200 ${
                   activePage === item.id

@@ -253,6 +253,7 @@ const ThumbnailCanvas = ({ imageUrl, title, onTitleChange, onImageLoad, isLoadin
       >
         <div
           ref={canvasFrameRef}
+          id="studio-canvas"
           className={`w-full max-w-5xl aspect-video rounded-2xl flex items-center justify-center overflow-hidden relative transition-all duration-300 shadow-2xl ${
             isDragging 
               ? "border-2 border-white/40 bg-white/10 scale-[1.02]" 
@@ -396,7 +397,10 @@ const ThumbnailCanvas = ({ imageUrl, title, onTitleChange, onImageLoad, isLoadin
         </AnimatePresence>
       </div>
 
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 h-10 sm:h-12 border border-white/10 bg-[#111]/80 backdrop-blur-xl rounded-full flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-3 z-30 shadow-[0_8px_30px_rgba(0,0,0,0.5)] max-w-[95vw] overflow-x-auto no-scrollbar">
+      <div 
+        id="studio-toolbar"
+        className="absolute bottom-6 left-1/2 -translate-x-1/2 h-10 sm:h-12 border border-white/10 bg-[#111]/80 backdrop-blur-xl rounded-full flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-3 z-30 shadow-[0_8px_30px_rgba(0,0,0,0.5)] max-w-[95vw] overflow-x-auto no-scrollbar"
+      >
         <button
           onClick={handleZoomOut}
           disabled={zoom <= MIN_ZOOM}
