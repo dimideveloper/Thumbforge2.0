@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Film, MoreVertical, Pencil, Copy, Trash2, FolderOpen } from "lucide-react";
+import { Film, MoreVertical, Pencil, Copy, Trash2, FolderOpen, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -115,6 +115,42 @@ const MyVideosPage = ({ userId, onOpenProject }: MyVideosPageProps) => {
     } else if (data) {
       toast.success("Project duplicated");
       setProjects((prev) => [data, ...prev]);
+    }
+  };
+
+  const handleShareToCommunity = async (project: Project) => {
+    if (!project.canvas_image_url) {
+      toast.error("Thumbnail must have an image to be shared.");
+      return;
+    }
+
+    try {
+      // Check if already shared
+      const { data: existing } = await supabase
+        .from("community_showcase")
+        .select("id")
+        .eq("project_id", project.id)
+        .single();
+
+      if (existing) {
+        toast.info("This project is already in the Hall of Fame!");
+        return;
+      }
+
+      const { error } = await supabase
+        .from("community_showcase")
+        .insert({
+          user_id: userId,
+          project_id: project.id,
+          image_url: project.canvas_image_url,
+          prompt: "Professional AI generated thumbnail" // We could fetch actual prompt if stored in project
+        });
+
+      if (error) throw error;
+      toast.success("Successfully shared to Hall of Fame!");
+    } catch (error) {
+      console.error("Share failed:", error);
+      toast.error("Failed to share to community.");
     }
   };
 
@@ -247,6 +283,16 @@ const MyVideosPage = ({ userId, onOpenProject }: MyVideosPageProps) => {
                     >
                       <Copy className="h-4 w-4 mr-2" />
                       Duplicate
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="text-amber-400 focus:text-amber-300"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleShareToCommunity(project);
+                      }}
+                    >
+                      <Share2 className="h-4 w-4 mr-2" />
+                      Share to Hall of Fame
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       className="text-destructive focus:text-destructive"

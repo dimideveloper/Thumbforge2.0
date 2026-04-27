@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  Paintbrush, Film, Settings, Users,
+  Paintbrush, Film, Settings, Users, Trophy,
   LogOut, ChevronLeft, ChevronRight, Zap, Coins, History as HistoryIcon
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,7 @@ interface StudioSidebarProps {
 const platformItems = [
   { icon: Paintbrush, label: "Studio", id: "studio" },
   { icon: Film, label: "My Thumbnails", id: "videos" },
+  { icon: Trophy, label: "Community", id: "community" },
 ];
 
 const accountItems = [

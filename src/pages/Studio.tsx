@@ -17,6 +17,7 @@ import type { ThumbnailVersion } from "@/components/studio/VersionHistoryBar";
 import { getOrCreateProfileCredits } from "@/lib/profile";
 import { toast } from "sonner";
 import { NewsModal } from "@/components/studio/NewsModal";
+import { CommunityShowcase } from "@/components/studio/CommunityShowcase";
 
 const placeholderPages: Record<string, { title: string; description: string }> = {
   videos: { title: "My Videos", description: "Soon you'll see all your saved thumbnail projects and video analyses here." },
@@ -534,6 +535,8 @@ const Studio = () => {
                     toast.success("Project loaded");
                   }}
                 />
+              ) : activePage === "community" ? (
+                <CommunityShowcase />
               ) : activePage === "account" && user ? (
                 <AccountSettingsPage user={user} />
               ) : (
