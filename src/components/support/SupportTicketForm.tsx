@@ -25,6 +25,9 @@ import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { Send, LifeBuoy } from "lucide-react";
 
+import { Checkbox } from "@/components/ui/checkbox";
+import { Link } from "react-router-dom";
+
 const formSchema = z.object({
   subject: z.string().min(5, {
     message: "Subject must be at least 5 characters.",
@@ -37,6 +40,9 @@ const formSchema = z.object({
   }),
   message: z.string().min(10, {
     message: "Message must be at least 10 characters.",
+  }),
+  acceptTerms: z.boolean().refine((val) => val === true, {
+    message: "You must accept the terms to submit a ticket.",
   }),
 });
 
@@ -54,6 +60,7 @@ export function SupportTicketForm({ onSuccess }: SupportTicketFormProps) {
       category: "general",
       priority: "medium",
       message: "",
+      acceptTerms: false,
     },
   });
 
@@ -205,6 +212,29 @@ export function SupportTicketForm({ onSuccess }: SupportTicketFormProps) {
                     />
                   </FormControl>
                   <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="acceptTerms"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md p-1">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      className="border-white/20 data-[state=checked]:bg-white data-[state=checked]:text-black"
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel className="text-sm font-light text-white/50 cursor-pointer">
+                      Ich bin damit einverstanden, dass meine Daten zur Bearbeitung dieser Support-Anfrage gespeichert und verarbeitet werden (DSGVO konform). Weitere Informationen findest du in unserer{" "}
+                      <Link to="/privacy" className="text-white hover:underline underline-offset-4">Datenschutzerklärung</Link>.
+                    </FormLabel>
+                    <FormMessage />
+                  </div>
                 </FormItem>
               )}
             />

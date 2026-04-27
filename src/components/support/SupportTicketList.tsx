@@ -19,10 +19,30 @@ export function SupportTicketList() {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>("all");
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    checkAdmin();
+  }, []);
 
   useEffect(() => {
     fetchTickets();
-  }, [filter]);
+  }, [filter, isAdmin]);
+
+  async function checkAdmin() {
+    const { data: userData } = await supabase.auth.getUser();
+    if (!userData.user) return;
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("is_admin")
+      .eq("user_id", userData.user.id)
+      .single();
+
+    if (profile?.is_admin) {
+      setIsAdmin(true);
+    }
+  }
 
   async function fetchTickets() {
     setLoading(true);
@@ -33,10 +53,17 @@ export function SupportTicketList() {
       let query = supabase
         .from("support_tickets")
         .select("*")
-        .eq("user_id", userData.user.id)
         .order("updated_at", { ascending: false });
 
-      if (filter !== "all") {
+      // If not admin, only show own tickets
+      if (!isAdmin) {
+        query = query.eq("user_id", userData.user.id);
+      } else if (filter === "own") {
+        // Admin can still choose to see only their own
+        query = query.eq("user_id", userData.user.id);
+      }
+
+      if (filter !== "all" && filter !== "own") {
         query = query.eq("status", filter);
       }
 
@@ -78,7 +105,14 @@ export function SupportTicketList() {
             onChange={(e) => setFilter(e.target.value)}
             className="bg-transparent text-sm text-white/60 focus:outline-none cursor-pointer hover:text-white transition-colors"
           >
-            <option value="all" className="bg-[#0f0f0f]">All Tickets</option>
+            {isAdmin ? (
+              <>
+                <option value="all" className="bg-[#0f0f0f]">All System Tickets (Admin)</option>
+                <option value="own" className="bg-[#0f0f0f]">My Tickets</option>
+              </>
+            ) : (
+              <option value="all" className="bg-[#0f0f0f]">All My Tickets</option>
+            )}
             <option value="open" className="bg-[#0f0f0f]">Open</option>
             <option value="answered" className="bg-[#0f0f0f]">Answered</option>
             <option value="resolved" className="bg-[#0f0f0f]">Resolved</option>
