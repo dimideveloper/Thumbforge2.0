@@ -246,7 +246,21 @@ const Studio = () => {
           const looksLikeStream = ctxBody && typeof ctxBody === "object" && typeof (ctxBody as any).getReader === "function";
           if (looksLikeStream) {
             try {
-              const raw = await new Response(ctxBody as any).text();
+              let raw = "";
+              try {
+                raw = await new Response(ctxBody as any).text();
+              } catch (e) {
+                console.warn("Failed to create Response from ctxBody, attempting reader approach", e);
+                const reader = (ctxBody as any).getReader();
+                const decoder = new TextDecoder();
+                let done = false;
+                while (!done) {
+                  const { value, done: streamDone } = await reader.read();
+                  if (value) raw += decoder.decode(value, { stream: true });
+                  done = streamDone;
+                }
+              }
+              
               try {
                 const parsed = JSON.parse(raw);
                 return { message: parsed?.error ?? raw, raw };
