@@ -20,25 +20,25 @@ export default defineConfig(({ mode }) => ({
     mode === "production" && javascriptObfuscator({
       options: {
         compact: true,
-        controlFlowFlattening: true,
-        controlFlowFlatteningThreshold: 0.75,
-        deadCodeInjection: false, // keep bundle size reasonable
-        debugProtection: true,     // detect and block DevTools debugger
-        debugProtectionInterval: 4000, // re-check every 4 seconds
-        disableConsoleOutput: true, // kill console methods at runtime
-        identifierNamesGenerator: "hexadecimal", // _0x1a2b style names
+        controlFlowFlattening: false, // Disable to prevent constructor errors
+        controlFlowFlatteningThreshold: 0,
+        deadCodeInjection: false,
+        debugProtection: false,     // This often causes Illegal constructor errors
+        debugProtectionInterval: 0,
+        disableConsoleOutput: false, // Don't kill console as some libs need it
+        identifierNamesGenerator: "mangled", 
         log: false,
         renameGlobals: false,
-        selfDefending: true,       // code detects tampering
-        stringArray: true,         // moves literals to an array
+        selfDefending: false,       // This can break in some environments
+        stringArray: true,         
         stringArrayCallsTransform: true,
         stringArrayEncoding: ["base64"],
         stringArrayIndexShift: true,
         stringArrayRotate: true,
         stringArrayShuffle: true,
-        stringArrayWrappersCount: 2,
+        stringArrayWrappersCount: 1,
         stringArrayWrappersType: "function",
-        stringArrayThreshold: 0.75,
+        stringArrayThreshold: 0.5,
         unicodeEscapeSequence: false,
       },
     }),
@@ -53,12 +53,12 @@ export default defineConfig(({ mode }) => ({
     minify: "terser",
     terserOptions: {
       compress: {
-        drop_console: true,
+        drop_console: false, // Don't drop all consoles
         drop_debugger: true,
-        pure_funcs: ["console.log", "console.info", "console.warn", "console.debug"],
+        pure_funcs: ["console.log", "console.debug"],
       },
       mangle: {
-        toplevel: true,
+        toplevel: false, // Safer for obfuscated code
       },
       format: {
         comments: false,
