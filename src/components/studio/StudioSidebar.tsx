@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Paintbrush, Film, Settings, Users,
@@ -44,16 +44,19 @@ const StudioSidebar = ({ credits, userEmail, collapsed, onToggle, activePage, on
       } transition-all duration-300 border-r border-white/5 bg-[#0a0a0a]/80 backdrop-blur-xl flex flex-col shrink-0 h-full relative z-20`}
     >
       {/* Logo */}
-      <div className="h-16 flex items-center gap-3 px-5 border-b border-white/5 shrink-0">
-        <div className="h-8 w-8 rounded-full border border-white/10 bg-gradient-to-b from-white/10 to-transparent flex items-center justify-center shrink-0">
+      <Link 
+        to="/" 
+        className="h-16 flex items-center gap-3 px-5 border-b border-white/5 shrink-0 hover:bg-white/5 transition-all group"
+      >
+        <div className="h-8 w-8 rounded-full border border-white/10 bg-gradient-to-b from-white/10 to-transparent flex items-center justify-center shrink-0 group-hover:border-white/20 transition-all">
           <Zap className="h-4 w-4 text-white/80" />
         </div>
         {!collapsed && (
-          <span className="font-medium tracking-tight text-white/90 whitespace-nowrap">
+          <span className="font-medium tracking-tight text-white/90 whitespace-nowrap group-hover:text-white transition-all">
             ThumbForge
           </span>
         )}
-      </div>
+      </Link>
 
       {/* Toggle */}
       <button
