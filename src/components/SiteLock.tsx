@@ -54,9 +54,17 @@ export function SiteLock({ children }: SiteLockProps) {
         <h1 className="text-3xl font-medium tracking-tight text-white mb-3">
           Restricted Access
         </h1>
-        <p className="text-white/30 text-sm mb-10 font-light tracking-wide">
+        <p className="text-white/30 text-sm mb-6 font-light tracking-wide">
           Enter the security key to access ThumbForge Lab.
         </p>
+
+        {/* Update Info Badge */}
+        <div className="mb-10 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20">
+          <div className="h-1 w-1 rounded-full bg-blue-500 animate-pulse" />
+          <span className="text-[9px] font-bold uppercase tracking-widest text-blue-400">
+            Back tomorrow at 20:00 (Major Update)
+          </span>
+        </div>
 
         <form onSubmit={handleUnlock} className="relative group">
           <input
