@@ -12,6 +12,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy.tsx";
 import TermsOfService from "./pages/TermsOfService.tsx";
 import HelpCenter from "./pages/HelpCenter.tsx";
 import Article from "./pages/Article.tsx";
+import TicketDetail from "./pages/TicketDetail.tsx";
 import ScrollToTop from "./components/ScrollToTop.tsx";
 
 const queryClient = new QueryClient();
@@ -33,6 +34,7 @@ const App = () => (
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="/help" element={<HelpCenter />} />
           <Route path="/help/:slug" element={<Article />} />
+          <Route path="/support/tickets/:id" element={<TicketDetail />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
