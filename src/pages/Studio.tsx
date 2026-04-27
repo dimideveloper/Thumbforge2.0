@@ -49,6 +49,7 @@ const Studio = () => {
   const isMaintenanceMode = true;
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [credits, setCredits] = useState(0);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -122,8 +123,16 @@ const Studio = () => {
     if (!user) return;
     let isMounted = true;
     const loadCredits = async () => {
-      const nextCredits = await getOrCreateProfileCredits(user.id);
-      if (isMounted) setCredits(nextCredits);
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("credits, is_admin")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      
+      if (isMounted && profile) {
+        setCredits(profile.credits);
+        setIsAdmin(profile.is_admin || false);
+      }
     };
     loadCredits();
     return () => { isMounted = false; };
@@ -413,7 +422,7 @@ const Studio = () => {
       </div>
     );
   }
-  if (isMaintenanceMode) {
+  if (isMaintenanceMode && !isAdmin) {
     return <MaintenanceView />;
   }
 
