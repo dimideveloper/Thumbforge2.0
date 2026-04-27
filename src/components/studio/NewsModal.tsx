@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { 
   MessageSquare, Sparkles, Zap, Bug, ChevronRight, 
-  LifeBuoy, ShieldCheck, X as XIcon 
+  LifeBuoy, ShieldCheck, X as XIcon, Layout 
 } from "lucide-react";
 import {
   Dialog,
@@ -33,25 +33,25 @@ export function NewsModal() {
 
   const newsItems = [
     {
+      icon: Layout,
+      title: "YouTube Reality Check",
+      description: "New overlays for Timestamp & Safe Zones. See your thumbnail exactly like it will appear on YouTube.",
+      color: "text-blue-400",
+      bg: "bg-blue-500/10"
+    },
+    {
       icon: LifeBuoy,
       title: "New Support System",
       description: "Direct chat with our team. Track your tickets and get help faster than ever.",
-      color: "text-blue-400",
-      bg: "bg-blue-500/10"
+      color: "text-amber-400",
+      bg: "bg-amber-500/10"
     },
     {
       icon: Bug,
       title: "Performance & Bug Fixes",
       description: "We've ironed out the 'Illegal constructor' issues and improved overall studio stability.",
-      color: "text-amber-400",
-      bg: "bg-amber-500/10"
-    },
-    {
-      icon: Sparkles,
-      title: "Enhanced AI Editing",
-      description: "Better prompt understanding and faster thumbnail generation modes.",
-      color: "text-purple-400",
-      bg: "bg-purple-500/10"
+      color: "text-emerald-400",
+      bg: "bg-emerald-500/10"
     }
   ];
 

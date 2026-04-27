@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from "react";
-import { Zap, ZoomIn, ZoomOut, Maximize2, Download, Upload, RotateCcw, Loader2, Sparkles, Trophy } from "lucide-react";
+import { Zap, ZoomIn, ZoomOut, Maximize2, Download, Upload, RotateCcw, Loader2, Sparkles, Trophy, Eye, Smartphone, Layout } from "lucide-react";
 import { toast } from "sonner";
 
 interface ThumbnailCanvasProps {
@@ -21,6 +21,8 @@ const ThumbnailCanvas = ({ imageUrl, title, onTitleChange, onImageLoad, isLoadin
   const [isDragging, setIsDragging] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [panStart, setPanStart] = useState({ x: 0, y: 0 });
+  const [showOverlays, setShowOverlays] = useState(false);
+  const [showMobilePreview, setShowMobilePreview] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const canvasFrameRef = useRef<HTMLDivElement>(null);
 
@@ -268,7 +270,7 @@ const ThumbnailCanvas = ({ imageUrl, title, onTitleChange, onImageLoad, isLoadin
                 onError={() => setImageError(true)}
               />
               {isLoading && (
-                <div className="absolute inset-0 flex items-center justify-center z-10 transition-all duration-500 bg-black/60 backdrop-blur-sm">
+                <div className="absolute inset-0 flex items-center justify-center z-50 transition-all duration-500 bg-black/60 backdrop-blur-sm">
                   <div className="flex flex-col items-center gap-6 animate-in fade-in zoom-in-95 duration-500">
                     <div className="loader" />
                     <div className="text-center space-y-1.5">
@@ -278,6 +280,29 @@ const ThumbnailCanvas = ({ imageUrl, title, onTitleChange, onImageLoad, isLoadin
                   </div>
                 </div>
               )}
+
+              {/* YouTube UI Overlay */}
+              <AnimatePresence>
+                {showOverlays && imageUrl && !isLoading && (
+                  <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="absolute inset-0 pointer-events-none z-20"
+                  >
+                    {/* Timestamp Box (Bottom Right) */}
+                    <div className="absolute bottom-[8%] right-[4%] bg-black/90 text-white text-[2.5vw] font-bold px-[1.5vw] py-[0.5vw] rounded-[0.5vw] flex items-center justify-center shadow-2xl border border-white/10">
+                      10:04
+                    </div>
+                    
+                    {/* Safe Zone Borders (Optional) */}
+                    <div className="absolute inset-0 border-[2px] border-dashed border-red-500/20 m-[5%]" />
+                    <div className="absolute top-4 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-red-500 text-white text-[10px] font-bold uppercase tracking-wider shadow-lg">
+                      YouTube UI Safe Zone Active
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </>
           ) : imageUrl && imageError ? (
             <div className="text-center space-y-4 animate-in fade-in duration-500">
@@ -308,6 +333,28 @@ const ThumbnailCanvas = ({ imageUrl, title, onTitleChange, onImageLoad, isLoadin
             </div>
           )}
         </div>
+
+        {/* Mobile Preview Popup */}
+        <AnimatePresence>
+          {showMobilePreview && imageUrl && (
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.8, x: 20 }}
+              animate={{ opacity: 1, scale: 1, x: 0 }}
+              exit={{ opacity: 0, scale: 0.8, x: 20 }}
+              className="absolute top-8 right-8 z-50 pointer-events-none"
+            >
+              <div className="flex flex-col items-center gap-3">
+                <div className="w-[180px] aspect-video rounded-2xl overflow-hidden border-4 border-white/10 bg-black shadow-[0_30px_60px_-15px_rgba(0,0,0,0.7)]">
+                  <img src={imageUrl} alt="Mobile Preview" className="w-full h-full object-cover" />
+                </div>
+                <div className="px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/10 flex items-center gap-2">
+                  <Smartphone className="h-3 w-3 text-white/60" />
+                  <span className="text-[10px] text-white/60 font-medium uppercase tracking-wider">Mobile Preview</span>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 h-10 sm:h-12 border border-white/10 bg-[#111]/80 backdrop-blur-xl rounded-full flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-3 z-30 shadow-[0_8px_30px_rgba(0,0,0,0.5)] max-w-[95vw] overflow-x-auto no-scrollbar">
@@ -364,10 +411,49 @@ const ThumbnailCanvas = ({ imageUrl, title, onTitleChange, onImageLoad, isLoadin
            <Download className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
         </button>
 
+        <div className="w-[1px] h-4 sm:h-5 bg-white/10 mx-0.5 sm:mx-1 shrink-0" />
+
         <button
-           onClick={onShare}
-           disabled={!imageUrl}
-           className="p-1.5 sm:p-2 rounded-full text-amber-400 hover:scale-110 bg-amber-500/10 hover:bg-amber-500/20 transition-all disabled:opacity-30 disabled:hover:scale-100 h-7 w-7 sm:h-8 sm:w-8 flex items-center justify-center shrink-0 border border-amber-500/20 shadow-[0_0_15px_rgba(245,158,11,0.1)]"
+           onClick={() => {
+             if (!imageUrl) {
+               toast.info("Please load an image first to use the Reality Check.");
+               return;
+             }
+             setShowOverlays(!showOverlays);
+           }}
+           className={`p-1.5 sm:p-2 rounded-full transition-all h-7 w-7 sm:h-8 sm:w-8 flex items-center justify-center shrink-0 ${
+             showOverlays ? 'bg-white text-black shadow-[0_0_15px_rgba(255,255,255,0.5)]' : 'text-white/50 hover:text-white hover:bg-white/10'
+           }`}
+           title="YouTube UI Reality Check"
+        >
+           <Layout className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+        </button>
+
+        <button
+           onClick={() => {
+             if (!imageUrl) {
+               toast.info("Please load an image first to see the mobile preview.");
+               return;
+             }
+             setShowMobilePreview(!showMobilePreview);
+           }}
+           className={`p-1.5 sm:p-2 rounded-full transition-all h-7 w-7 sm:h-8 sm:w-8 flex items-center justify-center shrink-0 ${
+             showMobilePreview ? 'bg-white text-black shadow-[0_0_15px_rgba(255,255,255,0.5)]' : 'text-white/50 hover:text-white hover:bg-white/10'
+           }`}
+           title="Mobile Preview"
+        >
+           <Smartphone className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+        </button>
+
+        <button
+           onClick={() => {
+             if (!imageUrl) {
+               toast.info("Load an image first to share it with the community!");
+               return;
+             }
+             onShare?.();
+           }}
+           className="p-1.5 sm:p-2 rounded-full text-amber-400 hover:scale-110 bg-amber-500/10 hover:bg-amber-500/20 transition-all h-7 w-7 sm:h-8 sm:w-8 flex items-center justify-center shrink-0 border border-amber-500/20 shadow-[0_0_15px_rgba(245,158,11,0.1)]"
            title="Share to Hall of Fame"
         >
            <Trophy className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
