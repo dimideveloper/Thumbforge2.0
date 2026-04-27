@@ -40,7 +40,7 @@ export function PremiumTooltip({ children, content, delay = 0.3 }: PremiumToolti
             transition={{ duration: 0.1, ease: "easeOut" }}
             style={{ 
               position: 'fixed',
-              top: position.top - 12, // Offset above the icon
+              top: position.top - 48, // Much higher above the icon
               left: position.left,
               transform: 'translateX(-50%)',
               zIndex: 9999
