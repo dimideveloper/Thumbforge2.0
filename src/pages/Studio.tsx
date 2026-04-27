@@ -213,6 +213,35 @@ const Studio = () => {
     toast.success("Version removed");
   }, [activeVersionId]);
 
+  const handleShareToCommunity = async () => {
+    if (!canvasImage || !user) return;
+    
+    try {
+      // If no current project, we can't easily link it yet, but we can share the image
+      const { error } = await supabase
+        .from("community_showcase")
+        .insert({
+          user_id: user.id,
+          project_id: projectId || null,
+          image_url: canvasImage,
+          prompt: projectTitle || "AI Thumbnail"
+        });
+
+      if (error) {
+        if (error.code === "23505") {
+          toast.info("This project is already in the Hall of Fame!");
+        } else {
+          throw error;
+        }
+      } else {
+        toast.success("Shared to Hall of Fame!");
+      }
+    } catch (error) {
+      console.error("Share failed:", error);
+      toast.error("Failed to share to community.");
+    }
+  };
+
   const handleApplyEdit = async (prompt: string, mode: string = "pro", referenceImage?: string) => {
     if (!canvasImage) {
       toast.error("Please load an image first");
@@ -437,6 +466,7 @@ const Studio = () => {
                 title={projectTitle}
                 onTitleChange={setProjectTitle}
                 isLoading={isCanvasLoading}
+                onShare={handleShareToCommunity}
                 onImageLoad={(url) => {
                   setCanvasImage(url);
                   addVersion(url, "Upload");

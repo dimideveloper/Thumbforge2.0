@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from "react";
-import { Zap, ZoomIn, ZoomOut, Maximize2, Download, Upload, RotateCcw, Loader2, Sparkles } from "lucide-react";
+import { Zap, ZoomIn, ZoomOut, Maximize2, Download, Upload, RotateCcw, Loader2, Sparkles, Trophy } from "lucide-react";
 import { toast } from "sonner";
 
 interface ThumbnailCanvasProps {
@@ -8,12 +8,13 @@ interface ThumbnailCanvasProps {
   onTitleChange: (title: string) => void;
   onImageLoad: (url: string) => void;
   isLoading?: boolean;
+  onShare?: () => void;
 }
 
 const MIN_ZOOM = 0.25;
 const MAX_ZOOM = 3;
 
-const ThumbnailCanvas = ({ imageUrl, title, onTitleChange, onImageLoad, isLoading = false }: ThumbnailCanvasProps) => {
+const ThumbnailCanvas = ({ imageUrl, title, onTitleChange, onImageLoad, isLoading = false, onShare }: ThumbnailCanvasProps) => {
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [isPanning, setIsPanning] = useState(false);
@@ -361,6 +362,15 @@ const ThumbnailCanvas = ({ imageUrl, title, onTitleChange, onImageLoad, isLoadin
            title="Download"
         >
            <Download className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+        </button>
+
+        <button
+           onClick={onShare}
+           disabled={!imageUrl}
+           className="p-1.5 sm:p-2 rounded-full text-amber-400 hover:scale-110 bg-amber-500/10 hover:bg-amber-500/20 transition-all disabled:opacity-30 disabled:hover:scale-100 h-7 w-7 sm:h-8 sm:w-8 flex items-center justify-center shrink-0 border border-amber-500/20 shadow-[0_0_15px_rgba(245,158,11,0.1)]"
+           title="Share to Hall of Fame"
+        >
+           <Trophy className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
         </button>
       </div>
     </div>
