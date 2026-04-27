@@ -26,10 +26,6 @@ export function MaintenanceView() {
         />
       </div>
 
-      {/* Grid Pattern Overlay */}
-      <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] pointer-events-none" />
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:64px_64px]" />
-
       <div className="relative z-10 w-full max-w-4xl px-8 flex flex-col items-center">
         {/* Subtle Brand Tag */}
         <motion.div
