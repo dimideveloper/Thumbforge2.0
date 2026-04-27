@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { Wand2, Loader2, Sparkles, Type, Palette, Layers, Zap, Crown, Image, User, Star, Paperclip, X, Wrench } from "lucide-react";
+import { Wand2, Loader2, Sparkles, Type, Palette, Layers, Zap, Crown, Image as ImageIcon, User as UserIcon, Star, Paperclip, X, Wrench } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ToolsModal from "./ToolsModal";
 import { toast } from "sonner";
@@ -33,8 +33,8 @@ const modes: { id: EditMode; icon: typeof Zap; label: string; desc: string }[] =
   { id: "quick", icon: Zap, label: "Quick", desc: "Schnelle Verbesserung" },
   { id: "pro", icon: Crown, label: "Pro", desc: "Maximale Qualität" },
   { id: "enhance", icon: Star, label: "Optimize", desc: "YouTube-optimiert" },
-  { id: "background", icon: Image, label: "Background", desc: "Hintergrund verbessern" },
-  { id: "character", icon: User, label: "Character", desc: "Figuren aufwerten" },
+  { id: "background", icon: ImageIcon, label: "Background", desc: "Hintergrund verbessern" },
+  { id: "character", icon: UserIcon, label: "Character", desc: "Figuren aufwerten" },
 ];
 
 const quickEdits = [
@@ -187,7 +187,7 @@ const EditorPanel = ({ hasImage, credits, onApplyEdit, onSwitchToSkin }: EditorP
         <div className="absolute inset-0 z-50 bg-white/[0.02] backdrop-blur-sm flex items-center justify-center border-2 border-dashed border-white/20 m-2 rounded-3xl pointer-events-none animate-in fade-in duration-300">
           <div className="flex flex-col items-center gap-4">
             <div className="h-16 w-16 rounded-full bg-white/5 flex items-center justify-center">
-              <Image className="h-8 w-8 text-white/50" />
+              <ImageIcon className="h-8 w-8 text-white/50" />
             </div>
             <p className="text-sm text-white/50 font-medium">Drop image here</p>
           </div>

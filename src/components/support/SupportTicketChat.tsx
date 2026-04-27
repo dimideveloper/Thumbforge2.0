@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, User, ShieldCheck } from "lucide-react";
+import { Send, User as UserIcon, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -143,7 +143,7 @@ export function SupportTicketChat({ ticketId }: SupportTicketChatProps) {
                           </div>
                         ) : (
                           <div className="bg-white/5 text-white/40 h-full w-full flex items-center justify-center text-xs">
-                            <User className="h-4 w-4" />
+                            <UserIcon className="h-4 w-4" />
                           </div>
                         )}
                       </AvatarFallback>

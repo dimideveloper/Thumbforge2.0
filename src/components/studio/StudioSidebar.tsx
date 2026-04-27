@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Paintbrush, Film, Settings, Users,
-  LogOut, ChevronLeft, ChevronRight, Zap, Coins,
+  LogOut, ChevronLeft, ChevronRight, Zap, Coins, History as HistoryIcon
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -126,7 +126,7 @@ const StudioSidebar = ({ credits, userEmail, collapsed, onToggle, activePage, on
             onClick={() => navigate("/help")}
             className="w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-white/50 hover:bg-white/5 hover:text-white/90 transition-all duration-200"
           >
-            <History className="h-4 w-4 shrink-0 text-white/40" />
+            <HistoryIcon className="h-4 w-4 shrink-0 text-white/40" />
             {!collapsed && <span className="truncate font-medium">Help & Support</span>}
           </button>
         </div>

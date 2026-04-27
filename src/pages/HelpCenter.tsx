@@ -2,7 +2,7 @@ import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Search, Book, Wand2, CreditCard, UserCircle, MessageCircle, LifeBuoy, History, SearchX } from "lucide-react";
+import { Search, Book, Wand2, CreditCard, UserCircle, MessageCircle, LifeBuoy, History as HistoryIcon, SearchX } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SupportTicketForm } from "@/components/support/SupportTicketForm";
 import { SupportTicketList } from "@/components/support/SupportTicketList";
