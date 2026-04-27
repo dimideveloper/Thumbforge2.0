@@ -16,20 +16,21 @@ export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     mode === "development" && componentTagger(),
-    // Only obfuscate in production builds
+    // Temporarily disabled to debug "Illegal constructor" error
+    /*
     mode === "production" && javascriptObfuscator({
       options: {
         compact: true,
-        controlFlowFlattening: false, // Disable to prevent constructor errors
+        controlFlowFlattening: false, 
         controlFlowFlatteningThreshold: 0,
         deadCodeInjection: false,
-        debugProtection: false,     // This often causes Illegal constructor errors
+        debugProtection: false,     
         debugProtectionInterval: 0,
-        disableConsoleOutput: false, // Don't kill console as some libs need it
+        disableConsoleOutput: false, 
         identifierNamesGenerator: "mangled", 
         log: false,
         renameGlobals: false,
-        selfDefending: false,       // This can break in some environments
+        selfDefending: false,       
         stringArray: true,         
         stringArrayCallsTransform: true,
         stringArrayEncoding: ["base64"],
@@ -42,6 +43,7 @@ export default defineConfig(({ mode }) => ({
         unicodeEscapeSequence: false,
       },
     }),
+    */
   ].filter(Boolean),
   resolve: {
     alias: {
@@ -50,20 +52,7 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     sourcemap: false, // No source maps in production
-    minify: "terser",
-    terserOptions: {
-      compress: {
-        drop_console: false, // Don't drop all consoles
-        drop_debugger: true,
-        pure_funcs: ["console.log", "console.debug"],
-      },
-      mangle: {
-        toplevel: false, // Safer for obfuscated code
-      },
-      format: {
-        comments: false,
-      },
-    },
+    minify: "esbuild",
     rollupOptions: {
       output: {
         chunkFileNames: "assets/[hash].js",
