@@ -230,8 +230,8 @@ export function SupportTicketForm({ onSuccess }: SupportTicketFormProps) {
                   </FormControl>
                   <div className="space-y-1 leading-none">
                     <FormLabel className="text-sm font-light text-white/50 cursor-pointer">
-                      Ich bin damit einverstanden, dass meine Daten zur Bearbeitung dieser Support-Anfrage gespeichert und verarbeitet werden (DSGVO konform). Weitere Informationen findest du in unserer{" "}
-                      <Link to="/privacy" className="text-white hover:underline underline-offset-4">Datenschutzerklärung</Link>.
+                      I agree that my data will be stored and processed to handle this support request (GDPR compliant). More information can be found in our{" "}
+                      <Link to="/privacy" className="text-white hover:underline underline-offset-4">privacy policy</Link>.
                     </FormLabel>
                     <FormMessage />
                   </div>
