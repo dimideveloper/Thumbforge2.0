@@ -4,7 +4,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import { Calendar, ChevronRight, MessageSquare, Clock, Filter } from "lucide-react";
-import { format } from "date-fns";
+
+const formatDate = (dateString: string) => {
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric'
+  }).format(new Date(dateString));
+};
 
 interface Ticket {
   id: string;
@@ -155,7 +162,7 @@ export function SupportTicketList() {
                       {ticket.subject}
                     </h4>
                     <div className="flex items-center gap-3 text-xs text-white/40 font-light">
-                      <span className="flex items-center gap-1"><Calendar className="h-3 w-3" /> {format(new Date(ticket.created_at), 'MMM d, yyyy')}</span>
+                      <span className="flex items-center gap-1"><Calendar className="h-3 w-3" /> {formatDate(ticket.created_at)}</span>
                       <span>•</span>
                       <span className="capitalize">{ticket.category}</span>
                     </div>

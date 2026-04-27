@@ -5,9 +5,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Send, User, ShieldCheck } from "lucide-react";
-import { format } from "date-fns";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
+
+const formatTime = (dateString: string) => {
+  return new Intl.DateTimeFormat('en-US', {
+    hour: 'numeric',
+    minute: 'numeric',
+    hour12: true
+  }).format(new Date(dateString));
+};
 
 interface Message {
   id: string;
@@ -129,15 +136,17 @@ export function SupportTicketChat({ ticketId }: SupportTicketChatProps) {
                 >
                   <div className={`flex gap-3 max-w-[80%] ${isMe ? 'flex-row-reverse' : 'flex-row'}`}>
                     <Avatar className="h-8 w-8 border border-white/10 shrink-0">
-                      {message.is_admin ? (
-                        <div className="bg-white text-black h-full w-full flex items-center justify-center">
-                          <ShieldCheck className="h-4 w-4" />
-                        </div>
-                      ) : (
-                        <div className="bg-white/5 text-white/40 h-full w-full flex items-center justify-center text-xs">
-                          <User className="h-4 w-4" />
-                        </div>
-                      )}
+                      <AvatarFallback className="bg-transparent">
+                        {message.is_admin ? (
+                          <div className="bg-white text-black h-full w-full flex items-center justify-center">
+                            <ShieldCheck className="h-4 w-4" />
+                          </div>
+                        ) : (
+                          <div className="bg-white/5 text-white/40 h-full w-full flex items-center justify-center text-xs">
+                            <User className="h-4 w-4" />
+                          </div>
+                        )}
+                      </AvatarFallback>
                     </Avatar>
                     
                     <div className="flex flex-col gap-1.5">
@@ -150,7 +159,7 @@ export function SupportTicketChat({ ticketId }: SupportTicketChatProps) {
                       </div>
                       <span className={`text-[10px] text-white/30 font-light ${isMe ? 'text-right' : 'text-left'}`}>
                         {message.is_admin ? 'Support Team • ' : ''}
-                        {format(new Date(message.created_at), 'h:mm a')}
+                        {formatTime(message.created_at)}
                       </span>
                     </div>
                   </div>

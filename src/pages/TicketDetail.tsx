@@ -7,9 +7,16 @@ import { SupportTicketChat } from "@/components/support/SupportTicketChat";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Calendar, Tag, ShieldCheck, CheckCircle2 } from "lucide-react";
-import { format } from "date-fns";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
+
+const formatDate = (dateString: string) => {
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric'
+  }).format(new Date(dateString));
+};
 
 interface Ticket {
   id: string;
@@ -104,7 +111,7 @@ export default function TicketDetail() {
               <div className="flex flex-wrap items-center gap-4 text-sm font-light text-white/40">
                 <span className="flex items-center gap-1.5"><Tag className="h-3.5 w-3.5" /> {ticket.category}</span>
                 <span>•</span>
-                <span className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" /> {format(new Date(ticket.created_at), 'MMM d, yyyy')}</span>
+                <span className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" /> {formatDate(ticket.created_at)}</span>
                 <span>•</span>
                 <span className="flex items-center gap-1.5 capitalize"><ShieldCheck className="h-3.5 w-3.5" /> {ticket.priority} priority</span>
               </div>
