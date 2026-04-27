@@ -16,6 +16,7 @@ import VersionHistoryBar from "@/components/studio/VersionHistoryBar";
 import type { ThumbnailVersion } from "@/components/studio/VersionHistoryBar";
 import { getOrCreateProfileCredits } from "@/lib/profile";
 import { toast } from "sonner";
+import { NewsModal } from "@/components/studio/NewsModal";
 
 const placeholderPages: Record<string, { title: string; description: string }> = {
   videos: { title: "My Videos", description: "Soon you'll see all your saved thumbnail projects and video analyses here." },
@@ -382,6 +383,7 @@ const Studio = () => {
 
   return (
     <div className="h-screen flex flex-col lg:flex-row overflow-hidden bg-[#0a0a0a] font-light text-foreground selection:bg-white/20 relative">
+      <NewsModal />
       <div className={`${isMobile && !sidebarCollapsed ? "fixed inset-0 z-[100]" : "hidden lg:block"}`}>
         <StudioSidebar
           credits={credits}
