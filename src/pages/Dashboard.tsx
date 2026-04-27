@@ -11,6 +11,8 @@ import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
 import type { User } from "@supabase/supabase-js";
 
+import { NewsModal } from "@/components/dashboard/NewsModal";
+
 type Message = { role: "user" | "assistant"; content: string };
 type Chat = { id: string; title: string; created_at: string };
 
@@ -248,6 +250,7 @@ const Dashboard = () => {
 
   return (
     <div className="h-screen flex bg-black overflow-hidden selection:bg-white/20 font-light text-foreground">
+      <NewsModal />
       {/* Mobile Overlay */}
       {isMobile && sidebarOpen && (
         <div 
