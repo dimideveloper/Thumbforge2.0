@@ -28,7 +28,8 @@ export function MaintenanceView() {
           </h1>
           
           <p className="text-lg md:text-2xl text-white/30 font-light max-w-xl mx-auto leading-relaxed">
-            Our engineers are currently deploying next-generation AI models to ThumbForge. We'll be back online within a few hours.
+            We're currently deploying a major system update. <br />
+            <span className="text-white/60">We'll be back online tomorrow at 8:00 PM (20:00 CET).</span>
           </p>
         </motion.div>
 
@@ -40,9 +41,9 @@ export function MaintenanceView() {
           className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-6 w-full"
         >
           {[
-            { icon: Cpu, label: "GPU Clusters", status: "Scaling", color: "text-blue-400" },
-            { icon: BrainCircuit, label: "Models", status: "Fine-tuning", color: "text-purple-400" },
-            { icon: Zap, label: "API Gateways", status: "Optimizing", color: "text-amber-400" }
+            { icon: Cpu, label: "Update Progress", status: "75%", color: "text-blue-400" },
+            { icon: BrainCircuit, label: "Live Date", status: "Tomorrow", color: "text-purple-400" },
+            { icon: Timer, label: "Exact Time", status: "20:00 CET", color: "text-amber-400" }
           ].map((item, i) => (
             <div key={i} className="group relative p-6 rounded-[32px] bg-white/[0.02] border border-white/5 backdrop-blur-xl transition-all duration-500 hover:bg-white/[0.04] hover:border-white/10">
               <div className="flex items-center gap-4">
