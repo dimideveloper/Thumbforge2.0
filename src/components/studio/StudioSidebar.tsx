@@ -115,6 +115,21 @@ const StudioSidebar = ({ credits, userEmail, collapsed, onToggle, activePage, on
             ))}
           </nav>
         </div>
+
+        <div className="mt-8">
+          {!collapsed && (
+            <span className="px-3 text-[10px] font-semibold uppercase tracking-wider text-white/30 mb-2 block">
+              Support
+            </span>
+          )}
+          <button
+            onClick={() => navigate("/help")}
+            className="w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-white/50 hover:bg-white/5 hover:text-white/90 transition-all duration-200"
+          >
+            <History className="h-4 w-4 shrink-0 text-white/40" />
+            {!collapsed && <span className="truncate font-medium">Help & Support</span>}
+          </button>
+        </div>
       </div>
 
       {/* Credits & User */}

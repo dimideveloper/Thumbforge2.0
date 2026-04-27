@@ -71,6 +71,12 @@ const Header = () => {
               {link.name}
             </a>
           ))}
+          <button 
+            onClick={() => navigate("/help")}
+            className="text-sm font-medium text-white/50 hover:text-white transition-colors duration-200"
+          >
+            Support
+          </button>
         </nav>
         <button
           onClick={() => navigate(isLoggedIn ? '/dashboard' : '/auth')}
