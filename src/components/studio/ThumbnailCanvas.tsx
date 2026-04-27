@@ -339,18 +339,56 @@ const ThumbnailCanvas = ({ imageUrl, title, onTitleChange, onImageLoad, isLoadin
         <AnimatePresence>
           {showMobilePreview && imageUrl && (
             <motion.div 
-              initial={{ opacity: 0, scale: 0.8, x: 20 }}
-              animate={{ opacity: 1, scale: 1, x: 0 }}
-              exit={{ opacity: 0, scale: 0.8, x: 20 }}
-              className="absolute top-8 right-8 z-50 pointer-events-none"
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="absolute bottom-24 right-8 z-50 pointer-events-none select-none"
             >
-              <div className="flex flex-col items-center gap-3">
-                <div className="w-[180px] aspect-video rounded-2xl overflow-hidden border-4 border-white/10 bg-black shadow-[0_30px_60px_-15px_rgba(0,0,0,0.7)]">
-                  <img src={imageUrl} alt="Mobile Preview" className="w-full h-full object-cover" />
+              <div className="flex flex-col items-center gap-4">
+                {/* YouTube Video Card Simulation */}
+                <div className="w-[280px] bg-[#0f0f0f] rounded-3xl overflow-hidden shadow-[0_40px_80px_-15px_rgba(0,0,0,0.8)] border border-white/5 animate-in zoom-in-95 duration-500">
+                  {/* Thumbnail Part */}
+                  <div className="relative aspect-video w-full overflow-hidden">
+                    <img src={imageUrl} alt="Mobile Preview" className="w-full h-full object-cover" />
+                    {/* Timestamp */}
+                    <div className="absolute bottom-2 right-2 bg-black/90 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-md flex items-center justify-center">
+                      10:04
+                    </div>
+                  </div>
+                  
+                  {/* Video Info Part */}
+                  <div className="p-3 flex gap-3">
+                    {/* Channel Avatar */}
+                    <div className="h-9 w-9 rounded-full bg-white/10 shrink-0 border border-white/5 flex items-center justify-center">
+                      <Zap className="h-4 w-4 text-white/40" />
+                    </div>
+                    
+                    {/* Text Details */}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-sm font-semibold text-white leading-tight line-clamp-2 mb-1">
+                        {title || "My awesome video title"}
+                      </h3>
+                      <div className="flex flex-col text-[12px] text-[#aaaaaa] font-medium">
+                        <span>Your Channel</span>
+                        <div className="flex items-center gap-1">
+                          <span>1.2M views</span>
+                          <span className="h-0.5 w-0.5 rounded-full bg-[#aaaaaa]" />
+                          <span>2 hours ago</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Menu dots */}
+                    <div className="flex flex-col gap-0.5 pt-1">
+                      {[1,2,3].map(i => <div key={i} className="h-0.5 w-0.5 rounded-full bg-white/40" />)}
+                    </div>
+                  </div>
                 </div>
-                <div className="px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/10 flex items-center gap-2">
-                  <Smartphone className="h-3 w-3 text-white/60" />
-                  <span className="text-[10px] text-white/60 font-medium uppercase tracking-wider">Mobile Preview</span>
+
+                {/* Label */}
+                <div className="px-4 py-2 rounded-full bg-white/5 backdrop-blur-xl border border-white/10 flex items-center gap-2 shadow-2xl">
+                  <Smartphone className="h-3.5 w-3.5 text-white/80" />
+                  <span className="text-[10px] text-white/80 font-bold uppercase tracking-widest">Mobile UI Preview</span>
                 </div>
               </div>
             </motion.div>
