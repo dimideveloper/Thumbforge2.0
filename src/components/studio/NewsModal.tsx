@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { 
   MessageSquare, Sparkles, Zap, Bug, ChevronRight, 
-  LifeBuoy, ShieldCheck, X 
+  LifeBuoy, ShieldCheck, X as XIcon 
 } from "lucide-react";
 import {
   Dialog,
@@ -62,13 +62,6 @@ export function NewsModal() {
           {/* Background Glow */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-32 bg-white/5 blur-[80px] rounded-full pointer-events-none" />
           
-          <button 
-            onClick={handleClose}
-            className="absolute top-6 right-6 text-white/20 hover:text-white transition-colors"
-          >
-            <X className="h-5 w-5" />
-          </button>
-
           <DialogHeader className="text-left mb-8">
             <div className="flex items-center gap-3 mb-4">
               <div className="h-10 w-10 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
