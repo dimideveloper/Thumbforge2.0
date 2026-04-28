@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Zap, ZoomIn, ZoomOut, Maximize2, Download, Upload, RotateCcw, Loader2, Sparkles, Trophy, Eye, Smartphone, Layout } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
@@ -19,6 +20,7 @@ const MIN_ZOOM = 0.25;
 const MAX_ZOOM = 3;
 
 const ThumbnailCanvas = ({ imageUrl, title, onTitleChange, onImageLoad, isLoading = false, onShare }: ThumbnailCanvasProps) => {
+  const isMobile = useIsMobile();
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [isPanning, setIsPanning] = useState(false);
