@@ -126,12 +126,18 @@ export function DownloadModal({ isOpen, onClose, imageUrl, projectTitle, userPla
                   return (
                     <button
                       key={res.id}
-                      onClick={() => !locked && setResolution(res.id as Resolution)}
+                      onClick={() => {
+                        if (locked) {
+                          toast.error(`${res.label} is only available in paid plans. Upgrade to unlock!`);
+                        } else {
+                          setResolution(res.id as Resolution);
+                        }
+                      }}
                       className={`p-3 rounded-xl border flex flex-col items-center transition-all relative overflow-hidden ${
                         resolution === res.id 
                           ? "bg-blue-500/10 border-blue-500/50 text-white" 
                           : locked
-                            ? "bg-white/[0.02] border-white/5 text-white/20 cursor-not-allowed"
+                            ? "bg-white/[0.02] border-white/5 text-white/20 hover:border-white/10"
                             : "bg-white/5 border-white/5 text-white/40 hover:border-white/10"
                       }`}
                     >
