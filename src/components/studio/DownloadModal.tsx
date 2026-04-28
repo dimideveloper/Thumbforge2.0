@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Download, FileImage, Layers, Monitor, Sliders } from "lucide-react";
+import { Download, FileImage, Layers, Monitor, Sliders, Zap } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 
