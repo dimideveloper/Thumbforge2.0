@@ -1,16 +1,15 @@
 /* From Uiverse.io by marcelodolza - adapted for ThumbForge */ 
 .uiverse-button {
-  --primary: #3b82f6; /* Blue */
-  --neutral-1: rgba(255, 255, 255, 0.05);
-  --neutral-2: rgba(255, 255, 255, 0.02);
+  --primary: #000000;
+  --neutral-1: rgba(255, 255, 255, 1);
+  --neutral-2: rgba(240, 240, 240, 1);
   --radius: 16px;
 
   cursor: pointer;
   border-radius: var(--radius);
-  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
   border: none;
-  box-shadow: 0 0.5px 0.5px 1px rgba(255, 255, 255, 0.1),
-    0 10px 20px rgba(0, 0, 0, 0.4), 0 4px 5px 0px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0.5px 0.5px 1px rgba(0, 0, 0, 0.05),
+    0 5px 15px rgba(0, 0, 0, 0.2), 0 2px 3px 0px rgba(0, 0, 0, 0.05);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -23,8 +22,8 @@
   font-style: normal;
   font-size: 13px;
   font-weight: 600;
-  background: transparent;
-  color: white;
+  background: white;
+  color: black;
   z-index: 10;
 }
 
@@ -36,8 +35,8 @@
 
 .uiverse-button:hover:not(:disabled) {
   transform: scale(1.02);
-  box-shadow: 0 0 1px 2px rgba(255, 255, 255, 0.2),
-    0 15px 30px rgba(0, 0, 0, 0.5), 0 10px 3px -3px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 0 1px 2px rgba(0, 0, 0, 0.1),
+    0 10px 20px rgba(0, 0, 0, 0.2), 0 5px 3px -3px rgba(0, 0, 0, 0.04);
 }
 
 .uiverse-button:active:not(:disabled) {
@@ -49,9 +48,9 @@
   position: absolute;
   inset: 0;
   border-radius: var(--radius);
-  border: 1.5px solid transparent;
-  background: linear-gradient(var(--neutral-1), var(--neutral-2)) padding-box,
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05))
+  border: 1px solid transparent;
+  background: white padding-box,
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.15))
       border-box;
   z-index: 0;
   transition: all 0.4s ease;
@@ -59,7 +58,7 @@
 
 .uiverse-button:hover:not(:disabled)::after {
   transform: scale(1.02, 1.05);
-  box-shadow: inset 0 -1px 3px 0 rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 -1px 3px 0 rgba(0, 0, 0, 0.05);
 }
 
 .uiverse-button::before {
@@ -114,7 +113,7 @@
   background: conic-gradient(
     from 180deg,
     transparent 60%,
-    rgba(255, 255, 255, 0.5) 80%,
+    rgba(0, 0, 0, 0.2) 80%,
     transparent 100%
   );
   animation: spin 2s linear infinite;
