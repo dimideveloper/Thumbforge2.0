@@ -296,8 +296,8 @@ serve(async (req) => {
       
       // Pollinations is a pure Text-to-Image fallback. 
       // We combine the system prompt and user prompt for best results.
-      const fallbackPrompt = encodeURIComponent(`${modeSystemPrompts[mode]} Subject: ${prompt}. High quality, cinematic, 16:9.`);
-      const fallbackUrl = `https://image.pollinations.ai/prompt/${fallbackPrompt}?width=1280&height=720&nologo=true&seed=${Math.floor(Math.random() * 1000000)}`;
+      const fallbackPrompt = encodeURIComponent(`Masterpiece YouTube thumbnail, ${modeSystemPrompts[mode]}, ${prompt}, 4k, ultra-detailed, high contrast, cinematic lighting, vibrant colors, epic composition, 16:9 aspect ratio, professional digital art style, trending on artstation.`);
+      const fallbackUrl = `https://image.pollinations.ai/prompt/${fallbackPrompt}?width=1280&height=720&nologo=true&enhance=true&seed=${Math.floor(Math.random() * 1000000)}`;
       
       return jsonResponse(200, {
         success: true,
