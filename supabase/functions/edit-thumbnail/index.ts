@@ -247,6 +247,8 @@ serve(async (req) => {
     const geminiModels = [
       "gemini-2.5-flash-image",
       "gemini-2.0-flash-exp-image-generation",
+      "gemini-2.0-flash-exp",
+      "imagen-3.0-generate-001",
     ];
 
     let aiResponse: Response | null = null;
@@ -255,7 +257,7 @@ serve(async (req) => {
 
     for (const model of geminiModels) {
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GOOGLE_API_KEY}`;
-      console.log("Calling Gemini Direct API:", { errorId, model, mode });
+      console.log(`[${errorId}] Calling Gemini Direct API with model: ${model}`);
 
       try {
         const response = await fetch(url, {
@@ -269,11 +271,15 @@ serve(async (req) => {
           }),
         });
 
-        console.log("Gemini response status:", { errorId, model, status: response.status });
-
         if (response.status === 404) {
           lastModelError = await response.text();
-          console.warn("Model unavailable, trying fallback:", { errorId, model });
+          console.warn(`[${errorId}] Model ${model} unavailable (404), trying next...`);
+          continue;
+        }
+
+        if (response.status === 429) {
+          lastModelError = await response.text();
+          console.warn(`[${errorId}] Model ${model} rate limited (429), trying next...`);
           continue;
         }
 
@@ -281,9 +287,7 @@ serve(async (req) => {
         usedModel = model;
         break;
       } catch (fetchError) {
-        const message = fetchError instanceof Error ? fetchError.message : String(fetchError);
-        console.error("Gemini network error:", { errorId, model, message });
-        return jsonResponse(502, { success: false, error: "AI network error", details: { message, errorId } });
+        console.error(`[${errorId}] Fetch error for model ${model}:`, fetchError);
       }
     }
 
