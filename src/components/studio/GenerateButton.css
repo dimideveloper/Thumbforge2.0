@@ -16,12 +16,12 @@
   justify-content: center;
   position: relative;
   transition: all 0.3s ease;
-  min-width: 160px;
-  padding: 0 24px;
-  height: 48px;
+  min-width: 140px;
+  padding: 0 16px;
+  height: 40px;
   font-family: inherit;
   font-style: normal;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   background: transparent;
   color: white;
@@ -81,7 +81,7 @@
 
 .state .icon {
   position: absolute;
-  left: -20px;
+  left: -16px;
   top: 0;
   bottom: 0;
   margin: auto;
@@ -198,7 +198,7 @@
 
 .uiverse-button:hover:not(:disabled) .state--default .icon {
   transform: rotate(45deg) scale(1.1);
-  left: -15px;
+  left: -12px;
 }
 
 .uiverse-button.processing .state--default svg {
