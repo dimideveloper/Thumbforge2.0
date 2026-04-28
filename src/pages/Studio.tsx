@@ -128,15 +128,15 @@ const Studio = () => {
     const loadCredits = async () => {
       const { data: profile } = await supabase
         .from("profiles")
-        .select("credits, is_admin, plan")
+        .select("credits, is_admin")
         .eq("user_id", user.id)
         .maybeSingle();
 
       if (isMounted && profile) {
         setCredits(profile.credits);
         setIsAdmin(profile.is_admin || false);
-        // @ts-ignore
-        setUserPlan(profile.plan || "free");
+        // Default plan to free for now since the DB column is missing
+        setUserPlan("free");
       }
     };
     loadCredits();
