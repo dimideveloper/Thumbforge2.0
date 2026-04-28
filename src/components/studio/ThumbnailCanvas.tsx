@@ -411,8 +411,8 @@ const ThumbnailCanvas = ({ imageUrl, title, onTitleChange, onImageLoad, isLoadin
 
                 {/* Label */}
                 <div className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-white/10 backdrop-blur-xl border border-white/10 flex items-center gap-2 shadow-2xl">
-                  <Smartphone className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-white/80" />
-                  <span className="text-[9px] sm:text-[10px] text-white/80 font-bold uppercase tracking-widest">Mobile UI Preview</span>
+                  <Layout className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-white/80" />
+                  <span className="text-[9px] sm:text-[10px] text-white/80 font-bold uppercase tracking-widest">YouTube Preview</span>
                 </div>
 
                 {isMobile && (
@@ -514,11 +514,11 @@ const ThumbnailCanvas = ({ imageUrl, title, onTitleChange, onImageLoad, isLoadin
           </button>
         </PremiumTooltip>
 
-        <PremiumTooltip content="Mobile Preview">
+        <PremiumTooltip content="YouTube Feed Preview">
           <button
              onClick={() => {
                if (!imageUrl) {
-                 toast.info("Please load an image first to see the mobile preview.");
+                 toast.info("Please load an image first to see the preview.");
                  return;
                }
                setShowMobilePreview(!showMobilePreview);
@@ -527,7 +527,7 @@ const ThumbnailCanvas = ({ imageUrl, title, onTitleChange, onImageLoad, isLoadin
                showMobilePreview ? 'bg-white text-black shadow-[0_0_15px_rgba(255,255,255,0.5)]' : 'text-white/50 hover:text-white hover:bg-white/10'
              }`}
           >
-             <Smartphone className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+             <Eye className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
           </button>
         </PremiumTooltip>
 
