@@ -292,11 +292,21 @@ serve(async (req) => {
     }
 
     if (!aiResponse) {
-      console.error("No Gemini image model available:", { errorId, lastModelError: lastModelError.slice(0, 800) });
-      return jsonResponse(502, {
-        success: false,
-        error: "Kein verfügbares Gemini Bild-Modell.",
-        details: { errorId, status: 404 },
+      console.warn(`[${errorId}] All Gemini models failed or rate limited. Using Emergency Fallback: Pollinations.ai`);
+      
+      // Pollinations is a pure Text-to-Image fallback. 
+      // We combine the system prompt and user prompt for best results.
+      const fallbackPrompt = encodeURIComponent(`${modeSystemPrompts[mode]} Subject: ${prompt}. High quality, cinematic, 16:9.`);
+      const fallbackUrl = `https://image.pollinations.ai/prompt/${fallbackPrompt}?width=1280&height=720&nologo=true&seed=${Math.floor(Math.random() * 1000000)}`;
+      
+      return jsonResponse(200, {
+        success: true,
+        imageUrl: fallbackUrl,
+        mode,
+        model: "pollinations-fallback",
+        creditsSpent: cost,
+        creditsRemaining: Math.max(0, profile.credits - cost),
+        isFallback: true
       });
     }
 
