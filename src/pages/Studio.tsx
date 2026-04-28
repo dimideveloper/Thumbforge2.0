@@ -45,8 +45,10 @@ const createId = () => {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 };
 
+const targetTime = new Date("2026-04-28T22:00:00+02:00");
+
 const Studio = () => {
-  const isMaintenanceMode = true;
+  const isMaintenanceMode = new Date() < targetTime;
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -128,7 +130,7 @@ const Studio = () => {
         .select("credits, is_admin")
         .eq("user_id", user.id)
         .maybeSingle();
-      
+
       if (isMounted && profile) {
         setCredits(profile.credits);
         setIsAdmin(profile.is_admin || false);
@@ -141,7 +143,7 @@ const Studio = () => {
   // Sync title changes to DB
   useEffect(() => {
     if (!projectId || !user) return;
-    
+
     const timeoutId = setTimeout(async () => {
       await supabase
         .from("thumbnail_projects")
@@ -195,7 +197,7 @@ const Studio = () => {
     addVersion(url, "Original");
     setActiveTab("editor");
     toast.success("Thumbnail loaded into canvas");
-    
+
     // Auto-save on initial load/upload
     const savedId = await saveProject(url, projectTitle, projectId);
     if (savedId && !projectId) setProjectId(savedId);
@@ -209,7 +211,7 @@ const Studio = () => {
   const handleDeleteVersion = useCallback((id: string) => {
     setVersions((prev) => {
       const filtered = prev.filter((v) => v.id !== id);
-      
+
       // If we deleted the active version, switch to the last one available
       if (id === activeVersionId && filtered.length > 0) {
         const lastVersion = filtered[filtered.length - 1];
@@ -219,7 +221,7 @@ const Studio = () => {
         setCanvasImage(null);
         setActiveVersionId(null);
       }
-      
+
       return filtered;
     });
     toast.success("Version removed");
@@ -227,7 +229,7 @@ const Studio = () => {
 
   const handleShareToCommunity = async () => {
     if (!canvasImage || !user) return;
-    
+
     try {
       // If no current project, we can't easily link it yet, but we can share the image
       const { error } = await supabase
@@ -303,7 +305,7 @@ const Studio = () => {
                   done = streamDone;
                 }
               }
-              
+
               try {
                 const parsed = JSON.parse(raw);
                 return { message: parsed?.error ?? raw, raw };
@@ -442,8 +444,8 @@ const Studio = () => {
           }}
         />
         {isMobile && !sidebarCollapsed && (
-          <div 
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[-1]" 
+          <div
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[-1]"
             onClick={() => setSidebarCollapsed(true)}
           />
         )}
@@ -455,9 +457,9 @@ const Studio = () => {
             <div className="flex-1 flex flex-col min-w-0 relative z-10 h-full">
               {/* Subtle background glow */}
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full lg:w-[800px] h-[300px] bg-white/[0.02] blur-[120px] rounded-full pointer-events-none" />
-              
+
               <div className="flex items-center lg:hidden h-14 border-b border-white/5 px-4 bg-[#0a0a0a]/50 backdrop-blur-md shrink-0">
-                <button 
+                <button
                   onClick={() => setSidebarCollapsed(false)}
                   className="p-2 -ml-2 text-white/40 hover:text-white"
                 >
@@ -490,15 +492,15 @@ const Studio = () => {
             </div>
 
             <div className={`
-              ${isMobile 
-                ? `fixed bottom-0 left-0 right-0 z-30 transition-all duration-500 ease-in-out ${activeTab === null ? "translate-y-[calc(100%-44px)]" : "translate-y-0"}` 
+              ${isMobile
+                ? `fixed bottom-0 left-0 right-0 z-30 transition-all duration-500 ease-in-out ${activeTab === null ? "translate-y-[calc(100%-44px)]" : "translate-y-0"}`
                 : "w-80 border-l"
               } 
               border-white/5 bg-[#0a0a0a]/90 backdrop-blur-2xl flex flex-col shrink-0 relative shadow-[-10px_0_40px_-15px_rgba(0,0,0,0.7)]
               ${isMobile ? "rounded-t-[32px] h-[65vh]" : ""}
             `}>
               {isMobile && (
-                <div 
+                <div
                   className="h-11 flex items-center justify-center shrink-0 cursor-pointer"
                   onClick={() => setActiveTab(activeTab ? null : "editor")}
                 >
@@ -511,11 +513,10 @@ const Studio = () => {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id as RightTab)}
-                    className={`flex-1 flex items-center justify-center gap-1.5 py-3 text-[10px] sm:text-xs font-medium transition-all duration-200 relative rounded-t-xl ${
-                      activeTab === tab.id
+                    className={`flex-1 flex items-center justify-center gap-1.5 py-3 text-[10px] sm:text-xs font-medium transition-all duration-200 relative rounded-t-xl ${activeTab === tab.id
                         ? "text-white bg-white/5"
                         : "text-white/40 hover:text-white/90 hover:bg-white/[0.02]"
-                    }`}
+                      }`}
                   >
                     <tab.icon className={`h-3.5 w-3.5 ${activeTab === tab.id ? "text-white" : "text-white/40"}`} />
                     {tab.label}
@@ -547,7 +548,7 @@ const Studio = () => {
         ) : (
           <div className="flex-1 flex flex-col h-full">
             <div className="flex items-center lg:hidden h-14 border-b border-white/5 px-4 bg-[#0a0a0a] shrink-0 z-20">
-              <button 
+              <button
                 onClick={() => setSidebarCollapsed(false)}
                 className="p-2 -ml-2 text-white/40 hover:text-white"
               >
@@ -559,37 +560,37 @@ const Studio = () => {
               </button>
               <span className="ml-3 font-medium text-sm text-white/90 capitalize">{activePage === "affiliates" ? "Affiliate" : activePage}</span>
             </div>
-            
+
             <div className="flex-1 overflow-y-auto bg-[#0a0a0a] relative flex flex-col">
               <div className="relative z-10 flex-1 flex flex-col">
                 {activePage === "videos" && user ? (
-                <MyVideosPage
-                  userId={user.id}
-                  onOpenProject={(project) => {
-                    setProjectTitle(project.title);
-                    if (project.canvas_image_url) {
-                      setCanvasImage(project.canvas_image_url);
-                      setVersions([]);
-                      addVersion(project.canvas_image_url, "Gespeichert");
-                    } else {
-                      setCanvasImage(null);
-                      setVersions([]);
-                      setActiveVersionId(null);
-                    }
-                    setActivePage("studio");
-                    toast.success("Project loaded");
-                  }}
-                />
-              ) : activePage === "community" ? (
-                <CommunityShowcase />
-              ) : activePage === "account" && user ? (
-                <AccountSettingsPage user={user} />
-              ) : (
-                <PlaceholderPage
-                  title={placeholderPages[activePage]?.title || "Seite"}
-                  description={placeholderPages[activePage]?.description || "Diese Seite ist noch in Arbeit."}
-                />
-              )}
+                  <MyVideosPage
+                    userId={user.id}
+                    onOpenProject={(project) => {
+                      setProjectTitle(project.title);
+                      if (project.canvas_image_url) {
+                        setCanvasImage(project.canvas_image_url);
+                        setVersions([]);
+                        addVersion(project.canvas_image_url, "Gespeichert");
+                      } else {
+                        setCanvasImage(null);
+                        setVersions([]);
+                        setActiveVersionId(null);
+                      }
+                      setActivePage("studio");
+                      toast.success("Project loaded");
+                    }}
+                  />
+                ) : activePage === "community" ? (
+                  <CommunityShowcase />
+                ) : activePage === "account" && user ? (
+                  <AccountSettingsPage user={user} />
+                ) : (
+                  <PlaceholderPage
+                    title={placeholderPages[activePage]?.title || "Seite"}
+                    description={placeholderPages[activePage]?.description || "Diese Seite ist noch in Arbeit."}
+                  />
+                )}
               </div>
             </div>
           </div>
@@ -615,11 +616,11 @@ const Studio = () => {
       </Dialog>
 
       {user && (
-        <OnboardingTour 
-          user={user} 
+        <OnboardingTour
+          user={user}
           onComplete={(name) => {
             // Optional: update local state if needed
-          }} 
+          }}
         />
       )}
     </div>

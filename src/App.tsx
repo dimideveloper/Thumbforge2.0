@@ -14,7 +14,7 @@ import HelpCenter from "./pages/HelpCenter.tsx";
 import Article from "./pages/Article.tsx";
 import TicketDetail from "./pages/TicketDetail.tsx";
 import ScrollToTop from "./components/ScrollToTop.tsx";
-import { SiteLock } from "./components/SiteLock.tsx";
+
 
 const queryClient = new QueryClient();
 
@@ -24,7 +24,6 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <SiteLock>
           <ScrollToTop />
           <Routes>
             <Route path="/" element={<Index />} />
@@ -40,7 +39,6 @@ const App = () => (
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
-        </SiteLock>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
