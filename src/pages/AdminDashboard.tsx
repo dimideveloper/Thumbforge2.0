@@ -29,9 +29,12 @@ interface Stats {
 interface UserProfile {
   user_id: string;
   email?: string;
+  display_name?: string;
+  avatar_url?: string | null;
   credits: number;
   is_admin: boolean;
   created_at: string;
+  projectCount?: number;
 }
 
 interface SupportTicket {
@@ -68,21 +71,37 @@ export default function AdminDashboard() {
         totalCredits
       });
 
-      // Fetch users (top 50 for now)
-      const { data: userData } = await supabase
+      // Fetch users with project counts
+      const { data: userData, error: userError } = await supabase
         .from("profiles")
         .select("*")
-        .order("created_at", { ascending: false })
-        .limit(50);
+        .order("created_at", { ascending: false });
       
-      setUsers(userData as UserProfile[] || []);
+      if (userError) throw userError;
+
+      // Fetch project counts for all users
+      const { data: projectData } = await supabase
+        .from("thumbnail_projects")
+        .select("user_id");
+
+      const projectCounts = projectData?.reduce((acc: Record<string, number>, curr) => {
+        acc[curr.user_id] = (acc[curr.user_id] || 0) + 1;
+        return acc;
+      }, {}) || {};
+
+      const usersWithCounts = (userData as UserProfile[]).map(u => ({
+        ...u,
+        projectCount: projectCounts[u.user_id] || 0
+      }));
+      
+      setUsers(usersWithCounts);
 
       // Fetch tickets
       const { data: ticketData } = await supabase
         .from("support_tickets")
         .select("*")
         .order("created_at", { ascending: false })
-        .limit(50);
+        .limit(100);
       
       setTickets(ticketData as SupportTicket[] || []);
 
@@ -113,9 +132,25 @@ export default function AdminDashboard() {
     }
   };
 
+  const toggleAdmin = async (userId: string, currentStatus: boolean) => {
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ is_admin: !currentStatus })
+        .eq("user_id", userId);
+
+      if (error) throw error;
+      toast.success(`Admin status ${!currentStatus ? 'granted' : 'revoked'}`);
+      fetchData();
+    } catch (error) {
+      toast.error("Failed to update admin status");
+    }
+  };
+
   const filteredUsers = users.filter(u => 
     u.user_id.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    (u as any).email?.toLowerCase().includes(searchQuery.toLowerCase())
+    u.display_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    u.email?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const filteredTickets = tickets.filter(t => 
@@ -214,9 +249,10 @@ export default function AdminDashboard() {
                   <table className="w-full text-left">
                     <thead>
                       <tr className="border-b border-white/5">
-                        <th className="px-8 py-6 text-[10px] uppercase tracking-widest text-white/30 font-bold">User / ID</th>
-                        <th className="px-8 py-6 text-[10px] uppercase tracking-widest text-white/30 font-bold">Credits</th>
-                        <th className="px-8 py-6 text-[10px] uppercase tracking-widest text-white/30 font-bold">Joined</th>
+                        <th className="px-8 py-6 text-[10px] uppercase tracking-widest text-white/30 font-bold">User / Identity</th>
+                        <th className="px-8 py-6 text-[10px] uppercase tracking-widest text-white/30 font-bold text-center">Projects</th>
+                        <th className="px-8 py-6 text-[10px] uppercase tracking-widest text-white/30 font-bold text-center">Credits</th>
+                        <th className="px-8 py-6 text-[10px] uppercase tracking-widest text-white/30 font-bold text-center">Role</th>
                         <th className="px-8 py-6 text-[10px] uppercase tracking-widest text-white/30 font-bold text-right">Actions</th>
                       </tr>
                     </thead>
@@ -224,35 +260,62 @@ export default function AdminDashboard() {
                       {filteredUsers.map((user) => (
                         <tr key={user.user_id} className="group hover:bg-white/[0.02] transition-all">
                           <td className="px-8 py-6">
-                            <div className="flex flex-col gap-1">
-                              <span className="text-sm font-medium text-white/80">{user.email || "No Email"}</span>
-                              <span className="text-[10px] text-white/20 font-mono">{user.user_id}</span>
+                            <div className="flex items-center gap-4">
+                              <div className="h-10 w-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden shrink-0">
+                                {user.avatar_url ? (
+                                  <img src={user.avatar_url} alt="" className="h-full w-full object-cover" />
+                                ) : (
+                                  <Users className="h-5 w-5 text-white/20" />
+                                )}
+                              </div>
+                              <div className="flex flex-col gap-0.5">
+                                <span className="text-sm font-medium text-white/80">{user.display_name || user.email || "Anonymous Creator"}</span>
+                                <span className="text-[10px] text-white/20 font-mono tracking-tight">{user.user_id}</span>
+                              </div>
                             </div>
                           </td>
-                          <td className="px-8 py-6 text-sm">
-                            <div className="flex items-center gap-3">
-                              <Coins className="h-3 w-3 text-emerald-400" />
-                              <span className="font-medium text-emerald-400/80">{user.credits}</span>
+                          <td className="px-8 py-6 text-center">
+                            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10">
+                              <span className="text-xs font-medium text-white/60">{user.projectCount || 0}</span>
+                            </div>
+                          </td>
+                          <td className="px-8 py-6 text-center">
+                            <div className="flex items-center justify-center gap-2">
+                              <span className="text-sm font-medium text-emerald-400">{user.credits}</span>
                               <Button 
                                 size="sm" 
                                 variant="ghost" 
-                                className="h-7 w-7 p-0 rounded-lg hover:bg-emerald-500/10 hover:text-emerald-400 text-white/20"
+                                className="h-6 w-6 p-0 rounded-lg hover:bg-emerald-500/10 hover:text-emerald-400 text-white/10"
                                 onClick={() => {
-                                  const val = prompt("Enter new credit amount:", user.credits.toString());
+                                  const val = prompt("Set credits for " + (user.display_name || user.user_id), user.credits.toString());
                                   if (val !== null) updateCredits(user.user_id, parseInt(val));
                                 }}
                               >
-                                +
+                                <Coins className="h-3 w-3" />
                               </Button>
                             </div>
                           </td>
-                          <td className="px-8 py-6 text-sm text-white/40 font-light">
-                            {new Date(user.created_at).toLocaleDateString()}
+                          <td className="px-8 py-6 text-center">
+                            <button
+                              onClick={() => toggleAdmin(user.user_id, user.is_admin)}
+                              className={`px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest transition-all ${
+                                user.is_admin 
+                                ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' 
+                                : 'bg-white/5 text-white/20 border border-white/5 hover:border-white/10 hover:text-white/40'
+                              }`}
+                            >
+                              {user.is_admin ? "Admin" : "User"}
+                            </button>
                           </td>
                           <td className="px-8 py-6 text-right">
-                            <Button variant="ghost" className="h-10 w-10 p-0 rounded-xl hover:bg-white/5 text-white/20 hover:text-white transition-all">
-                              <ChevronRight className="h-4 w-4" />
-                            </Button>
+                            <div className="flex items-center justify-end gap-2">
+                              <span className="text-[10px] text-white/20 font-light hidden md:inline">
+                                {new Date(user.created_at).toLocaleDateString()}
+                              </span>
+                              <Button variant="ghost" className="h-9 w-9 p-0 rounded-xl hover:bg-white/5 text-white/20 hover:text-white transition-all">
+                                <ChevronRight className="h-4 w-4" />
+                              </Button>
+                            </div>
                           </td>
                         </tr>
                       ))}
