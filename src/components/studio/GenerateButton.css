@@ -1,0 +1,283 @@
+/* From Uiverse.io by marcelodolza - adapted for ThumbForge */ 
+.uiverse-button {
+  --primary: #3b82f6; /* Blue */
+  --neutral-1: rgba(255, 255, 255, 0.05);
+  --neutral-2: rgba(255, 255, 255, 0.02);
+  --radius: 16px;
+
+  cursor: pointer;
+  border-radius: var(--radius);
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+  border: none;
+  box-shadow: 0 0.5px 0.5px 1px rgba(255, 255, 255, 0.1),
+    0 10px 20px rgba(0, 0, 0, 0.4), 0 4px 5px 0px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: all 0.3s ease;
+  min-width: 160px;
+  padding: 0 24px;
+  height: 48px;
+  font-family: inherit;
+  font-style: normal;
+  font-size: 14px;
+  font-weight: 600;
+  background: transparent;
+  color: white;
+  z-index: 10;
+}
+
+.uiverse-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  filter: grayscale(1);
+}
+
+.uiverse-button:hover:not(:disabled) {
+  transform: scale(1.02);
+  box-shadow: 0 0 1px 2px rgba(255, 255, 255, 0.2),
+    0 15px 30px rgba(0, 0, 0, 0.5), 0 10px 3px -3px rgba(0, 0, 0, 0.04);
+}
+
+.uiverse-button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.uiverse-button:after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius);
+  border: 1.5px solid transparent;
+  background: linear-gradient(var(--neutral-1), var(--neutral-2)) padding-box,
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05))
+      border-box;
+  z-index: 0;
+  transition: all 0.4s ease;
+}
+
+.uiverse-button:hover:not(:disabled)::after {
+  transform: scale(1.02, 1.05);
+  box-shadow: inset 0 -1px 3px 0 rgba(255, 255, 255, 0.1);
+}
+
+.uiverse-button::before {
+  content: "";
+  inset: 4px;
+  position: absolute;
+  background: linear-gradient(to top, var(--neutral-1), var(--neutral-2));
+  border-radius: inherit;
+  filter: blur(0.5px);
+  z-index: 2;
+}
+
+.state p {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+}
+
+.state .icon {
+  position: absolute;
+  left: -20px;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+  transform: scale(1.1);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.state .icon svg {
+  overflow: visible;
+}
+
+/* Outline */
+.outline {
+  position: absolute;
+  border-radius: inherit;
+  overflow: hidden;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  inset: -2px;
+}
+
+.outline::before {
+  content: "";
+  position: absolute;
+  inset: -100%;
+  background: conic-gradient(
+    from 180deg,
+    transparent 60%,
+    rgba(255, 255, 255, 0.5) 80%,
+    transparent 100%
+  );
+  animation: spin 2s linear infinite;
+  animation-play-state: paused;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.uiverse-button:hover:not(:disabled) .outline {
+  opacity: 1;
+}
+
+.uiverse-button:hover:not(:disabled) .outline::before {
+  animation-play-state: running;
+}
+
+/* Letters */
+.state p span {
+  display: block;
+  opacity: 0;
+  animation: slideDown 0.8s ease forwards calc(var(--i) * 0.03s);
+}
+
+.uiverse-button:hover:not(:disabled) p span {
+  opacity: 1;
+  animation: wave 0.5s ease forwards calc(var(--i) * 0.02s);
+}
+
+.uiverse-button.processing p span {
+  opacity: 1;
+  animation: disapear 0.6s ease forwards calc(var(--i) * 0.03s);
+}
+
+@keyframes wave {
+  30% {
+    opacity: 1;
+    transform: translateY(2px) translateX(0) rotate(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-2px) translateX(0) rotate(0);
+    color: var(--primary);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) translateX(0) rotate(0);
+  }
+}
+
+@keyframes slideDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px) translateX(2px) rotate(-45deg);
+    color: var(--primary);
+    filter: blur(2px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) translateX(0) rotate(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes disapear {
+  from { opacity: 1; }
+  to {
+    opacity: 0;
+    transform: translateX(2px) translateY(10px);
+    color: var(--primary);
+    filter: blur(2px);
+  }
+}
+
+/* Plane */
+.state--default .icon svg {
+  animation: land 0.6s ease forwards;
+}
+
+.uiverse-button:hover:not(:disabled) .state--default .icon {
+  transform: rotate(45deg) scale(1.1);
+  left: -15px;
+}
+
+.uiverse-button.processing .state--default svg {
+  animation: takeOff 0.8s linear forwards;
+}
+
+.uiverse-button.processing .state--default .icon {
+  transform: rotate(0) scale(1.1);
+}
+
+@keyframes takeOff {
+  0% { opacity: 1; }
+  60% {
+    opacity: 1;
+    transform: translateX(40px) rotate(45deg) scale(1.5);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(100px) rotate(45deg) scale(0);
+  }
+}
+
+@keyframes land {
+  0% {
+    transform: translateX(-30px) translateY(15px) rotate(-50deg) scale(1.5);
+    opacity: 0;
+    filter: blur(2px);
+  }
+  100% {
+    transform: translateX(0) translateY(0) rotate(0);
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+/* States */
+.state {
+  padding-left: 20px;
+  z-index: 5;
+  display: flex;
+  position: relative;
+  align-items: center;
+}
+
+.state--sent {
+  display: none;
+}
+
+.state--sent.flex {
+  display: flex;
+}
+
+.state--sent svg {
+  transform: scale(1.1);
+}
+
+.uiverse-button.processing .state--default {
+  position: absolute;
+}
+
+.uiverse-button.processing .state--sent span {
+  opacity: 0;
+  animation: slideDown 0.8s ease forwards calc(var(--i) * 0.1s);
+}
+
+.uiverse-button.processing .state--sent .icon svg {
+  opacity: 0;
+  animation: appear 1.2s ease forwards 0.4s;
+}
+
+@keyframes appear {
+  0% {
+    opacity: 0;
+    transform: scale(2) rotate(-40deg);
+    color: var(--primary);
+    filter: blur(2px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
