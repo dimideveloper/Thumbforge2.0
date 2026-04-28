@@ -10,16 +10,24 @@ interface DownloadModalProps {
   onClose: () => void;
   imageUrl: string | null;
   projectTitle: string;
+  userPlan?: string;
 }
 
 type Format = "png" | "jpeg" | "webp";
 type Resolution = "720p" | "1080p" | "1440p";
 
-export function DownloadModal({ isOpen, onClose, imageUrl, projectTitle }: DownloadModalProps) {
+export function DownloadModal({ isOpen, onClose, imageUrl, projectTitle, userPlan = "free" }: DownloadModalProps) {
   const [format, setFormat] = useState<Format>("png");
   const [resolution, setResolution] = useState<Resolution>("720p");
   const [quality, setQuality] = useState(90);
   const [isExporting, setIsExporting] = useState(false);
+
+  const isResolutionLocked = (resId: string) => {
+    if (resId === "1440p") {
+      return userPlan.toLowerCase() === "free";
+    }
+    return false;
+  };
 
   const handleExport = async () => {
     if (!imageUrl) return;
@@ -113,20 +121,30 @@ export function DownloadModal({ isOpen, onClose, imageUrl, projectTitle }: Downl
                   { id: "720p", label: "720p", desc: "Standard" },
                   { id: "1080p", label: "1080p", desc: "Full HD" },
                   { id: "1440p", label: "1440p", desc: "Ultra" },
-                ].map((res) => (
-                  <button
-                    key={res.id}
-                    onClick={() => setResolution(res.id as Resolution)}
-                    className={`p-3 rounded-xl border flex flex-col items-center transition-all ${
-                      resolution === res.id 
-                        ? "bg-blue-500/10 border-blue-500/50 text-white" 
-                        : "bg-white/5 border-white/5 text-white/40 hover:border-white/10"
-                    }`}
-                  >
-                    <span className="text-sm font-bold">{res.label}</span>
-                    <span className="text-[10px] opacity-60 font-light">{res.desc}</span>
-                  </button>
-                ))}
+                ].map((res) => {
+                  const locked = isResolutionLocked(res.id);
+                  return (
+                    <button
+                      key={res.id}
+                      onClick={() => !locked && setResolution(res.id as Resolution)}
+                      className={`p-3 rounded-xl border flex flex-col items-center transition-all relative overflow-hidden ${
+                        resolution === res.id 
+                          ? "bg-blue-500/10 border-blue-500/50 text-white" 
+                          : locked
+                            ? "bg-white/[0.02] border-white/5 text-white/20 cursor-not-allowed"
+                            : "bg-white/5 border-white/5 text-white/40 hover:border-white/10"
+                      }`}
+                    >
+                      <span className="text-sm font-bold">{res.label}</span>
+                      <span className="text-[10px] opacity-60 font-light">{res.desc}</span>
+                      {locked && (
+                        <div className="absolute top-1 right-1">
+                          <Zap className="h-2.5 w-2.5 text-amber-500 fill-amber-500" />
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 

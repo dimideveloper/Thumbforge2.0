@@ -14,12 +14,13 @@ interface ThumbnailCanvasProps {
   onImageLoad: (url: string) => void;
   isLoading?: boolean;
   onShare?: () => void;
+  userPlan?: string;
 }
 
 const MIN_ZOOM = 0.25;
 const MAX_ZOOM = 3;
 
-const ThumbnailCanvas = ({ imageUrl, title, onTitleChange, onImageLoad, isLoading = false, onShare }: ThumbnailCanvasProps) => {
+const ThumbnailCanvas = ({ imageUrl, title, onTitleChange, onImageLoad, isLoading = false, onShare, userPlan = "free" }: ThumbnailCanvasProps) => {
   const isMobile = useIsMobile();
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
@@ -551,6 +552,7 @@ const ThumbnailCanvas = ({ imageUrl, title, onTitleChange, onImageLoad, isLoadin
         onClose={() => setIsDownloadModalOpen(false)}
         imageUrl={imageUrl}
         projectTitle={title}
+        userPlan={userPlan}
       />
     </div>
   );

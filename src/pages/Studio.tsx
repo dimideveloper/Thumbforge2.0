@@ -53,6 +53,7 @@ const Studio = () => {
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [credits, setCredits] = useState(0);
+  const [userPlan, setUserPlan] = useState<string>("free");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -127,13 +128,15 @@ const Studio = () => {
     const loadCredits = async () => {
       const { data: profile } = await supabase
         .from("profiles")
-        .select("credits, is_admin")
+        .select("credits, is_admin, plan")
         .eq("user_id", user.id)
         .maybeSingle();
 
       if (isMounted && profile) {
         setCredits(profile.credits);
         setIsAdmin(profile.is_admin || false);
+        // @ts-ignore
+        setUserPlan(profile.plan || "free");
       }
     };
     loadCredits();
@@ -484,6 +487,7 @@ const Studio = () => {
                 onTitleChange={setProjectTitle}
                 isLoading={isCanvasLoading}
                 onShare={handleShareToCommunity}
+                userPlan={userPlan}
                 onImageLoad={(url) => {
                   setCanvasImage(url);
                   addVersion(url, "Upload");
