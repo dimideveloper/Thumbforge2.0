@@ -29,7 +29,7 @@ export function MaintenanceView() {
   }, []);
 
   return (
-    <div className="fixed inset-0 z-[200] bg-black flex items-center justify-center font-sans overflow-y-auto py-12">
+    <div className="fixed inset-0 z-[200] bg-black flex items-center justify-center font-sans overflow-hidden">
       <div className="relative z-10 w-full max-w-4xl px-6 md:px-8 flex flex-col items-center text-center">
         {/* Subtle Brand Tag */}
         <motion.div
@@ -123,7 +123,7 @@ export function MaintenanceView() {
       {/* Decorative Glows */}
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-500/5 blur-[120px] rounded-full pointer-events-none" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-500/5 blur-[120px] rounded-full pointer-events-none" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] bg-white/[0.01] border border-white/[0.02] rounded-full pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] md:w-[1000px] md:h-[1000px] bg-white/[0.01] border border-white/[0.02] rounded-full pointer-events-none" />
     </div>
   );
 }
