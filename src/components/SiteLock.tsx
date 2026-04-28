@@ -71,7 +71,7 @@ export function SiteLock({ children }: SiteLockProps) {
 
           <div className="mt-12 grid grid-cols-2 gap-8">
             <div className="space-y-1">
-              <p className="text-3xl font-medium text-white">20:00</p>
+              <p className="text-xl font-medium text-white">Sat or Sun, 18:00 CEST</p>
               <p className="text-sm text-white/30 font-light">Estimated return time</p>
             </div>
             <div className="space-y-1">
@@ -109,6 +109,9 @@ export function SiteLock({ children }: SiteLockProps) {
             <h2 className="text-3xl font-medium text-white leading-[1.1] tracking-tight mb-3">
               We'll be back <span className="text-white/40 italic">soon.</span>
             </h2>
+            <p className="text-white/40 text-sm font-light">
+              Expected return: Sat or Sun, 18:00 (CEST)
+            </p>
           </div>
 
           <div className="rounded-[3rem] border border-white/10 bg-[#0a0a0a]/60 backdrop-blur-3xl p-8 sm:p-14 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.6)] relative overflow-hidden group">
