@@ -391,6 +391,29 @@ const Studio = () => {
       toast.success("Edit applied & saved!");
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Edit failed";
+      
+      // CLIENT-SIDE FALLBACK: If the Edge Function is rate limited or fails, try Pollinations directly
+      if (errorMessage.includes("429") || errorMessage.includes("Rate Limit") || errorMessage.includes("502")) {
+        console.warn("Edge Function failed, using client-side fallback to Pollinations.ai...");
+        try {
+          const fallbackPrompt = encodeURIComponent(`Masterpiece YouTube thumbnail, ${prompt}, high quality, cinematic, 16:9, ultra-detailed`);
+          const fallbackUrl = `https://image.pollinations.ai/prompt/${fallbackPrompt}?width=1280&height=720&nologo=true&enhance=true&seed=${Math.floor(Math.random() * 1000000)}`;
+          
+          setCanvasImage(fallbackUrl);
+          addVersion(fallbackUrl, prompt.slice(0, 30) + " (Backup)");
+          refreshCredits();
+          
+          // Try to save the fallback result
+          const savedId = await saveProject(fallbackUrl, projectTitle, projectId);
+          if (savedId && !projectId) setProjectId(savedId);
+          
+          toast.success("Edit applied via Backup-System!");
+          return;
+        } catch (fallbackErr) {
+          console.error("Fallback also failed:", fallbackErr);
+        }
+      }
+
       console.error("Edit error:", errorMessage);
       toast.error(errorMessage);
       throw err;
