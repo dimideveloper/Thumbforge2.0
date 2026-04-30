@@ -13,12 +13,13 @@ interface EditItem {
   mode: EditMode;
   status: "queued" | "processing" | "done";
   attachedImage?: string;
+  style?: string;
 }
 
 interface EditorPanelProps {
   hasImage: boolean;
   credits: number;
-  onApplyEdit: (prompt: string, mode: EditMode, referenceImage?: string) => Promise<void>;
+  onApplyEdit: (prompt: string, mode: EditMode, referenceImage?: string, style?: string) => Promise<void>;
   onSwitchToSkin?: () => void;
 }
 
@@ -45,6 +46,14 @@ const quickEdits = [
   { icon: Layers, label: "Contrast & Depth", prompt: "Maximize subject-background separation with depth of field, stronger contrast, and atmospheric fog" },
 ];
 
+const thumbnailStyles = [
+  { id: "allrounder", label: "General", icon: Wand2, desc: "Standard Pro" },
+  { id: "gaming", label: "Gaming", icon: Zap, desc: "High Energy" },
+  { id: "minecraft", label: "Minecraft", icon: Layers, desc: "Blocky Style" },
+  { id: "vlog", label: "Vlog", icon: UserIcon, desc: "Clean & Airy" },
+  { id: "business", label: "Business", icon: Crown, desc: "Minimalist" },
+];
+
 const createId = () => {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
     return crypto.randomUUID();
@@ -59,6 +68,7 @@ const EditorPanel = ({ hasImage, credits, onApplyEdit, onSwitchToSkin }: EditorP
   const [edits, setEdits] = useState<EditItem[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedMode, setSelectedMode] = useState<EditMode>("pro");
+  const [selectedStyle, setSelectedStyle] = useState("allrounder");
   const [attachedImage, setAttachedImage] = useState<string | null>(null);
   const [attachedImageName, setAttachedImageName] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -137,6 +147,7 @@ const EditorPanel = ({ hasImage, credits, onApplyEdit, onSwitchToSkin }: EditorP
     
     const combinedPrompt = pendingPrompts.join(". ");
     const useMode = selectedMode;
+    const useStyle = selectedStyle;
     const cost = CREDIT_COSTS[useMode] ?? 1;
 
     if (credits < cost) {
@@ -148,6 +159,7 @@ const EditorPanel = ({ hasImage, credits, onApplyEdit, onSwitchToSkin }: EditorP
       id: createId(),
       prompt: combinedPrompt,
       mode: useMode,
+      style: useStyle,
       status: "processing",
       attachedImage: attachedImage || undefined,
     };
@@ -161,7 +173,7 @@ const EditorPanel = ({ hasImage, credits, onApplyEdit, onSwitchToSkin }: EditorP
     setIsProcessing(true);
 
     try {
-      await onApplyEdit(combinedPrompt, useMode, currentAttached);
+      await onApplyEdit(combinedPrompt, useMode, currentAttached, useStyle);
       setEdits((prev) =>
         prev.map((e) => (e.id === newEdit.id ? { ...e, status: "done" } : e))
       );
@@ -202,11 +214,17 @@ const EditorPanel = ({ hasImage, credits, onApplyEdit, onSwitchToSkin }: EditorP
             <div className="h-12 w-12 rounded-full border border-white/10 bg-gradient-to-b from-white/5 to-transparent flex items-center justify-center">
               <Wand2 className="h-5 w-5 text-white/30" />
             </div>
-            <p className="text-sm text-white/40 font-light max-w-[200px] leading-relaxed">
-              {hasImage
-                ? "Describe what you want to change. You can queue multiple instructions."
-                : "Load a thumbnail into the canvas first."}
-            </p>
+            <div className="flex flex-col items-center gap-1">
+              <p className="text-sm text-white/40 font-light max-w-[200px] leading-relaxed">
+                {hasImage
+                  ? "Describe what you want to change. You can queue multiple instructions."
+                  : "Load a thumbnail into the canvas first."}
+              </p>
+              <div className="flex items-center gap-1.5 opacity-30">
+                <span className="text-[10px] uppercase tracking-widest font-bold">Powered by</span>
+                <span className="text-[10px] font-bold text-red-500">Adobe Firefly</span>
+              </div>
+            </div>
           </div>
         )}
 
@@ -259,6 +277,31 @@ const EditorPanel = ({ hasImage, credits, onApplyEdit, onSwitchToSkin }: EditorP
           </div>
         ))}
       </div>
+
+      {/* Style Selector */}
+      {hasImage && (
+        <div className="px-3 sm:px-4 pb-3 shrink-0">
+          <p className="text-[9px] sm:text-[10px] text-white/30 uppercase tracking-wider mb-2 font-semibold">
+            Thumbnail Style (Nische)
+          </p>
+          <div className="flex gap-1.5 overflow-x-auto pb-2 no-scrollbar">
+            {thumbnailStyles.map((style) => (
+              <button
+                key={style.id}
+                onClick={() => setSelectedStyle(style.id)}
+                className={`flex flex-col items-center gap-1.5 px-3 py-2 rounded-xl border transition-all duration-200 min-w-[70px] ${
+                  selectedStyle === style.id
+                    ? "bg-white/10 border-white/20 text-white shadow-[0_0_15px_rgba(255,255,255,0.05)]"
+                    : "bg-white/[0.02] border-white/5 text-white/40 hover:text-white/70 hover:border-white/10"
+                }`}
+              >
+                <style.icon className={`h-4 w-4 ${selectedStyle === style.id ? "text-white" : "text-white/40"}`} />
+                <span className="text-[9px] font-medium">{style.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Quick edits */}
       {hasImage && (

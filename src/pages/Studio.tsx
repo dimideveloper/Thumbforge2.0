@@ -20,6 +20,7 @@ import { NewsModal } from "@/components/studio/NewsModal";
 import { CommunityShowcase } from "@/components/studio/CommunityShowcase";
 import { OnboardingTour } from "@/components/studio/OnboardingTour";
 import { MaintenanceView } from "@/components/studio/MaintenanceView";
+import { useAdobeExpress } from "@/hooks/useAdobeExpress";
 
 const placeholderPages: Record<string, { title: string; description: string }> = {
   videos: { title: "My Videos", description: "Soon you'll see all your saved thumbnail projects and video analyses here." },
@@ -76,6 +77,7 @@ const Studio = () => {
   const [versions, setVersions] = useState<ThumbnailVersion[]>([]);
   const [activeVersionId, setActiveVersionId] = useState<string | null>(null);
   const [projectId, setProjectId] = useState<string | null>(null);
+  const { generateWithFirefly, editInAdobe } = useAdobeExpress();
 
   const addVersion = useCallback((url: string, label: string) => {
     const newVersion: ThumbnailVersion = {
@@ -259,168 +261,65 @@ const Studio = () => {
     }
   };
 
-  const handleApplyEdit = async (prompt: string, mode: string = "pro", referenceImage?: string) => {
-    if (!canvasImage) {
-      toast.error("Please load an image first");
-      return;
-    }
+  const handleApplyEdit = async (prompt: string, mode: string = "pro", referenceImage?: string, style: string = "allrounder") => {
     if (!user) return;
 
+    // Use Adobe Firefly as the main engine
     setIsCanvasLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke("edit-thumbnail", {
-        body: { imageUrl: canvasImage, prompt, mode, referenceImageUrl: referenceImage },
-      });
-
-      if (error) {
-        const ctx = (error as any)?.context;
-        const status = typeof ctx?.status === "number" ? ctx.status : undefined;
-        const ctxBody = ctx?.body;
-
-        console.error("edit-thumbnail invoke error:", {
-          message: error.message,
-          status,
-          contextBodyType: typeof ctxBody,
-          contextBody: ctxBody,
-        });
-        try {
-          console.error("edit-thumbnail invoke error (json):", JSON.stringify({ message: error.message, status, ctxBody }, null, 2));
-        } catch {
-          // ignore
-        }
-
-        const tryParseErrorBody = async (): Promise<{ message?: string; raw?: string } | null> => {
-          // supabase-js may expose the response body as a ReadableStream
-          const looksLikeStream = ctxBody && typeof ctxBody === "object" && typeof (ctxBody as any).getReader === "function";
-          if (looksLikeStream) {
-            try {
-              let raw = "";
-              try {
-                raw = await new Response(ctxBody as any).text();
-              } catch (e) {
-                console.warn("Failed to create Response from ctxBody, attempting reader approach", e);
-                const reader = (ctxBody as any).getReader();
-                const decoder = new TextDecoder();
-                let done = false;
-                while (!done) {
-                  const { value, done: streamDone } = await reader.read();
-                  if (value) raw += decoder.decode(value, { stream: true });
-                  done = streamDone;
-                }
-              }
-
-              try {
-                const parsed = JSON.parse(raw);
-                return { message: parsed?.error ?? raw, raw };
-              } catch {
-                return { message: raw, raw };
-              }
-            } catch (e) {
-              return { message: e instanceof Error ? e.message : String(e) };
-            }
-          }
-
-          if (typeof ctxBody === "string") {
-            try {
-              const parsed = JSON.parse(ctxBody);
-              return { message: parsed?.error ?? ctxBody, raw: ctxBody };
-            } catch {
-              return { message: ctxBody, raw: ctxBody };
-            }
-          }
-
-          if (ctxBody && typeof ctxBody === "object") {
-            const msg = (ctxBody as any)?.error;
-            if (typeof msg === "string") return { message: msg };
-          }
-
-          return null;
-        };
-
-        const parsed = await tryParseErrorBody();
-        if (parsed?.raw) {
-          console.error("edit-thumbnail error body (raw):", parsed.raw);
-        }
-
-        if (parsed?.message) {
-          throw new Error(parsed.message);
-        }
-
-        if (typeof ctxBody === "string") {
-          try {
-            const parsed = JSON.parse(ctxBody);
-            throw new Error(parsed?.error || `HTTP ${status ?? "?"}: ${error.message || "Edit failed"}`);
-          } catch {
-            throw new Error(`HTTP ${status ?? "?"}: ${error.message || "Edit failed"}`);
-          }
-        }
-        if (ctxBody && typeof ctxBody === "object") {
-          throw new Error((ctxBody as any)?.error || `HTTP ${status ?? "?"}: ${error.message || "Edit failed"}`);
-        }
-        throw new Error(`HTTP ${status ?? "?"}: ${error.message || "Edit failed"}`);
-      }
-      if (!data?.imageUrl) throw new Error(data?.error || "No image returned");
-
-      const creditCosts: Record<string, number> = {
-        quick: 1,
-        pro: 3,
-        enhance: 2,
-        background: 2,
-        character: 3,
-      };
-      const cost = creditCosts[mode] ?? 1;
-
-      const { error: creditError } = await supabase
-        .from("profiles")
-        .update({ credits: Math.max(0, credits - cost) })
-        .eq("user_id", user.id);
-      if (creditError) {
-        console.warn("Credit deduction failed:", creditError.message);
-      } else {
-        setCredits((prev) => Math.max(0, prev - cost));
-      }
-
-      setCanvasImage(data.imageUrl);
-      addVersion(data.imageUrl, prompt.slice(0, 30));
-      refreshCredits();
-
-      // Auto-save to Supabase
-      const savedId = await saveProject(data.imageUrl, projectTitle, projectId);
-      if (savedId && !projectId) setProjectId(savedId);
-
-      toast.success("Edit applied & saved!");
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Edit failed";
+      let resultUrl: string | null = null;
       
-      // CLIENT-SIDE FALLBACK: If the Edge Function is rate limited or fails, try Pollinations directly
-      if (errorMessage.includes("429") || errorMessage.includes("Rate Limit") || errorMessage.includes("502")) {
-        console.warn("Edge Function failed, using client-side fallback to Pollinations.ai...");
-        try {
-          const fallbackPrompt = encodeURIComponent(`Masterpiece YouTube thumbnail, ${prompt}, high quality, cinematic, 16:9, ultra-detailed`);
-          const fallbackUrl = `https://image.pollinations.ai/prompt/${fallbackPrompt}?width=1280&height=720&nologo=true&enhance=true&seed=${Math.floor(Math.random() * 1000000)}`;
-          
-          setCanvasImage(fallbackUrl);
-          addVersion(fallbackUrl, prompt.slice(0, 30) + " (Backup)");
-          refreshCredits();
-          
-          // Try to save the fallback result
-          const savedId = await saveProject(fallbackUrl, projectTitle, projectId);
-          if (savedId && !projectId) setProjectId(savedId);
-          
-          toast.success("Edit applied via Backup-System!");
-          return;
-        } catch (fallbackErr) {
-          console.error("Fallback also failed:", fallbackErr);
-        }
+      if (!canvasImage || mode === "pro" || mode === "quick") {
+        // Generation Task
+        toast.info("Opening Adobe Firefly...");
+        resultUrl = await generateWithFirefly(prompt);
+      } else {
+        // Edit Task (Background/Character/etc)
+        // For now, we can use the Adobe Editor for "Pro" edits or stick to the automated flow for quick ones
+        // But the user said "kein gemini mehr", so let's try Adobe Editor for everything or use Firefly API if possible.
+        // Since we only have the SDK, let's use the Editor for edits.
+        toast.info("Opening Adobe Express Editor...");
+        resultUrl = await editInAdobe(canvasImage);
       }
 
-      console.error("Edit error:", errorMessage);
-      toast.error(errorMessage);
-      throw err;
+      if (resultUrl) {
+        // Deduct credits (optional, but keep it for the system)
+        const creditCosts: Record<string, number> = {
+          quick: 1,
+          pro: 3,
+          enhance: 2,
+          background: 2,
+          character: 3,
+        };
+        const cost = creditCosts[mode] ?? 1;
+
+        const { error: creditError } = await supabase
+          .from("profiles")
+          .update({ credits: Math.max(0, credits - cost) })
+          .eq("user_id", user.id);
+        
+        if (!creditError) {
+          setCredits((prev) => Math.max(0, prev - cost));
+        }
+
+        setCanvasImage(resultUrl);
+        addVersion(resultUrl, prompt.slice(0, 30) || "Adobe Firefly");
+        refreshCredits();
+
+        // Auto-save to Supabase
+        const savedId = await saveProject(resultUrl, projectTitle, projectId);
+        if (savedId && !projectId) setProjectId(savedId);
+
+        toast.success("Design updated via Adobe Firefly!");
+      }
+    } catch (err) {
+      console.error("Adobe error:", err);
+      toast.error("Adobe Firefly integration failed.");
     } finally {
       setIsCanvasLoading(false);
     }
   };
+
 
   const handleSkinResult = async (url: string, label: string) => {
     setCanvasImage(url);
@@ -541,8 +440,8 @@ const Studio = () => {
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id as RightTab)}
                     className={`flex-1 flex items-center justify-center gap-1.5 py-3 text-[10px] sm:text-xs font-medium transition-all duration-200 relative rounded-t-xl ${activeTab === tab.id
-                        ? "text-white bg-white/5"
-                        : "text-white/40 hover:text-white/90 hover:bg-white/[0.02]"
+                      ? "text-white bg-white/5"
+                      : "text-white/40 hover:text-white/90 hover:bg-white/[0.02]"
                       }`}
                   >
                     <tab.icon className={`h-3.5 w-3.5 ${activeTab === tab.id ? "text-white" : "text-white/40"}`} />

@@ -25,15 +25,21 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <SiteLock>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
             <ScrollToTop />
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
-              <Route path="/dashboard" element={<Studio />} />
+              <Route 
+                path="/dashboard" 
+                element={
+                  <SiteLock>
+                    <Studio />
+                  </SiteLock>
+                } 
+              />
               <Route path="/studio" element={<Navigate to="/dashboard" replace />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
@@ -53,7 +59,6 @@ const App = () => (
               <Route path="*" element={<NotFound />} />
             </Routes>
         </BrowserRouter>
-      </SiteLock>
     </TooltipProvider>
   </QueryClientProvider>
 );
