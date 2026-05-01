@@ -40,7 +40,7 @@ const App = () => (
                   </SiteLock>
                 } 
               />
-              <Route path="/studio" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/studio" element={<Navigate to={`/dashboard${window.location.search}`} replace />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/terms" element={<TermsOfService />} />
