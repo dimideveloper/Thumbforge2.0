@@ -96,25 +96,25 @@ const Studio = () => {
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!session) {
+      if (!session && !isBypass) {
         navigate("/auth");
       } else {
-        setUser(session.user);
+        setUser(session?.user ?? null);
         setIsSessionLoading(false);
       }
     });
 
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) {
+      if (!session && !isBypass) {
         navigate("/auth");
       } else {
-        setUser(session.user);
+        setUser(session?.user ?? null);
         setIsSessionLoading(false);
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, isBypass]);
 
   useEffect(() => {
     const titles: Record<string, string> = {
@@ -264,7 +264,7 @@ const Studio = () => {
   };
 
   const handleApplyEdit = async (prompt: string, mode: string = "pro", referenceImage?: string, style: string = "allrounder") => {
-    if (!user) return;
+    if (!user && !isBypass) return;
 
     // Always use Adobe Firefly (via SDK Modal) as requested
     setIsCanvasLoading(true);
