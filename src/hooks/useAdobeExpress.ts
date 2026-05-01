@@ -29,7 +29,7 @@ export const useAdobeExpress = () => {
         });
         setCcEverywhere(instance);
         setIsInitialized(true);
-        console.log('Adobe Express SDK initialized');
+        console.log('Adobe Express SDK v4 initialized');
       } catch (error) {
         console.error('Failed to initialize Adobe Express SDK:', error);
       }
@@ -37,10 +37,9 @@ export const useAdobeExpress = () => {
 
     if (window.CCEverywhere && !isInitialized) {
       initSDK();
-    } else {
-      // Wait for script to load if not already there
+    } else if (!isInitialized) {
       const checkInterval = setInterval(() => {
-        if (window.CCEverywhere && !isInitialized) {
+        if (window.CCEverywhere) {
           initSDK();
           clearInterval(checkInterval);
         }
@@ -56,33 +55,39 @@ export const useAdobeExpress = () => {
     }
 
     return new Promise((resolve) => {
-      // In SDK v2 ist Firefly (Text-to-Image) kein QuickAction, sondern Teil des Editors.
-      // Wir öffnen daher den Editor. Der User kann dort Firefly nutzen.
-      ccEverywhere.createDesign({
-        inputParams: {
-          canvasSize: { width: 1280, height: 720 }
+      const callbacks = {
+        onCancel: () => resolve(null),
+        onError: (err: any) => {
+          console.error('Adobe Express Error:', err);
+          toast.error('Adobe Express Fehler.');
+          resolve(null);
         },
-        callbacks: {
-          onCancel: () => {
-            console.log('Adobe Express abgebrochen');
-            resolve(null);
-          },
-          onError: (err: any) => {
-            console.error('Adobe Express Fehler:', err);
-            toast.error('Adobe Express konnte nicht geladen werden.');
-            resolve(null);
-          },
-          onPublish: (publishParams: any) => {
-            const { asset } = publishParams;
-            if (asset.data instanceof Blob) {
-              const url = URL.createObjectURL(asset.data);
-              resolve(url);
-            } else {
-              resolve(asset.data);
-            }
-          },
+        onPublish: (publishParams: any) => {
+          const { asset } = publishParams;
+          if (asset.data instanceof Blob) {
+            const url = URL.createObjectURL(asset.data);
+            resolve(url);
+          } else {
+            resolve(asset.data);
+          }
         },
-      });
+      };
+
+      // v4 specialization: Use createImageFromText if available
+      if (ccEverywhere.module?.createImageFromText) {
+        ccEverywhere.module.createImageFromText({
+          promptText: prompt,
+          callbacks
+        });
+      } else {
+        // Fallback to standard editor
+        ccEverywhere.editor?.create({
+          inputParams: {
+            canvasSize: { width: 1280, height: 720 }
+          },
+          callbacks
+        });
+      }
     });
   }, [ccEverywhere]);
 
@@ -93,18 +98,16 @@ export const useAdobeExpress = () => {
     }
 
     return new Promise((resolve) => {
-      ccEverywhere.createDesign({
+      ccEverywhere.editor?.create({
         inputParams: {
           asset: {
             data: imageUrl,
-            dataType: 'url', // or 'base64'
+            dataType: 'url',
             type: 'image',
           },
         },
         callbacks: {
-          onCancel: () => {
-            resolve(null);
-          },
+          onCancel: () => resolve(null),
           onError: (err: any) => {
             console.error('Adobe Express Error:', err);
             toast.error('Adobe Express failed.');

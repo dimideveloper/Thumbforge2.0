@@ -221,8 +221,8 @@ const EditorPanel = ({ hasImage, credits, onApplyEdit, onSwitchToSkin }: EditorP
                   : "Load a thumbnail into the canvas first."}
               </p>
               <div className="flex items-center gap-1.5 opacity-30">
-                <span className="text-[10px] uppercase tracking-widest font-bold">Powered by</span>
-                <span className="text-[10px] font-bold text-red-500">Adobe Firefly</span>
+                <span className="text-[10px] uppercase tracking-widest font-bold text-white/50">Full AI Editor</span>
+                <span className="text-[10px] font-bold text-[#FF0000]">Adobe Firefly</span>
               </div>
             </div>
           </div>

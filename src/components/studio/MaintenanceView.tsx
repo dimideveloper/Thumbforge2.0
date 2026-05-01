@@ -6,7 +6,7 @@ export function MaintenanceView() {
   const [timeLeft, setTimeLeft] = useState<{ hours: number, minutes: number, seconds: number }>({ hours: 0, minutes: 0, seconds: 0 });
 
   useEffect(() => {
-    const target = new Date("2026-04-28T22:00:00+02:00");
+    const target = new Date("2026-12-31T22:00:00+02:00");
 
     const timer = setInterval(() => {
       const now = new Date();

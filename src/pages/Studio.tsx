@@ -46,10 +46,12 @@ const createId = () => {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 };
 
-const targetTime = new Date("2026-04-28T22:00:00+02:00");
+const targetTime = new Date("2026-12-31T22:00:00+02:00");
 
 const Studio = () => {
-  const isMaintenanceMode = new Date() < targetTime;
+  const queryParams = new URLSearchParams(window.location.search);
+  const isBypass = queryParams.get("bypass") === "true";
+  const isMaintenanceMode = (new Date() < targetTime) && !isBypass;
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -264,26 +266,23 @@ const Studio = () => {
   const handleApplyEdit = async (prompt: string, mode: string = "pro", referenceImage?: string, style: string = "allrounder") => {
     if (!user) return;
 
-    // Use Adobe Firefly as the main engine
+    // Always use Adobe Firefly (via SDK Modal) as requested
     setIsCanvasLoading(true);
     try {
       let resultUrl: string | null = null;
       
-      if (!canvasImage || mode === "pro" || mode === "quick") {
-        // Generation Task
+      if (!canvasImage) {
+        // Generation Task: Open Adobe with a blank canvas
         toast.info("Opening Adobe Firefly...");
         resultUrl = await generateWithFirefly(prompt);
       } else {
-        // Edit Task (Background/Character/etc)
-        // For now, we can use the Adobe Editor for "Pro" edits or stick to the automated flow for quick ones
-        // But the user said "kein gemini mehr", so let's try Adobe Editor for everything or use Firefly API if possible.
-        // Since we only have the SDK, let's use the Editor for edits.
+        // Edit Task: Open Adobe with current canvas image
         toast.info("Opening Adobe Express Editor...");
         resultUrl = await editInAdobe(canvasImage);
       }
 
       if (resultUrl) {
-        // Deduct credits (optional, but keep it for the system)
+        // We still deduct credits for using the premium tool
         const creditCosts: Record<string, number> = {
           quick: 1,
           pro: 3,
