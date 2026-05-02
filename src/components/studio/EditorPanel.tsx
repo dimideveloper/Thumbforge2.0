@@ -409,7 +409,7 @@ const EditorPanel = ({ hasImage, credits, onApplyEdit, onSwitchToSkin }: EditorP
         open={toolsOpen}
         onClose={() => setToolsOpen(false)}
         hasImage={hasImage}
-        onInsertMe={() => onSwitchToSkin?.()}
+        onOpenAvatarStudio={() => onSwitchToSkin?.()}
         onReshoot={async (prompt) => addPromptToDraft(prompt)}
       />
     </div>

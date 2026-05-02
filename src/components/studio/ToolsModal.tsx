@@ -9,7 +9,7 @@ type CreativityLevel = "polish" | "balanced" | "remix";
 interface ToolsModalProps {
   open: boolean;
   onClose: () => void;
-  onInsertMe: () => void;
+  onOpenAvatarStudio: () => void;
   hasImage: boolean;
   onReshoot: (prompt: string) => Promise<void>;
 }
@@ -64,7 +64,7 @@ const lightingPresets = [
   { id: "silhouette", label: "Silhouette", desc: "Dramatic backlight effect", icon: User, prompt: "Apply Silhouette lighting. Strong backlight, dark subject outline, dramatic sunset or bright background, minimalist and artistic." },
 ];
 
-const ToolsModal = ({ open, onClose, onInsertMe, hasImage, onReshoot }: ToolsModalProps) => {
+const ToolsModal = ({ open, onClose, onOpenAvatarStudio, hasImage, onReshoot }: ToolsModalProps) => {
   const [activeTool, setActiveTool] = useState<"list" | "reshoot" | "lighting">("list");
   const [creativity, setCreativity] = useState<CreativityLevel>("balanced");
   const [selectedLighting, setSelectedLighting] = useState("golden");
@@ -81,9 +81,9 @@ const ToolsModal = ({ open, onClose, onInsertMe, hasImage, onReshoot }: ToolsMod
     onClose();
   };
 
-  const handleInsertMe = () => {
+  const handleOpenAvatarStudio = () => {
     handleClose();
-    onInsertMe();
+    onOpenAvatarStudio();
   };
 
   const handleStartReshoot = () => {
@@ -124,17 +124,17 @@ const ToolsModal = ({ open, onClose, onInsertMe, hasImage, onReshoot }: ToolsMod
           </div>
 
           <div className="px-3 pb-6 space-y-1.5 flex-1 overflow-y-auto">
-            {/* Insert Me */}
+            {/* Avatar Studio */}
             <button
-              onClick={handleInsertMe}
+              onClick={handleOpenAvatarStudio}
               className="w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl hover:bg-white/5 transition-all duration-200 text-left group"
             >
               <div className="h-10 w-10 border border-white/10 rounded-full flex items-center justify-center shrink-0 bg-gradient-to-b from-white/10 to-transparent group-hover:border-white/20 transition-colors">
                 <UserCircle className="h-5 w-5 text-white/80" />
               </div>
               <div className="flex-1">
-                <span className="text-sm font-medium text-white/90">Insert Me</span>
-                <span className="block text-xs text-white/40 mt-0.5 font-light">Remove background</span>
+                <span className="text-sm font-medium text-white/90">Avatar Studio</span>
+                <span className="block text-xs text-white/40 mt-0.5 font-light">AI Persona Integration</span>
               </div>
               <ChevronLeft className="h-4 w-4 text-white/30 rotate-180 opacity-0 group-hover:opacity-100 transition-opacity transform group-hover:translate-x-1" />
             </button>

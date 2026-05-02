@@ -32,7 +32,7 @@ You don't always need to type everything. You can use our built-in style buttons
     category: "Thumbnail Generation",
     readTime: "3 min read",
     content: `
-The Skin Replacer is one of ThumbForge's most powerful tools, allowing you to insert your own gaming skin (like Minecraft or Roblox) into any thumbnail.
+The Skin Replacer is one of ThumbForge's most powerful tools, allowing you to integrate your own gaming skin (like Minecraft or Roblox) into any thumbnail.
 
 ### Step 1: Upload your skin file
 In the Studio, go to the Skin Replacer panel. Upload your raw skin file (e.g., standard 64x64 Minecraft PNG format).
