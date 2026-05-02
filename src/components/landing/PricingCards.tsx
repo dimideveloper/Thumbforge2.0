@@ -15,7 +15,7 @@ const plans = [
     audience: "For casual creators",
     features: ["Basic templates", "720p export", "Watermark"],
     highlighted: false,
-    checkoutUrl: null,
+    priceId: null,
   },
   {
     name: "Starter",
@@ -26,7 +26,7 @@ const plans = [
     audience: "For growing channels",
     features: ["All templates", "1080p export", "No watermark"],
     highlighted: false,
-    checkoutUrl: "https://whop.com/checkout/plan_lj2lAPEbLwxH5",
+    priceId: "pri_01kqm62km3gyytw64f5m185xhm",
   },
   {
     name: "Pro",
@@ -37,7 +37,7 @@ const plans = [
     audience: "For serious creators",
     features: ["Everything in Starter", "4K export", "Face Insert AI"],
     highlighted: true,
-    checkoutUrl: "https://whop.com/checkout/plan_C53jPL5MeUWxg",
+    priceId: "pri_01kqm62kzj17cxbbs6359r5616",
   },
   {
     name: "Premium",
@@ -48,9 +48,10 @@ const plans = [
     audience: "For heavy creators",
     features: ["Everything in Pro", "API access", "Custom branding"],
     highlighted: false,
-    checkoutUrl: "https://whop.com/checkout/plan_OAZXDwdWr2Xs9",
+    priceId: "pri_01kqm62man7pe4rcf6z42ypr54",
   },
 ];
+
 
 const PricingCards = () => {
   const navigate = useNavigate();
@@ -124,12 +125,29 @@ const PricingCards = () => {
             </ul>
             <button
               onClick={() => {
-                if (plan.checkoutUrl) {
-                  let url = plan.checkoutUrl;
-                  if (user?.email) {
-                    url += `${url.includes('?') ? '&' : '?'}email=${encodeURIComponent(user.email)}`;
+                if (plan.priceId) {
+                  // @ts-ignore
+                  if (window.Paddle) {
+                    // @ts-ignore
+                    window.Paddle.Checkout.open({
+                      settings: {
+                        displayMode: "overlay",
+                        theme: "dark",
+                        locale: "en",
+                      },
+                      items: [
+                        {
+                          priceId: plan.priceId,
+                          quantity: 1,
+                        },
+                      ],
+                      customer: user?.email ? {
+                        email: user.email,
+                      } : undefined,
+                    });
+                  } else {
+                    console.error("Paddle not loaded");
                   }
-                  window.open(url, '_blank');
                 } else if (isLoggedIn) {
                   navigate("/dashboard");
                 } else {
@@ -139,8 +157,9 @@ const PricingCards = () => {
               className={plan.highlighted ? "btn-shine w-full" : "h-12 w-full rounded-xl font-medium transition-all active:scale-95 bg-white/5 text-white hover:bg-white/10 border border-white/10"}
             >
               <span className="flex-1 text-center">
-                {isLoggedIn && !plan.checkoutUrl ? "Go to Dashboard" : "Get Started"}
+                {isLoggedIn && !plan.priceId ? "Go to Dashboard" : "Get Started"}
               </span>
+
               {plan.highlighted && (
                 <svg className="btn-icon" viewBox="0 0 24 24" fill="currentColor">
                   <path

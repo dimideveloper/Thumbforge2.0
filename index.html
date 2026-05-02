@@ -24,7 +24,15 @@
     <meta name="twitter:description" content="Create viral YouTube thumbnails with AI." />
     <meta name="referrer" content="no-referrer-when-downgrade" />
 
-
+    <!-- Paddle Billing SDK -->
+    <script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
+    <script type="text/javascript">
+      // Initialize Paddle with your Client-Side Token
+      // You can find this in the Paddle Dashboard > Developer Tools > Authentication
+      Paddle.Initialize({ 
+        token: "YOUR_PADDLE_CLIENT_TOKEN" // REPLACE THIS with your actual Client Token
+      });
+    </script>
   </head>
 
   <body>
