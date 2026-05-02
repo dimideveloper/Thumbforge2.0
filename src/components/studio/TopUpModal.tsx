@@ -17,7 +17,7 @@ const plans = [
     estimate: "Up to 50 thumbnails",
     features: ["All templates", "1080p export", "No watermark"],
     highlighted: false,
-    checkoutUrl: "https://whop.com/checkout/plan_lj2lAPEbLwxH5",
+    priceId: "pri_01kqm62km3gyytw64f5m185xhm",
   },
   {
     name: "Pro",
@@ -25,9 +25,9 @@ const plans = [
     period: "/mo",
     credits: "200 credits",
     estimate: "Up to 200 thumbnails",
-    features: ["Everything in Starter", "4K export", "Face Insert AI"],
+    features: ["Everything in Starter", "4K export", "Persona Studio AI"],
     highlighted: true,
-    checkoutUrl: "https://whop.com/checkout/plan_C53jPL5MeUWxg",
+    priceId: "pri_01kqm62kzj17cxbbs6359r5616",
   },
   {
     name: "Premium",
@@ -37,9 +37,10 @@ const plans = [
     estimate: "Unlimited thumbnails",
     features: ["Everything in Pro", "API access", "Custom branding"],
     highlighted: false,
-    checkoutUrl: "https://whop.com/checkout/plan_OAZXDwdWr2Xs9",
+    priceId: "pri_01kqm62man7pe4rcf6z42ypr54",
   },
 ];
+
 
 const TopUpModal = ({ open, onOpenChange }: TopUpModalProps) => {
   const [email, setEmail] = useState<string | null>(null);
@@ -100,11 +101,28 @@ const TopUpModal = ({ open, onOpenChange }: TopUpModalProps) => {
                 
                 <button
                   onClick={() => {
-                    let url = plan.checkoutUrl;
-                    if (email) {
-                      url += `${url.includes('?') ? '&' : '?'}email=${encodeURIComponent(email)}`;
+                    // @ts-ignore
+                    if (window.Paddle) {
+                      // @ts-ignore
+                      window.Paddle.Checkout.open({
+                        settings: {
+                          displayMode: "overlay",
+                          theme: "dark",
+                          locale: "en",
+                        },
+                        items: [
+                          {
+                            priceId: plan.priceId,
+                            quantity: 1,
+                          },
+                        ],
+                        customer: email ? {
+                          email: email,
+                        } : undefined,
+                      });
+                    } else {
+                      console.error("Paddle not loaded");
                     }
-                    window.open(url, '_blank');
                   }}
                   className={`mt-8 h-12 w-full rounded-full font-medium transition-transform active:scale-95 ${
                     plan.highlighted
@@ -114,6 +132,7 @@ const TopUpModal = ({ open, onOpenChange }: TopUpModalProps) => {
                 >
                   Choose {plan.name}
                 </button>
+
               </div>
             ))}
           </div>

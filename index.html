@@ -1,42 +1,47 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- Favicon – ⚡ emoji (no image file needed) -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>" />
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- Primary Meta -->
-    <title>ThumbForge – AI Thumbnail Editor</title>
-    <meta name="description" content="Create viral YouTube thumbnails with AI. Edit backgrounds, enhance characters, and generate stunning thumbnails in seconds." />
-    <meta name="author" content="ThumbForge" />
+  <!-- Favicon – ⚡ emoji (no image file needed) -->
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>" />
 
-    <!-- Open Graph (Discord, Slack, etc.) -->
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content="ThumbForge – AI Thumbnail Editor" />
-    <meta property="og:description" content="Create viral YouTube thumbnails with AI. Edit backgrounds, enhance characters, and generate stunning thumbnails in seconds." />
-    <meta property="og:url" content="https://thumbforge.vercel.app" />
+  <!-- Primary Meta -->
+  <title>ThumbForge – AI Thumbnail Editor</title>
+  <meta name="description"
+    content="Create viral YouTube thumbnails with AI. Edit backgrounds, enhance characters, and generate stunning thumbnails in seconds." />
+  <meta name="author" content="ThumbForge" />
 
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="ThumbForge – AI Thumbnail Editor" />
-    <meta name="twitter:description" content="Create viral YouTube thumbnails with AI." />
-    <meta name="referrer" content="no-referrer-when-downgrade" />
+  <!-- Open Graph (Discord, Slack, etc.) -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="ThumbForge – AI Thumbnail Editor" />
+  <meta property="og:description"
+    content="Create viral YouTube thumbnails with AI. Edit backgrounds, enhance characters, and generate stunning thumbnails in seconds." />
+  <meta property="og:url" content="https://thumbforge.vercel.app" />
 
-    <!-- Paddle Billing SDK -->
-    <script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
-    <script type="text/javascript">
-      // Initialize Paddle with your Client-Side Token
-      // You can find this in the Paddle Dashboard > Developer Tools > Authentication
-      Paddle.Initialize({ 
-        token: "YOUR_PADDLE_CLIENT_TOKEN" // REPLACE THIS with your actual Client Token
-      });
-    </script>
-  </head>
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="ThumbForge – AI Thumbnail Editor" />
+  <meta name="twitter:description" content="Create viral YouTube thumbnails with AI." />
+  <meta name="referrer" content="no-referrer-when-downgrade" />
 
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+  <!-- Paddle Billing SDK -->
+  <script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
+  <script type="text/javascript">
+    // Initialize Paddle with your Client-Side Token
+    // You can find this in the Paddle Dashboard > Developer Tools > Authentication
+    Paddle.Initialize({
+      token: "live_c7cf8cc1916910d490614fb3735" // REPLACE THIS with your actual Client Token
+    });
+  </script>
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
 </html>

@@ -8,8 +8,8 @@ const faqs = [
     answer: "Zero. ThumbForge is designed specifically for gamers and creators who don't want to learn Photoshop. If you can type a prompt, you can use our tool to create professional thumbnails."
   },
   {
-    question: "How does the AI Face Insert work?",
-    answer: "You upload a photo of your face, and our AI automatically extracts it, adjusts the lighting, and blends it perfectly into the thumbnail environment. It matches the art style automatically."
+    question: "How does the AI Character Blending work?",
+    answer: "You upload a photo of your character or persona, and our AI automatically extracts it, adjusts the lighting, and blends it perfectly into the thumbnail environment. It matches the art style automatically."
   },
   {
     question: "Can I use the thumbnails for commercial purposes?",

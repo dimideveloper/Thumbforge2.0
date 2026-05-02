@@ -18,7 +18,7 @@ Writing a good prompt is the key to getting exactly what you want from ThumbForg
 Instead of "make it cool", say "make it look epic with neon blue and purple lighting, futuristic city background."
 
 ### 2. Specify the emotion
-The AI relies heavily on emotional keywords. Words like "shocked", "angry", "insane reaction", or "focused" will drastically change how the face insert or character is rendered.
+The AI relies heavily on emotional keywords. Words like "shocked", "angry", "insane reaction", or "focused" will drastically change how the character is rendered.
 
 ### 3. Mention the game context
 Always mention the game if you want the environment to match. E.g., "Minecraft survival realistic shaders" or "Roblox Tycoon colorful and bright".
@@ -132,7 +132,7 @@ You can request account deletion at any time from your Account Settings page. Sc
 ThumbForge operates on a credit system for AI generations.
 
 - **1 Credit** = 1 Standard Generation or 1 Quick Edit.
-- **2 Credits** = 1 Face Insert or Skin Replacement.
+- **2 Credits** = 1 Persona Studio or Skin Replacement.
 - **5 Credits** = 1 4K Upscale.
 
 Free tier users receive 10 credits per month that do not roll over. Paid subscribers receive their allotment monthly, and any unused paid credits roll over up to a maximum of 3x your monthly allowance.
@@ -143,7 +143,7 @@ Free tier users receive 10 credits per month that do not roll over. Paid subscri
     category: "Billing & Credits",
     readTime: "1 min read",
     content: `
-You can upgrade to a Pro plan at any time to instantly receive more credits and unlock premium tools like Face Insert AI and watermark removal.
+You can upgrade to a Pro plan at any time to instantly receive more credits and unlock premium tools like Persona Studio AI and watermark removal.
 
 Visit the [Pricing](#pricing) section or your Billing dashboard, select a plan, and complete checkout. Your account will automatically upgrade within seconds.
     `

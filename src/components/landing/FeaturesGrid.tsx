@@ -9,13 +9,13 @@ const features = [
   },
   {
     icon: UserCircle,
-    title: "AI Face Insert",
-    description: "Drop your face into any gaming scene. Perfect lighting and blending — every single time.",
+    title: "Persona Integration",
+    description: "Drop your persona into any gaming scene. Perfect lighting and blending — every single time.",
   },
   {
     icon: Smile,
     title: "Expression AI",
-    description: "Generate hyper-realistic shocked, excited, or angry faces that drive clicks. Proven to boost CTR.",
+    description: "Generate hyper-realistic expressive reactions that drive clicks. Proven to boost CTR.",
   },
 ];
 

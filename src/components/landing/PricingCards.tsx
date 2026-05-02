@@ -35,7 +35,7 @@ const plans = [
     credits: "200 credits/mo",
     estimate: "Up to 200 thumbnails",
     audience: "For serious creators",
-    features: ["Everything in Starter", "4K export", "Face Insert AI"],
+    features: ["Everything in Starter", "4K export", "Persona Studio AI"],
     highlighted: true,
     priceId: "pri_01kqm62kzj17cxbbs6359r5616",
   },

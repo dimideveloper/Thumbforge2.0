@@ -4,7 +4,7 @@ import { Check, X } from "lucide-react";
 const rows = [
   { feature: "AI-Powered Thumbnails", us: true, them: false },
   { feature: "Game-Specific Templates", us: true, them: false },
-  { feature: "Expression AI (Shocked faces)", us: true, them: false },
+  { feature: "Expression AI (Expressive Reactions)", us: true, them: false },
   { feature: "Psychology-Based Titles", us: true, them: false },
   { feature: "No Photoshop Required", us: true, them: false },
   { feature: "Optimized for Gaming CTR", us: true, them: false },
