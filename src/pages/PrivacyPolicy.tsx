@@ -12,7 +12,7 @@ const PrivacyPolicy = () => {
           
           <h2 className="text-2xl font-medium text-white mt-12 mb-4">1. Data Controller</h2>
           <p>
-            The data controller responsible for your personal information is ThumbForge. We are committed to protecting your privacy and ensuring that your personal data is handled in a safe and responsible manner in accordance with the General Data Protection Regulation (GDPR).
+            The data controller responsible for your personal information is MISOTEC. We are committed to protecting your privacy and ensuring that your personal data is handled in a safe and responsible manner in accordance with the General Data Protection Regulation (GDPR).
           </p>
 
           <h2 className="text-2xl font-medium text-white mt-12 mb-4">2. Information We Collect</h2>
