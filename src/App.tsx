@@ -14,6 +14,9 @@ import HelpCenter from "./pages/HelpCenter.tsx";
 import Article from "./pages/Article.tsx";
 import TicketDetail from "./pages/TicketDetail.tsx";
 import AdminDashboard from "./pages/AdminDashboard.tsx";
+import RefundPolicy from "./pages/RefundPolicy.tsx";
+import Pricing from "./pages/Pricing.tsx";
+import Impressum from "./pages/Impressum.tsx";
 import ScrollToTop from "./components/ScrollToTop.tsx";
 import { AdminGuard } from "./components/AdminGuard.tsx";
 
@@ -44,6 +47,9 @@ const App = () => (
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/terms" element={<TermsOfService />} />
+              <Route path="/refund" element={<RefundPolicy />} />
+              <Route path="/pricing" element={<Pricing />} />
+              <Route path="/impressum" element={<Impressum />} />
               <Route path="/help" element={<HelpCenter />} />
               <Route path="/help/:slug" element={<Article />} />
               <Route path="/support/tickets/:id" element={<TicketDetail />} />

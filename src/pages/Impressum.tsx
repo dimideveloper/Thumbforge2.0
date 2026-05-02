@@ -10,19 +10,21 @@ const Impressum = () => {
         <div className="prose prose-invert max-w-none text-white/70 font-light space-y-6">
           <p>Angaben gemäß § 5 TMG</p>
           
-          <h2 className="text-2xl font-medium text-white mt-12 mb-4">Kontakt</h2>
-          <p>
-            [DEIN NAME / FIRMENNAME]<br />
-            [DEINE STRASSE / NR]<br />
-            [DEINE PLZ / STADT]<br />
-            Deutschland
-          </p>
+          <div className="bg-white/5 border border-white/10 rounded-xl p-8 my-8 backdrop-blur-sm">
+            <h2 className="text-2xl font-medium text-white mb-4">Kontakt</h2>
+            <p className="text-white/80 leading-relaxed">
+              [DEIN VOLLSTÄNDIGER NAME]<br />
+              [DEINE STRASSE / NR]<br />
+              [DEINE PLZ / STADT]<br />
+              Deutschland
+            </p>
 
-          <h2 className="text-2xl font-medium text-white mt-12 mb-4">Kontakt</h2>
-          <p>
-            E-Mail: [DEINE E-MAIL ADRESSE]<br />
-            Discord: [DEIN DISCORD LINK/TAG]
-          </p>
+            <h2 className="text-2xl font-medium text-white mt-8 mb-4">Kontaktmöglichkeiten</h2>
+            <p className="text-white/80 leading-relaxed">
+              E-Mail: [DEINE E-MAIL ADRESSE]<br />
+              Discord: [DEIN DISCORD LINK/TAG]
+            </p>
+          </div>
 
           <h2 className="text-2xl font-medium text-white mt-12 mb-4">Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV</h2>
           <p>

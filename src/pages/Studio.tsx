@@ -19,8 +19,8 @@ import { toast } from "sonner";
 import { NewsModal } from "@/components/studio/NewsModal";
 import { CommunityShowcase } from "@/components/studio/CommunityShowcase";
 import { OnboardingTour } from "@/components/studio/OnboardingTour";
-import { MaintenanceView } from "@/components/studio/MaintenanceView";
-import { useAdobeExpress } from "@/hooks/useAdobeExpress";
+
+import { useMagnific } from "@/hooks/useMagnific";
 
 const placeholderPages: Record<string, { title: string; description: string }> = {
   videos: { title: "My Videos", description: "Soon you'll see all your saved thumbnail projects and video analyses here." },
@@ -46,12 +46,12 @@ const createId = () => {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 };
 
-const targetTime = new Date("2026-12-31T22:00:00+02:00");
+
 
 const Studio = () => {
   const queryParams = new URLSearchParams(window.location.search);
   const isBypass = queryParams.get("bypass") === "true";
-  const isMaintenanceMode = (new Date() < targetTime) && !isBypass;
+  const isMaintenanceMode = false; // Maintenance mode disabled by user request
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -79,7 +79,7 @@ const Studio = () => {
   const [versions, setVersions] = useState<ThumbnailVersion[]>([]);
   const [activeVersionId, setActiveVersionId] = useState<string | null>(null);
   const [projectId, setProjectId] = useState<string | null>(null);
-  const { generateWithFirefly, editInAdobe } = useAdobeExpress();
+  const { generateWithMagnific, editWithMagnific } = useMagnific();
 
   const addVersion = useCallback((url: string, label: string) => {
     const newVersion: ThumbnailVersion = {
@@ -266,31 +266,24 @@ const Studio = () => {
   const handleApplyEdit = async (prompt: string, mode: string = "pro", referenceImage?: string, style: string = "allrounder") => {
     if (!user && !isBypass) return;
 
-    // Always use Adobe Firefly (via SDK Modal) as requested
+    // Always use Magnific AI as requested
     setIsCanvasLoading(true);
     try {
       let resultUrl: string | null = null;
       
       if (!canvasImage) {
-        // Generation Task: Open Adobe with a blank canvas
-        toast.info("Opening Adobe Firefly...");
-        resultUrl = await generateWithFirefly(prompt);
+        // Generation Task
+        toast.info("Magnific is generating your thumbnail...");
+        resultUrl = await generateWithMagnific(prompt);
       } else {
-        // Edit Task: Open Adobe with current canvas image
-        toast.info("Opening Adobe Express Editor...");
-        resultUrl = await editInAdobe(canvasImage);
+        // Edit Task: Enhance/Upscale with prompt
+        toast.info("Magnific is enhancing your design...");
+        resultUrl = await editWithMagnific(canvasImage, prompt);
       }
 
       if (resultUrl) {
-        // We still deduct credits for using the premium tool
-        const creditCosts: Record<string, number> = {
-          quick: 1,
-          pro: 3,
-          enhance: 2,
-          background: 2,
-          character: 3,
-        };
-        const cost = creditCosts[mode] ?? 1;
+        // Deduct credits (3 for pro/magnific tasks)
+        const cost = 3; 
 
         const { error: creditError } = await supabase
           .from("profiles")
@@ -302,18 +295,18 @@ const Studio = () => {
         }
 
         setCanvasImage(resultUrl);
-        addVersion(resultUrl, prompt.slice(0, 30) || "Adobe Firefly");
+        addVersion(resultUrl, prompt.slice(0, 30) || "Magnific AI");
         refreshCredits();
 
         // Auto-save to Supabase
         const savedId = await saveProject(resultUrl, projectTitle, projectId);
         if (savedId && !projectId) setProjectId(savedId);
 
-        toast.success("Design updated via Adobe Firefly!");
+        toast.success("Design updated via Magnific AI!");
       }
     } catch (err) {
-      console.error("Adobe error:", err);
-      toast.error("Adobe Firefly integration failed.");
+      console.error("Magnific error:", err);
+      toast.error("Magnific AI integration failed.");
     } finally {
       setIsCanvasLoading(false);
     }
@@ -348,9 +341,7 @@ const Studio = () => {
       </div>
     );
   }
-  if (isMaintenanceMode && !isAdmin) {
-    return <MaintenanceView />;
-  }
+
 
   return (
     <div className="h-screen flex flex-col lg:flex-row overflow-hidden bg-[#0a0a0a] font-light text-foreground selection:bg-white/20 relative">
